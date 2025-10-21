@@ -1,9 +1,169 @@
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
 export declare class InscripcionesService {
-    create(createInscripcioneDto: CreateInscripcioneDto): string;
-    findAll(): string;
-    findOne(id: number): string;
-    update(id: number, updateInscripcioneDto: UpdateInscripcioneDto): string;
-    remove(id: number): string;
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    create(dto: CreateInscripcioneDto): Promise<{
+        participante: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+        };
+    } & {
+        id: string;
+        origen: string | null;
+        estado: string | null;
+        dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        participanteId: string;
+    }>;
+    findAll(): Promise<({
+        participante: {
+            usuario: {
+                id: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                nombre: string;
+                email: string;
+                passwordHash: string;
+            };
+        } & {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+        };
+    } & {
+        id: string;
+        origen: string | null;
+        estado: string | null;
+        dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        participanteId: string;
+    })[]>;
+    findOne(id: string): Promise<{
+        participante: {
+            usuario: {
+                id: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                nombre: string;
+                email: string;
+                passwordHash: string;
+            };
+        } & {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+        };
+    } & {
+        id: string;
+        origen: string | null;
+        estado: string | null;
+        dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        participanteId: string;
+    }>;
+    update(id: string, dto: UpdateInscripcioneDto): Promise<{
+        participante: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+        };
+    } & {
+        id: string;
+        origen: string | null;
+        estado: string | null;
+        dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        participanteId: string;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        origen: string | null;
+        estado: string | null;
+        dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        participanteId: string;
+    }>;
 }

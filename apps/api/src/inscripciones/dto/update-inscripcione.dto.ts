@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateInscripcioneDto } from './create-inscripcione.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
-export class UpdateInscripcioneDto extends PartialType(CreateInscripcioneDto) {}
+export class UpdateInscripcioneDto {
+  @ApiPropertyOptional({ enum: ['INSCRITO', 'CANCELADO', 'FINALIZADO'] })
+  @IsOptional()
+  @IsString()
+  @IsIn(['INSCRITO', 'CANCELADO', 'FINALIZADO'])
+  estado?: string;
+}

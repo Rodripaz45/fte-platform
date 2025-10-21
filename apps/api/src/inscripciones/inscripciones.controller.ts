@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
 import { InscripcionesService } from './inscripciones.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
@@ -8,8 +8,8 @@ export class InscripcionesController {
   constructor(private readonly inscripcionesService: InscripcionesService) {}
 
   @Post()
-  create(@Body() createInscripcioneDto: CreateInscripcioneDto) {
-    return this.inscripcionesService.create(createInscripcioneDto);
+  create(@Body() dto: CreateInscripcioneDto) {
+    return this.inscripcionesService.create(dto);
   }
 
   @Get()
@@ -19,16 +19,16 @@ export class InscripcionesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.inscripcionesService.findOne(+id);
+    return this.inscripcionesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInscripcioneDto: UpdateInscripcioneDto) {
-    return this.inscripcionesService.update(+id, updateInscripcioneDto);
+  update(@Param('id') id: string, @Body() dto: UpdateInscripcioneDto) {
+    return this.inscripcionesService.update(id, dto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.inscripcionesService.remove(+id);
+    return this.inscripcionesService.remove(id);
   }
 }

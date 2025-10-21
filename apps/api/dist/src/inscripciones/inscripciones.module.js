@@ -10,13 +10,14 @@ exports.InscripcionesModule = void 0;
 const common_1 = require("@nestjs/common");
 const inscripciones_service_1 = require("./inscripciones.service");
 const inscripciones_controller_1 = require("./inscripciones.controller");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let InscripcionesModule = class InscripcionesModule {
 };
 exports.InscripcionesModule = InscripcionesModule;
 exports.InscripcionesModule = InscripcionesModule = __decorate([
     (0, common_1.Module)({
         controllers: [inscripciones_controller_1.InscripcionesController],
-        providers: [inscripciones_service_1.InscripcionesService],
+        providers: [inscripciones_service_1.InscripcionesService, prisma_service_1.PrismaService],
     })
 ], InscripcionesModule);
 //# sourceMappingURL=inscripciones.module.js.map

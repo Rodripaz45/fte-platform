@@ -22,20 +22,20 @@ let InscripcionesController = class InscripcionesController {
     constructor(inscripcionesService) {
         this.inscripcionesService = inscripcionesService;
     }
-    create(createInscripcioneDto) {
-        return this.inscripcionesService.create(createInscripcioneDto);
+    create(dto) {
+        return this.inscripcionesService.create(dto);
     }
     findAll() {
         return this.inscripcionesService.findAll();
     }
     findOne(id) {
-        return this.inscripcionesService.findOne(+id);
+        return this.inscripcionesService.findOne(id);
     }
-    update(id, updateInscripcioneDto) {
-        return this.inscripcionesService.update(+id, updateInscripcioneDto);
+    update(id, dto) {
+        return this.inscripcionesService.update(id, dto);
     }
     remove(id) {
-        return this.inscripcionesService.remove(+id);
+        return this.inscripcionesService.remove(id);
     }
 };
 exports.InscripcionesController = InscripcionesController;

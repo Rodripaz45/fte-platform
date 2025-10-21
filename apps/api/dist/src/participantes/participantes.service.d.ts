@@ -7,101 +7,101 @@ export declare class ParticipantesService {
     create(dto: CreateParticipanteDto): Promise<{
         usuario: {
             id: string;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            nombre: string;
             email: string;
+            nombre: string;
             passwordHash: string;
             estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
         };
     } & {
         id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        usuarioId: string;
         documento: string | null;
         telefono: string | null;
         genero: string | null;
         fechaNac: Date | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        usuarioId: string;
     }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<({
         usuario: {
             id: string;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            nombre: string;
             email: string;
+            nombre: string;
             passwordHash: string;
             estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
         };
     } & {
         id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        usuarioId: string;
         documento: string | null;
         telefono: string | null;
         genero: string | null;
         fechaNac: Date | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        usuarioId: string;
     })[]>;
     findOne(id: string): Promise<{
-        inscripciones: {
+        usuario: {
             id: string;
+            email: string;
+            nombre: string;
+            passwordHash: string;
+            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
+        };
+        inscripciones: {
+            id: string;
             estado: string | null;
-            tallerId: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
             participanteId: string;
+            tallerId: string;
             origen: string | null;
             dedupeHash: string | null;
         }[];
-        usuario: {
-            id: string;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            nombre: string;
-            email: string;
-            passwordHash: string;
-            estado: string | null;
-        };
     } & {
         id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        usuarioId: string;
         documento: string | null;
         telefono: string | null;
         genero: string | null;
         fechaNac: Date | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        usuarioId: string;
     }>;
     update(id: string, dto: UpdateParticipanteDto): Promise<{
         usuario: {
             id: string;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            nombre: string;
             email: string;
+            nombre: string;
             passwordHash: string;
             estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
         };
     } & {
         id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        usuarioId: string;
         documento: string | null;
         telefono: string | null;
         genero: string | null;
         fechaNac: Date | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        usuarioId: string;
     }>;
     remove(id: string): Promise<{
         id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        usuarioId: string;
         documento: string | null;
         telefono: string | null;
         genero: string | null;
         fechaNac: Date | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        usuarioId: string;
     }>;
 }
