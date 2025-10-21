@@ -1,190 +1,153 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-//
-// ===================== MODELOS BASE =====================
-//
-
 model Usuario {
-  id           String        @id @default(uuid())
-  nombre       String
-  email        String        @unique
-  passwordHash String        @map("password_hash")
-  estado       String?
-  creadoEn     DateTime      @default(now()) @map("creado_en")
-  actualizadoEn DateTime     @updatedAt      @map("actualizado_en")
-
-  // Relaciones
-  roles        UsuarioRol[]
-  participante Participante?
-  sesiones     Sesion[]      @relation("UsuarioResponsableSesiones")
+  id             String         @id @default(uuid())
+  nombre         String
+  email          String         @unique
+  passwordHash   String         @map("password_hash")
+  estado         String?
+  creadoEn       DateTime       @default(now()) @map("creado_en")
+  actualizadoEn  DateTime       @updatedAt @map("actualizado_en")
   notificaciones Notificacion[]
+  participante   Participante?
+  sesiones       Sesion[]       @relation("UsuarioResponsableSesiones")
+  roles          UsuarioRol[]
 }
 
 model Rol {
-  id     Int          @id @default(autoincrement())
-  nombre String       @unique
-  // Relaciones
+  id       Int          @id @default(autoincrement())
+  nombre   String       @unique
   usuarios UsuarioRol[]
 }
 
 model UsuarioRol {
   usuarioId String
   rolId     Int
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  rol     Rol     @relation(fields: [rolId], references: [id])
+  rol       Rol     @relation(fields: [rolId], references: [id])
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
 
   @@id([usuarioId, rolId])
   @@map("usuario_rol")
 }
 
-//
-// ===================== PARTICIPANTES / PERFIL =====================
-//
-
 model Participante {
-  id         String   @id @default(uuid())
-  usuarioId  String   @unique @map("usuario_id")
-  documento  String?
-  telefono   String?
-  genero     String?
-  fechaNac   DateTime? @map("fecha_nac")
-  creadoEn   DateTime  @default(now()) @map("creado_en")
-  actualizadoEn DateTime @updatedAt    @map("actualizado_en")
-
-  usuario       Usuario     @relation(fields: [usuarioId], references: [id])
-  inscripciones Inscripcion[]
+  id            String              @id @default(uuid())
+  usuarioId     String              @unique @map("usuario_id")
+  documento     String?
+  telefono      String?
+  genero        String?
+  fechaNac      DateTime?           @map("fecha_nac")
+  creadoEn      DateTime            @default(now()) @map("creado_en")
+  actualizadoEn DateTime            @updatedAt @map("actualizado_en")
   asistencias   Asistencia[]
-  feedbacks     Retroalimentacion[]
   cvs           Cv[]
+  inscripciones Inscripcion[]
+  usuario       Usuario             @relation(fields: [usuarioId], references: [id])
   perfiles      PerfilCompetencia[]
+  feedbacks     Retroalimentacion[]
 
   @@map("participantes")
 }
 
-//
-// ===================== TALLERES / SESIONES =====================
-//
-
 model Taller {
-  id         String   @id @default(uuid())
-  tema       String
-  modalidad  String
-  cupos      Int?
-  fechaInicio DateTime? @map("fecha_inicio")
-  fechaFin    DateTime? @map("fecha_fin")
-  sede       String?
-  estado     String?
-  creadoEn   DateTime  @default(now()) @map("creado_en")
-  actualizadoEn DateTime @updatedAt    @map("actualizado_en")
-
-  sesiones       Sesion[]
-  inscripciones  Inscripcion[]
-  feedbacks      Retroalimentacion[]
+  id            String              @id @default(uuid())
+  tema          String
+  modalidad     String
+  cupos         Int?
+  fechaInicio   DateTime?           @map("fecha_inicio")
+  fechaFin      DateTime?           @map("fecha_fin")
+  sede          String?
+  estado        String?
+  creadoEn      DateTime            @default(now()) @map("creado_en")
+  actualizadoEn DateTime            @updatedAt @map("actualizado_en")
+  inscripciones Inscripcion[]
+  feedbacks     Retroalimentacion[]
+  sesiones      Sesion[]
 
   @@map("talleres")
 }
 
 model Sesion {
-  id           String   @id @default(uuid())
-  tallerId     String   @map("taller_id")
-  fecha        DateTime
-  horaInicio   DateTime? @map("hora_inicio")
-  horaFin      DateTime? @map("hora_fin")
-  responsableId String?  @map("responsable_id")
-  creadoEn     DateTime  @default(now()) @map("creado_en")
-  actualizadoEn DateTime @updatedAt      @map("actualizado_en")
-
-  taller      Taller   @relation(fields: [tallerId], references: [id])
-  responsable Usuario? @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
-  asistencias Asistencia[]
+  id            String       @id @default(uuid())
+  tallerId      String       @map("taller_id")
+  fecha         DateTime
+  horaInicio    DateTime?    @map("hora_inicio")
+  horaFin       DateTime?    @map("hora_fin")
+  responsableId String?      @map("responsable_id")
+  creadoEn      DateTime     @default(now()) @map("creado_en")
+  actualizadoEn DateTime     @updatedAt @map("actualizado_en")
+  asistencias   Asistencia[]
+  responsable   Usuario?     @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
+  taller        Taller       @relation(fields: [tallerId], references: [id])
 
   @@index([tallerId])
   @@map("sesiones")
 }
 
-//
-// ===================== INSCRIPCIONES / ASISTENCIAS =====================
-//
-
 model Inscripcion {
-  id             String   @id @default(uuid())
-  tallerId       String   @map("taller_id")
-  participanteId String   @map("participante_id")
+  id             String       @id @default(uuid())
+  tallerId       String       @map("taller_id")
+  participanteId String       @map("participante_id")
   origen         String?
   estado         String?
-  dedupeHash     String?  @map("dedupe_hash")
-  creadoEn       DateTime @default(now()) @map("creado_en")
-  actualizadoEn  DateTime @updatedAt      @map("actualizado_en")
+  dedupeHash     String?      @map("dedupe_hash")
+  creadoEn       DateTime     @default(now()) @map("creado_en")
+  actualizadoEn  DateTime     @updatedAt @map("actualizado_en")
+  participante   Participante @relation(fields: [participanteId], references: [id])
+  taller         Taller       @relation(fields: [tallerId], references: [id])
 
-  taller       Taller       @relation(fields: [tallerId], references: [id])
-  participante Participante @relation(fields: [participanteId], references: [id])
-
-  @@unique([tallerId, participanteId]) // no duplicar inscripciones
+  @@unique([tallerId, participanteId])
   @@index([tallerId])
   @@index([participanteId])
   @@map("inscripciones")
 }
 
 model Asistencia {
-  id             String    @id @default(uuid())
-  sesionId       String    @map("sesion_id")
-  participanteId String    @map("participante_id")
+  id             String                @id @default(uuid())
+  sesionId       String                @map("sesion_id")
+  participanteId String                @map("participante_id")
   estado         String?
-  tomadoEn       DateTime? @map("tomado_en")
-  creadoEn       DateTime  @default(now()) @map("creado_en")
-  actualizadoEn  DateTime  @updatedAt      @map("actualizado_en")
+  tomadoEn       DateTime?             @map("tomado_en")
+  creadoEn       DateTime              @default(now()) @map("creado_en")
+  actualizadoEn  DateTime              @updatedAt @map("actualizado_en")
+  participante   Participante          @relation(fields: [participanteId], references: [id])
+  sesion         Sesion                @relation(fields: [sesionId], references: [id])
+  evidencias     EvidenciaAsistencia[]
 
-  sesion       Sesion       @relation(fields: [sesionId], references: [id])
-  participante Participante @relation(fields: [participanteId], references: [id])
-  evidencias   EvidenciaAsistencia[]
-
-  @@unique([sesionId, participanteId]) // asistencia única por sesión/participante
+  @@unique([sesionId, participanteId])
   @@index([sesionId])
   @@index([participanteId])
   @@map("asistencias")
 }
 
 model EvidenciaAsistencia {
-  id           String   @id @default(uuid())
-  asistenciaId String   @map("asistencia_id")
+  id           String     @id @default(uuid())
+  asistenciaId String     @map("asistencia_id")
   tipo         String?
   url          String?
-  creadoEn     DateTime @default(now()) @map("creado_en")
-
-  asistencia Asistencia @relation(fields: [asistenciaId], references: [id])
+  creadoEn     DateTime   @default(now()) @map("creado_en")
+  asistencia   Asistencia @relation(fields: [asistenciaId], references: [id])
 
   @@index([asistenciaId])
   @@map("evidencias_asistencia")
 }
 
-//
-// ===================== FEEDBACK / NOTIFICACIONES =====================
-//
-
 model Retroalimentacion {
-  id             String   @id @default(uuid())
-  tallerId       String   @map("taller_id")
-  participanteId String   @map("participante_id")
+  id             String       @id @default(uuid())
+  tallerId       String       @map("taller_id")
+  participanteId String       @map("participante_id")
   puntaje        Int?
-  comentario     String?  @db.Text
-  creadoEn       DateTime @default(now()) @map("creado_en")
-
-  taller       Taller       @relation(fields: [tallerId], references: [id])
-  participante Participante @relation(fields: [participanteId], references: [id])
+  comentario     String?
+  creadoEn       DateTime     @default(now()) @map("creado_en")
+  participante   Participante @relation(fields: [participanteId], references: [id])
+  taller         Taller       @relation(fields: [tallerId], references: [id])
 
   @@index([tallerId])
   @@index([participanteId])
@@ -198,33 +161,27 @@ model Notificacion {
   tipo      String?
   estado    String?
   creadoEn  DateTime @default(now()) @map("creado_en")
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
   @@index([usuarioId])
   @@map("notificaciones")
 }
 
-//
-// ===================== CVs / COMPETENCIAS =====================
-//
-
 model Cv {
-  id             String   @id @default(uuid())
-  participanteId String   @map("participante_id")
+  id             String       @id @default(uuid())
+  participanteId String       @map("participante_id")
   url            String
   version        String?
-  subidoEn       DateTime @default(now()) @map("subido_en")
-
-  participante Participante @relation(fields: [participanteId], references: [id])
+  subidoEn       DateTime     @default(now()) @map("subido_en")
+  participante   Participante @relation(fields: [participanteId], references: [id])
 
   @@index([participanteId])
   @@map("cvs")
 }
 
 model Competencia {
-  id        String   @id @default(uuid())
-  nombre    String   @unique
+  id        String              @id @default(uuid())
+  nombre    String              @unique
   categoria String?
   perfiles  PerfilCompetencia[]
 
@@ -232,18 +189,17 @@ model Competencia {
 }
 
 model PerfilCompetencia {
-  id             String   @id @default(uuid())
-  participanteId String   @map("participante_id")
-  competenciaId  String   @map("competencia_id")
+  id             String       @id @default(uuid())
+  participanteId String       @map("participante_id")
+  competenciaId  String       @map("competencia_id")
   nivel          Int?
-  confianza      Float?   // 0..1
+  confianza      Float?
   fuente         String?
-  actualizadoEn  DateTime @updatedAt @map("actualizado_en")
+  actualizadoEn  DateTime     @updatedAt @map("actualizado_en")
+  competencia    Competencia  @relation(fields: [competenciaId], references: [id])
+  participante   Participante @relation(fields: [participanteId], references: [id])
 
-  participante Participante @relation(fields: [participanteId], references: [id])
-  competencia  Competencia  @relation(fields: [competenciaId], references: [id])
-
-  @@unique([participanteId, competenciaId]) // una fila por competencia/participante
+  @@unique([participanteId, competenciaId])
   @@index([participanteId])
   @@index([competenciaId])
   @@map("perfiles_competencias")

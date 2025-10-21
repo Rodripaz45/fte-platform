@@ -9,60 +9,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateTallereDto = void 0;
+exports.CreateParticipanteDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-class CreateTallereDto {
-    tema;
-    modalidad;
-    cupos;
-    fechaInicio;
-    fechaFin;
-    sede;
-    estado;
+class CreateParticipanteDto {
+    usuarioId;
+    documento;
+    telefono;
+    genero;
+    fechaNac;
 }
-exports.CreateTallereDto = CreateTallereDto;
+exports.CreateParticipanteDto = CreateParticipanteDto;
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateTallereDto.prototype, "tema", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateTallereDto.prototype, "modalidad", void 0);
+], CreateParticipanteDto.prototype, "usuarioId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsInt)(),
-    (0, class_validator_1.Min)(1),
-    __metadata("design:type", Number)
-], CreateTallereDto.prototype, "cupos", void 0);
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParticipanteDto.prototype, "documento", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParticipanteDto.prototype, "telefono", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParticipanteDto.prototype, "genero", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", Date)
-], CreateTallereDto.prototype, "fechaInicio", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", Date)
-], CreateTallereDto.prototype, "fechaFin", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateTallereDto.prototype, "sede", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ default: 'PROGRAMADO' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateTallereDto.prototype, "estado", void 0);
-//# sourceMappingURL=create-tallere.dto.js.map
+], CreateParticipanteDto.prototype, "fechaNac", void 0);
+//# sourceMappingURL=create-participante.dto.js.map

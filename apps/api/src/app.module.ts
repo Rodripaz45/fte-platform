@@ -7,6 +7,7 @@ import { InscripcionesModule } from './inscripciones/inscripciones.module';
 import { AsistenciasModule } from './asistencias/asistencias.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { ParticipantesModule } from './participantes/participantes.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ReportesModule } from './reportes/reportes.module';
     AuthModule,
     UsuariosModule,
     TalleresModule,
+    ParticipantesModule,
     InscripcionesModule,
     AsistenciasModule,
     FeedbackModule,

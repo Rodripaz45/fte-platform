@@ -1,6 +1,4 @@
 import { UsuariosService } from './usuarios.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import type { Request as ExpressRequest } from 'express';
 export declare class UsuariosController {
     private readonly usuariosService;
@@ -10,9 +8,42 @@ export declare class UsuariosController {
         email: string;
         roles: string[];
     };
-    create(createUsuarioDto: CreateUsuarioDto): string;
-    findAll(): string;
-    findOne(id: string): string;
-    update(id: string, updateUsuarioDto: UpdateUsuarioDto): string;
-    remove(id: string): string;
+    findAll(): Promise<({
+        roles: ({
+            rol: {
+                id: number;
+                nombre: string;
+            };
+        } & {
+            usuarioId: string;
+            rolId: number;
+        })[];
+    } & {
+        id: string;
+        email: string;
+        nombre: string;
+        passwordHash: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+    })[]>;
+    findOne(id: string): Promise<{
+        roles: ({
+            rol: {
+                id: number;
+                nombre: string;
+            };
+        } & {
+            usuarioId: string;
+            rolId: number;
+        })[];
+    } & {
+        id: string;
+        email: string;
+        nombre: string;
+        passwordHash: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+    }>;
 }

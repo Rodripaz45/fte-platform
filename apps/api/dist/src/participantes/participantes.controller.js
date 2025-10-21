@@ -12,70 +12,70 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TalleresController = void 0;
+exports.ParticipantesController = void 0;
 const common_1 = require("@nestjs/common");
-const talleres_service_1 = require("./talleres.service");
-const create_tallere_dto_1 = require("./dto/create-tallere.dto");
-const update_tallere_dto_1 = require("./dto/update-tallere.dto");
-let TalleresController = class TalleresController {
-    talleresService;
-    constructor(talleresService) {
-        this.talleresService = talleresService;
+const participantes_service_1 = require("./participantes.service");
+const create_participante_dto_1 = require("./dto/create-participante.dto");
+const update_participante_dto_1 = require("./dto/update-participante.dto");
+let ParticipantesController = class ParticipantesController {
+    participantesService;
+    constructor(participantesService) {
+        this.participantesService = participantesService;
     }
-    create(createTallereDto) {
-        return this.talleresService.create(createTallereDto);
+    create(dto) {
+        return this.participantesService.create(dto);
     }
     findAll() {
-        return this.talleresService.findAll();
+        return this.participantesService.findAll();
     }
     findOne(id) {
-        return this.talleresService.findOne(id);
+        return this.participantesService.findOne(id);
     }
-    update(id, updateTallereDto) {
-        return this.talleresService.update(id, updateTallereDto);
+    update(id, dto) {
+        return this.participantesService.update(id, dto);
     }
     remove(id) {
-        return this.talleresService.remove(id);
+        return this.participantesService.remove(id);
     }
 };
-exports.TalleresController = TalleresController;
+exports.ParticipantesController = ParticipantesController;
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_tallere_dto_1.CreateTallereDto]),
+    __metadata("design:paramtypes", [create_participante_dto_1.CreateParticipanteDto]),
     __metadata("design:returntype", void 0)
-], TalleresController.prototype, "create", null);
+], ParticipantesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], TalleresController.prototype, "findAll", null);
+], ParticipantesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], TalleresController.prototype, "findOne", null);
+], ParticipantesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_tallere_dto_1.UpdateTallereDto]),
+    __metadata("design:paramtypes", [String, update_participante_dto_1.UpdateParticipanteDto]),
     __metadata("design:returntype", void 0)
-], TalleresController.prototype, "update", null);
+], ParticipantesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], TalleresController.prototype, "remove", null);
-exports.TalleresController = TalleresController = __decorate([
-    (0, common_1.Controller)('talleres'),
-    __metadata("design:paramtypes", [talleres_service_1.TalleresService])
-], TalleresController);
-//# sourceMappingURL=talleres.controller.js.map
+], ParticipantesController.prototype, "remove", null);
+exports.ParticipantesController = ParticipantesController = __decorate([
+    (0, common_1.Controller)('participantes'),
+    __metadata("design:paramtypes", [participantes_service_1.ParticipantesService])
+], ParticipantesController);
+//# sourceMappingURL=participantes.controller.js.map

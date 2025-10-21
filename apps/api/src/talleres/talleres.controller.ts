@@ -19,16 +19,16 @@ export class TalleresController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.talleresService.findOne(+id);
+    return this.talleresService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTallereDto: UpdateTallereDto) {
-    return this.talleresService.update(+id, updateTallereDto);
+    return this.talleresService.update(id, updateTallereDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.talleresService.remove(+id);
+    return this.talleresService.remove(id);
   }
 }

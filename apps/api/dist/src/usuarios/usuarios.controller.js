@@ -16,8 +16,6 @@ exports.UsuariosController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const usuarios_service_1 = require("./usuarios.service");
-const create_usuario_dto_1 = require("./dto/create-usuario.dto");
-const update_usuario_dto_1 = require("./dto/update-usuario.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let UsuariosController = class UsuariosController {
     usuariosService;
@@ -28,20 +26,11 @@ let UsuariosController = class UsuariosController {
         const { userId, email, roles } = req.user;
         return { id: userId, email, roles };
     }
-    create(createUsuarioDto) {
-        return this.usuariosService.create(createUsuarioDto);
-    }
     findAll() {
         return this.usuariosService.findAll();
     }
     findOne(id) {
-        return this.usuariosService.findOne(+id);
-    }
-    update(id, updateUsuarioDto) {
-        return this.usuariosService.update(+id, updateUsuarioDto);
-    }
-    remove(id) {
-        return this.usuariosService.remove(+id);
+        return this.usuariosService.findOne(id);
     }
 };
 exports.UsuariosController = UsuariosController;
@@ -53,13 +42,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsuariosController.prototype, "me", null);
-__decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_usuario_dto_1.CreateUsuarioDto]),
-    __metadata("design:returntype", void 0)
-], UsuariosController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -73,21 +55,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UsuariosController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_usuario_dto_1.UpdateUsuarioDto]),
-    __metadata("design:returntype", void 0)
-], UsuariosController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], UsuariosController.prototype, "remove", null);
 exports.UsuariosController = UsuariosController = __decorate([
     (0, swagger_1.ApiTags)('usuarios'),
     (0, swagger_1.ApiBearerAuth)(),
