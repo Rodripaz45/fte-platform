@@ -10,13 +10,14 @@ exports.FeedbackModule = void 0;
 const common_1 = require("@nestjs/common");
 const feedback_service_1 = require("./feedback.service");
 const feedback_controller_1 = require("./feedback.controller");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let FeedbackModule = class FeedbackModule {
 };
 exports.FeedbackModule = FeedbackModule;
 exports.FeedbackModule = FeedbackModule = __decorate([
     (0, common_1.Module)({
         controllers: [feedback_controller_1.FeedbackController],
-        providers: [feedback_service_1.FeedbackService],
+        providers: [feedback_service_1.FeedbackService, prisma_service_1.PrismaService],
     })
 ], FeedbackModule);
 //# sourceMappingURL=feedback.module.js.map

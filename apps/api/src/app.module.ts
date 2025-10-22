@@ -8,6 +8,7 @@ import { AsistenciasModule } from './asistencias/asistencias.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { ParticipantesModule } from './participantes/participantes.module';
+import { SesionesModule } from './sesiones/sesiones.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ParticipantesModule } from './participantes/participantes.module';
     ParticipantesModule,
     InscripcionesModule,
     AsistenciasModule,
+    SesionesModule,
     FeedbackModule,
     ReportesModule,
   ],

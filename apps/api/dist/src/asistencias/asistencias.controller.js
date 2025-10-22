@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AsistenciasController = void 0;
 const common_1 = require("@nestjs/common");
 const asistencias_service_1 = require("./asistencias.service");
+const tomar_asistencia_dto_1 = require("./dto/tomar-asistencia.dto");
 const create_asistencia_dto_1 = require("./dto/create-asistencia.dto");
 const update_asistencia_dto_1 = require("./dto/update-asistencia.dto");
 let AsistenciasController = class AsistenciasController {
@@ -22,23 +23,36 @@ let AsistenciasController = class AsistenciasController {
     constructor(asistenciasService) {
         this.asistenciasService = asistenciasService;
     }
-    create(createAsistenciaDto) {
-        return this.asistenciasService.create(createAsistenciaDto);
+    tomar(dto) {
+        return this.asistenciasService.tomar(dto);
     }
-    findAll() {
-        return this.asistenciasService.findAll();
+    create(dto) {
+        return this.asistenciasService.create(dto);
+    }
+    findAll(sesionId) {
+        return this.asistenciasService.findAll({ sesionId });
+    }
+    resumen(sesionId) {
+        return this.asistenciasService.resumenPorSesion(sesionId);
     }
     findOne(id) {
-        return this.asistenciasService.findOne(+id);
+        return this.asistenciasService.findOne(id);
     }
-    update(id, updateAsistenciaDto) {
-        return this.asistenciasService.update(+id, updateAsistenciaDto);
+    update(id, dto) {
+        return this.asistenciasService.update(id, dto);
     }
     remove(id) {
-        return this.asistenciasService.remove(+id);
+        return this.asistenciasService.remove(id);
     }
 };
 exports.AsistenciasController = AsistenciasController;
+__decorate([
+    (0, common_1.Post)('tomar'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [tomar_asistencia_dto_1.TomarAsistenciaDto]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "tomar", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -48,10 +62,18 @@ __decorate([
 ], AsistenciasController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('sesionId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('resumen'),
+    __param(0, (0, common_1.Query)('sesionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "resumen", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

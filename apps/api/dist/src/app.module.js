@@ -17,6 +17,7 @@ const asistencias_module_1 = require("./asistencias/asistencias.module");
 const feedback_module_1 = require("./feedback/feedback.module");
 const reportes_module_1 = require("./reportes/reportes.module");
 const participantes_module_1 = require("./participantes/participantes.module");
+const sesiones_module_1 = require("./sesiones/sesiones.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
             participantes_module_1.ParticipantesModule,
             inscripciones_module_1.InscripcionesModule,
             asistencias_module_1.AsistenciasModule,
+            sesiones_module_1.SesionesModule,
             feedback_module_1.FeedbackModule,
             reportes_module_1.ReportesModule,
         ],

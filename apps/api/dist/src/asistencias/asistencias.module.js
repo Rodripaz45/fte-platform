@@ -10,13 +10,14 @@ exports.AsistenciasModule = void 0;
 const common_1 = require("@nestjs/common");
 const asistencias_service_1 = require("./asistencias.service");
 const asistencias_controller_1 = require("./asistencias.controller");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let AsistenciasModule = class AsistenciasModule {
 };
 exports.AsistenciasModule = AsistenciasModule;
 exports.AsistenciasModule = AsistenciasModule = __decorate([
     (0, common_1.Module)({
         controllers: [asistencias_controller_1.AsistenciasController],
-        providers: [asistencias_service_1.AsistenciasService],
+        providers: [asistencias_service_1.AsistenciasService, prisma_service_1.PrismaService],
     })
 ], AsistenciasModule);
 //# sourceMappingURL=asistencias.module.js.map

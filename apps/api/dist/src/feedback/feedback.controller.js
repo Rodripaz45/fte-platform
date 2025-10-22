@@ -22,20 +22,28 @@ let FeedbackController = class FeedbackController {
     constructor(feedbackService) {
         this.feedbackService = feedbackService;
     }
-    create(createFeedbackDto) {
-        return this.feedbackService.create(createFeedbackDto);
+    create(dto) {
+        return this.feedbackService.create(dto);
     }
-    findAll() {
-        return this.feedbackService.findAll();
+    findAll(tallerId, participanteId, page, pageSize) {
+        return this.feedbackService.findAll({
+            tallerId,
+            participanteId,
+            page: page ? Number(page) : undefined,
+            pageSize: pageSize ? Number(pageSize) : undefined,
+        });
+    }
+    resumen(tallerId) {
+        return this.feedbackService.resumenPorTaller(tallerId);
     }
     findOne(id) {
-        return this.feedbackService.findOne(+id);
+        return this.feedbackService.findOne(id);
     }
-    update(id, updateFeedbackDto) {
-        return this.feedbackService.update(+id, updateFeedbackDto);
+    update(id, dto) {
+        return this.feedbackService.update(id, dto);
     }
     remove(id) {
-        return this.feedbackService.remove(+id);
+        return this.feedbackService.remove(id);
     }
 };
 exports.FeedbackController = FeedbackController;
@@ -48,10 +56,21 @@ __decorate([
 ], FeedbackController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('tallerId')),
+    __param(1, (0, common_1.Query)('participanteId')),
+    __param(2, (0, common_1.Query)('page')),
+    __param(3, (0, common_1.Query)('pageSize')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('resumen/:tallerId'),
+    __param(0, (0, common_1.Param)('tallerId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], FeedbackController.prototype, "resumen", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

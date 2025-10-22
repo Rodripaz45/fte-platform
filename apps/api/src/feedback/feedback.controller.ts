@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
@@ -8,27 +8,42 @@ export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
-  create(@Body() createFeedbackDto: CreateFeedbackDto) {
-    return this.feedbackService.create(createFeedbackDto);
+  create(@Body() dto: CreateFeedbackDto) {
+    return this.feedbackService.create(dto);
   }
 
   @Get()
-  findAll() {
-    return this.feedbackService.findAll();
+  findAll(
+    @Query('tallerId') tallerId?: string,
+    @Query('participanteId') participanteId?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.feedbackService.findAll({
+      tallerId,
+      participanteId,
+      page: page ? Number(page) : undefined,
+      pageSize: pageSize ? Number(pageSize) : undefined,
+    });
+  }
+
+  @Get('resumen/:tallerId')
+  resumen(@Param('tallerId') tallerId: string) {
+    return this.feedbackService.resumenPorTaller(tallerId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.feedbackService.findOne(+id);
+    return this.feedbackService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFeedbackDto: UpdateFeedbackDto) {
-    return this.feedbackService.update(+id, updateFeedbackDto);
+  update(@Param('id') id: string, @Body() dto: UpdateFeedbackDto) {
+    return this.feedbackService.update(id, dto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.feedbackService.remove(+id);
+    return this.feedbackService.remove(id);
   }
 }
