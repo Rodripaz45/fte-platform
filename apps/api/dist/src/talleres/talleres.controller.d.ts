@@ -6,27 +6,27 @@ export declare class TalleresController {
     constructor(talleresService: TalleresService);
     create(createTallereDto: CreateTallereDto): Promise<{
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tema: string;
         modalidad: string;
         cupos: number | null;
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tema: string;
         modalidad: string;
         cupos: number | null;
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }[]>;
     findOne(id: string): Promise<{
         inscripciones: {
@@ -34,53 +34,53 @@ export declare class TalleresController {
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             origen: string | null;
             dedupeHash: string | null;
         }[];
         feedbacks: {
             id: string;
             creadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             puntaje: number | null;
             comentario: string | null;
         }[];
     } & {
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tema: string;
         modalidad: string;
         cupos: number | null;
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     update(id: string, updateTallereDto: UpdateTallereDto): Promise<{
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tema: string;
         modalidad: string;
         cupos: number | null;
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tema: string;
         modalidad: string;
         cupos: number | null;
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
 }

@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const feedback_service_1 = require("./feedback.service");
 const create_feedback_dto_1 = require("./dto/create-feedback.dto");
 const update_feedback_dto_1 = require("./dto/update-feedback.dto");
+const swagger_1 = require("@nestjs/swagger");
+const roles_decorator_1 = require("../auth/roles.decorator");
 let FeedbackController = class FeedbackController {
     feedbackService;
     constructor(feedbackService) {
@@ -48,6 +50,7 @@ let FeedbackController = class FeedbackController {
 };
 exports.FeedbackController = FeedbackController;
 __decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE', 'ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -55,6 +58,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "create", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('tallerId')),
     __param(1, (0, common_1.Query)('participanteId')),
@@ -65,6 +69,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "findAll", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)('resumen/:tallerId'),
     __param(0, (0, common_1.Param)('tallerId')),
     __metadata("design:type", Function),
@@ -72,6 +77,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "resumen", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -79,6 +85,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -87,6 +94,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMINS'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -94,6 +102,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FeedbackController.prototype, "remove", null);
 exports.FeedbackController = FeedbackController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('feedback'),
     __metadata("design:paramtypes", [feedback_service_1.FeedbackService])
 ], FeedbackController);

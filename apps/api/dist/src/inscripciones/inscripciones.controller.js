@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const inscripciones_service_1 = require("./inscripciones.service");
 const create_inscripcione_dto_1 = require("./dto/create-inscripcione.dto");
 const update_inscripcione_dto_1 = require("./dto/update-inscripcione.dto");
+const swagger_1 = require("@nestjs/swagger");
+const roles_decorator_1 = require("../auth/roles.decorator");
 let InscripcionesController = class InscripcionesController {
     inscripcionesService;
     constructor(inscripcionesService) {
@@ -40,6 +42,7 @@ let InscripcionesController = class InscripcionesController {
 };
 exports.InscripcionesController = InscripcionesController;
 __decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE', 'ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -47,12 +50,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "create", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "findAll", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -60,6 +65,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -68,6 +74,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -75,6 +82,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "remove", null);
 exports.InscripcionesController = InscripcionesController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('inscripciones'),
     __metadata("design:paramtypes", [inscripciones_service_1.InscripcionesService])
 ], InscripcionesController);

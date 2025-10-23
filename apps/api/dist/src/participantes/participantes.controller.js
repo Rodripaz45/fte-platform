@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const participantes_service_1 = require("./participantes.service");
 const create_participante_dto_1 = require("./dto/create-participante.dto");
 const update_participante_dto_1 = require("./dto/update-participante.dto");
+const swagger_1 = require("@nestjs/swagger");
+const roles_decorator_1 = require("../auth/roles.decorator");
 let ParticipantesController = class ParticipantesController {
     participantesService;
     constructor(participantesService) {
@@ -40,6 +42,7 @@ let ParticipantesController = class ParticipantesController {
 };
 exports.ParticipantesController = ParticipantesController;
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -47,12 +50,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "create", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "findAll", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -60,6 +65,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -68,6 +74,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -75,6 +82,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "remove", null);
 exports.ParticipantesController = ParticipantesController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('participantes'),
     __metadata("design:paramtypes", [participantes_service_1.ParticipantesService])
 ], ParticipantesController);

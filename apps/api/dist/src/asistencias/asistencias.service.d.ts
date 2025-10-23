@@ -10,12 +10,12 @@ export declare class AsistenciasService {
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
@@ -29,24 +29,24 @@ export declare class AsistenciasService {
         };
     } & {
         id: string;
-        sesionId: string;
-        participanteId: string;
         estado: string | null;
-        tomadoEn: Date | null;
         creadoEn: Date;
         actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     }>;
     tomar(dto: TomarAsistenciaDto): Promise<{
         sesionId: string;
         total: number;
         items: {
             id: string;
-            sesionId: string;
-            participanteId: string;
             estado: string | null;
-            tomadoEn: Date | null;
             creadoEn: Date;
             actualizadoEn: Date;
+            participanteId: string;
+            sesionId: string;
+            tomadoEn: Date | null;
         }[];
     }>;
     findAll(params?: {
@@ -55,12 +55,12 @@ export declare class AsistenciasService {
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
@@ -87,12 +87,12 @@ export declare class AsistenciasService {
             };
             responsable: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             } | null;
         } & {
             id: string;
@@ -106,23 +106,23 @@ export declare class AsistenciasService {
         };
     } & {
         id: string;
-        sesionId: string;
-        participanteId: string;
         estado: string | null;
-        tomadoEn: Date | null;
         creadoEn: Date;
         actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     })[]>;
     findOne(id: string): Promise<{
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
@@ -149,12 +149,12 @@ export declare class AsistenciasService {
             };
             responsable: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             } | null;
         } & {
             id: string;
@@ -168,30 +168,30 @@ export declare class AsistenciasService {
         };
     } & {
         id: string;
-        sesionId: string;
-        participanteId: string;
         estado: string | null;
-        tomadoEn: Date | null;
         creadoEn: Date;
         actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     }>;
     update(id: string, dto: UpdateAsistenciaDto): Promise<{
         id: string;
-        sesionId: string;
-        participanteId: string;
         estado: string | null;
-        tomadoEn: Date | null;
         creadoEn: Date;
         actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
-        sesionId: string;
-        participanteId: string;
         estado: string | null;
-        tomadoEn: Date | null;
         creadoEn: Date;
         actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     }>;
     resumenPorSesion(sesionId: string): Promise<{
         sesionId: string;

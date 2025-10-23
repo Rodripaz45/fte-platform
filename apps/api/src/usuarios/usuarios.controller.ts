@@ -15,6 +15,7 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { Request as ExpressRequest } from 'express';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('usuarios') // para agrupar en Swagger
 @ApiBearerAuth() // habilita el botón Authorize con Bearer token
@@ -35,11 +36,13 @@ export class UsuariosController {
   }
 
 
+  @Roles('ADMIN')
   @Get()
   findAll() {
     return this.usuariosService.findAll();
   }
 
+  @Roles('ADMIN')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usuariosService.findOne(id);

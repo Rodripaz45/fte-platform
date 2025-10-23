@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const sesiones_service_1 = require("./sesiones.service");
 const create_sesion_dto_1 = require("./dto/create-sesion.dto");
 const update_sesion_dto_1 = require("./dto/update-sesion.dto");
+const swagger_1 = require("@nestjs/swagger");
+const roles_decorator_1 = require("../auth/roles.decorator");
 let SesionesController = class SesionesController {
     sesionesService;
     constructor(sesionesService) {
@@ -44,6 +46,7 @@ let SesionesController = class SesionesController {
 };
 exports.SesionesController = SesionesController;
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -67,6 +70,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -75,6 +79,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -82,6 +87,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "remove", null);
 exports.SesionesController = SesionesController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('sesiones'),
     __metadata("design:paramtypes", [sesiones_service_1.SesionesService])
 ], SesionesController);

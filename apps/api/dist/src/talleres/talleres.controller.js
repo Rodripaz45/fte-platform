@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const talleres_service_1 = require("./talleres.service");
 const create_tallere_dto_1 = require("./dto/create-tallere.dto");
 const update_tallere_dto_1 = require("./dto/update-tallere.dto");
+const roles_decorator_1 = require("../auth/roles.decorator");
+const swagger_1 = require("@nestjs/swagger");
 let TalleresController = class TalleresController {
     talleresService;
     constructor(talleresService) {
@@ -40,6 +42,7 @@ let TalleresController = class TalleresController {
 };
 exports.TalleresController = TalleresController;
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -60,6 +63,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TalleresController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -68,6 +72,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TalleresController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -75,6 +80,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TalleresController.prototype, "remove", null);
 exports.TalleresController = TalleresController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('talleres'),
     __metadata("design:paramtypes", [talleres_service_1.TalleresService])
 ], TalleresController);

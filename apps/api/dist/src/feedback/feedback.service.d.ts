@@ -9,25 +9,26 @@ export declare class FeedbackService {
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
+                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                estado: string | null;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
-            actualizadoEn: Date;
         };
         taller: {
             id: string;
+            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
             tema: string;
@@ -36,15 +37,14 @@ export declare class FeedbackService {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
-            estado: string | null;
         };
     } & {
         id: string;
-        tallerId: string;
+        creadoEn: Date;
         participanteId: string;
+        tallerId: string;
         puntaje: number | null;
         comentario: string | null;
-        creadoEn: Date;
     }>;
     findAll(params?: {
         tallerId?: string;
@@ -59,25 +59,26 @@ export declare class FeedbackService {
             participante: {
                 usuario: {
                     id: string;
+                    email: string;
+                    nombre: string;
+                    passwordHash: string;
+                    estado: string | null;
                     creadoEn: Date;
                     actualizadoEn: Date;
-                    estado: string | null;
-                    nombre: string;
-                    email: string;
-                    passwordHash: string;
                 };
             } & {
                 id: string;
                 creadoEn: Date;
+                actualizadoEn: Date;
                 usuarioId: string;
                 documento: string | null;
                 telefono: string | null;
                 genero: string | null;
                 fechaNac: Date | null;
-                actualizadoEn: Date;
             };
             taller: {
                 id: string;
+                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
                 tema: string;
@@ -86,40 +87,40 @@ export declare class FeedbackService {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
-                estado: string | null;
             };
         } & {
             id: string;
-            tallerId: string;
+            creadoEn: Date;
             participanteId: string;
+            tallerId: string;
             puntaje: number | null;
             comentario: string | null;
-            creadoEn: Date;
         })[];
     }>;
     findOne(id: string): Promise<{
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
+                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                estado: string | null;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
-            actualizadoEn: Date;
         };
         taller: {
             id: string;
+            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
             tema: string;
@@ -128,39 +129,39 @@ export declare class FeedbackService {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
-            estado: string | null;
         };
     } & {
         id: string;
-        tallerId: string;
+        creadoEn: Date;
         participanteId: string;
+        tallerId: string;
         puntaje: number | null;
         comentario: string | null;
-        creadoEn: Date;
     }>;
     update(id: string, dto: UpdateFeedbackDto): Promise<{
         participante: {
             usuario: {
                 id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
+                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                estado: string | null;
-                nombre: string;
-                email: string;
-                passwordHash: string;
             };
         } & {
             id: string;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
-            actualizadoEn: Date;
         };
         taller: {
             id: string;
+            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
             tema: string;
@@ -169,23 +170,22 @@ export declare class FeedbackService {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
-            estado: string | null;
         };
     } & {
         id: string;
-        tallerId: string;
+        creadoEn: Date;
         participanteId: string;
+        tallerId: string;
         puntaje: number | null;
         comentario: string | null;
-        creadoEn: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        tallerId: string;
+        creadoEn: Date;
         participanteId: string;
+        tallerId: string;
         puntaje: number | null;
         comentario: string | null;
-        creadoEn: Date;
     }>;
     resumenPorTaller(tallerId: string): Promise<{
         tallerId: string;

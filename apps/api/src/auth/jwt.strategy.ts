@@ -1,35 +1,37 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+// src/auth/jwt.strategy.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PrismaService } from '../../prisma/prisma.service';
 
-interface JwtPayload {
-  sub: string;
-  email: string;
-  roles?: string[];
-}
+type JwtPayload = { sub: string; email: string };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    // Separar la llamada y tiparla explícitamente evita los “unsafe call/assignment”
-    const extractor: (req: any) => string | null =
-      ExtractJwt.fromAuthHeaderAsBearerToken();
-
+  constructor(private readonly prisma: PrismaService) {
     super({
-      jwtFromRequest: extractor,
-      secretOrKey: process.env.JWT_SECRET ?? 'dev_secret',
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET!,
     });
   }
 
-  // Tipado fuerte y sin async innecesario
-  validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload) {
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: payload.sub },
+      include: { roles: { include: { rol: true } } },
+    });
+    if (!user) throw new UnauthorizedException();
+
+    // ⇒ fuerza MAYÚSCULAS (por si en BD hubiera minúsculas)
+    const roles = user.roles.map((ur) => String(ur.rol.nombre).toUpperCase());
+
     return {
-      userId: payload.sub,
-      email: payload.email,
-      roles: payload.roles ?? [],
+      sub: user.id,
+      email: user.email,
+      nombre: user.nombre,
+      roles,                 // ← array de strings en MAYÚSCULAS
+      estado: user.estado,
     };
   }
 }

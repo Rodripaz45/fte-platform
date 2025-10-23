@@ -18,6 +18,8 @@ const asistencias_service_1 = require("./asistencias.service");
 const tomar_asistencia_dto_1 = require("./dto/tomar-asistencia.dto");
 const create_asistencia_dto_1 = require("./dto/create-asistencia.dto");
 const update_asistencia_dto_1 = require("./dto/update-asistencia.dto");
+const swagger_1 = require("@nestjs/swagger");
+const roles_decorator_1 = require("../auth/roles.decorator");
 let AsistenciasController = class AsistenciasController {
     asistenciasService;
     constructor(asistenciasService) {
@@ -47,6 +49,7 @@ let AsistenciasController = class AsistenciasController {
 };
 exports.AsistenciasController = AsistenciasController;
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Post)('tomar'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -54,6 +57,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "tomar", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -61,6 +65,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "create", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('sesionId')),
     __metadata("design:type", Function),
@@ -68,6 +73,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "findAll", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Get)('resumen'),
     __param(0, (0, common_1.Query)('sesionId')),
     __metadata("design:type", Function),
@@ -75,6 +81,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "resumen", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -82,6 +89,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "findOne", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -90,6 +98,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "update", null);
 __decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -97,6 +106,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "remove", null);
 exports.AsistenciasController = AsistenciasController = __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('asistencias'),
     __metadata("design:paramtypes", [asistencias_service_1.AsistenciasService])
 ], AsistenciasController);
