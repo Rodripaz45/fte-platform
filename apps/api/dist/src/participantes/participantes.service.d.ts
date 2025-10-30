@@ -59,8 +59,8 @@ export declare class ParticipantesService {
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             origen: string | null;
             dedupeHash: string | null;
         }[];

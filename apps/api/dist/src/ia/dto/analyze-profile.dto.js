@@ -27,27 +27,14 @@ __decorate([
 ], TallerLiteDto.prototype, "asistencia_pct", void 0);
 class AnalyzeProfileDto {
     participanteId;
-    incluirCV;
-    incluirTalleres;
     talleres;
     cvTexto;
-    useML;
 }
 exports.AnalyzeProfileDto = AnalyzeProfileDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], AnalyzeProfileDto.prototype, "participanteId", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], AnalyzeProfileDto.prototype, "incluirCV", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], AnalyzeProfileDto.prototype, "incluirTalleres", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ValidateNested)({ each: true }),
@@ -60,9 +47,4 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], AnalyzeProfileDto.prototype, "cvTexto", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], AnalyzeProfileDto.prototype, "useML", void 0);
 //# sourceMappingURL=analyze-profile.dto.js.map

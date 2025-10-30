@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InscripcionesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const ia_service_1 = require("../ia/ia.service");
 let InscripcionesService = class InscripcionesService {
     prisma;
-    constructor(prisma) {
+    ia;
+    constructor(prisma, ia) {
         this.prisma = prisma;
+        this.ia = ia;
     }
     async create(dto) {
         const participante = await this.prisma.participante.findUnique({
@@ -87,11 +90,20 @@ let InscripcionesService = class InscripcionesService {
         });
         if (!actual)
             throw new common_1.NotFoundException('Inscripción no encontrada');
-        return this.prisma.inscripcion.update({
+        const updated = await this.prisma.inscripcion.update({
             where: { id },
             data: { estado: dto.estado },
             include: { taller: true, participante: true },
         });
+        if (dto.estado === 'FINALIZADO') {
+            try {
+                await this.ia.analyzeByParticipantId(updated.participanteId);
+            }
+            catch (e) {
+                console.error('IA analyze error:', e?.message || e);
+            }
+        }
+        return updated;
     }
     async remove(id) {
         await this.findOne(id);
@@ -101,6 +113,6 @@ let InscripcionesService = class InscripcionesService {
 exports.InscripcionesService = InscripcionesService;
 exports.InscripcionesService = InscripcionesService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService, ia_service_1.IaService])
 ], InscripcionesService);
 //# sourceMappingURL=inscripciones.service.js.map

@@ -41,8 +41,8 @@ export declare class FeedbackService {
     } & {
         id: string;
         creadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         puntaje: number | null;
         comentario: string | null;
     }>;
@@ -91,8 +91,8 @@ export declare class FeedbackService {
         } & {
             id: string;
             creadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             puntaje: number | null;
             comentario: string | null;
         })[];
@@ -133,8 +133,8 @@ export declare class FeedbackService {
     } & {
         id: string;
         creadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         puntaje: number | null;
         comentario: string | null;
     }>;
@@ -174,16 +174,16 @@ export declare class FeedbackService {
     } & {
         id: string;
         creadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         puntaje: number | null;
         comentario: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         creadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         puntaje: number | null;
         comentario: string | null;
     }>;

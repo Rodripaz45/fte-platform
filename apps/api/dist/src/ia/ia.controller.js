@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IaController = void 0;
 const common_1 = require("@nestjs/common");
 const ia_service_1 = require("./ia.service");
-const analyze_profile_dto_1 = require("./dto/analyze-profile.dto");
 const analyze_job_dto_1 = require("./dto/analyze-job.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const public_decorator_1 = require("../auth/public.decorator");
@@ -27,8 +26,8 @@ let IaController = class IaController {
     async healthCheck() {
         return this.iaService.healthCheck();
     }
-    async analyzeProfile(dto) {
-        return this.iaService.analyzeProfile(dto);
+    async reprocesar(participanteId) {
+        return this.iaService.analyzeByParticipantId(participanteId);
     }
     async analyzeJob(dto) {
         return this.iaService.analyzeJob(dto);
@@ -44,12 +43,12 @@ __decorate([
 ], IaController.prototype, "healthCheck", null);
 __decorate([
     (0, public_decorator_1.Public)(),
-    (0, common_1.Post)('analyze/profile'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Post)('reprocesar/:participanteId'),
+    __param(0, (0, common_1.Param)('participanteId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [analyze_profile_dto_1.AnalyzeProfileDto]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], IaController.prototype, "analyzeProfile", null);
+], IaController.prototype, "reprocesar", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('analyze/job'),

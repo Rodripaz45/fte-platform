@@ -4,11 +4,8 @@ export declare class TallerLiteDto {
 }
 export declare class AnalyzeProfileDto {
     participanteId: string;
-    incluirCV?: boolean;
-    incluirTalleres?: boolean;
     talleres?: TallerLiteDto[];
     cvTexto?: string;
-    useML?: boolean;
 }
 export interface CompetenciaResult {
     competencia: string;

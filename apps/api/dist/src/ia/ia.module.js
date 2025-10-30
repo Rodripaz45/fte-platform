@@ -10,11 +10,13 @@ exports.IaModule = void 0;
 const common_1 = require("@nestjs/common");
 const ia_service_1 = require("./ia.service");
 const ia_controller_1 = require("./ia.controller");
+const prisma_module_1 = require("../../prisma/prisma.module");
 let IaModule = class IaModule {
 };
 exports.IaModule = IaModule;
 exports.IaModule = IaModule = __decorate([
     (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule],
         providers: [ia_service_1.IaService],
         controllers: [ia_controller_1.IaController],
         exports: [ia_service_1.IaService],

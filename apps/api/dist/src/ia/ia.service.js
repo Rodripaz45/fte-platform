@@ -12,12 +12,72 @@ var IaService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IaService = void 0;
 const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let IaService = IaService_1 = class IaService {
+    prisma;
     logger = new common_1.Logger(IaService_1.name);
     baseUrl;
-    constructor() {
+    constructor(prisma) {
+        this.prisma = prisma;
         this.baseUrl = process.env.IA_URL || 'http://localhost:8000';
         this.logger.log(`IA Service initialized with base URL: ${this.baseUrl}`);
+    }
+    logPayload(tag, payload) {
+        const clone = { ...(payload || {}) };
+        if (typeof clone.cvTexto === 'string' && clone.cvTexto.length > 400) {
+            clone.cvTexto = clone.cvTexto.substring(0, 400) + '... [truncated]';
+        }
+        try {
+            console.log(`[IA] ${tag} payload ->`, JSON.stringify(clone));
+        }
+        catch {
+            console.log(`[IA] ${tag} payload ->`, clone);
+        }
+    }
+    async buildAnalyzeDtoFromDb(participanteId) {
+        const inscripciones = await this.prisma.inscripcion.findMany({
+            where: { participanteId },
+            include: { taller: true },
+        });
+        const talleres = [];
+        for (const ins of inscripciones) {
+            const tallerId = ins.tallerId;
+            const tema = (ins.taller?.tema || '').toLowerCase();
+            if (!tema)
+                continue;
+            const totalSesiones = await this.prisma.sesion.count({ where: { tallerId } });
+            const presentes = await this.prisma.asistencia.count({
+                where: { participanteId, sesion: { tallerId }, estado: 'PRESENTE' },
+            });
+            const asistencia_pct = totalSesiones > 0 ? presentes / totalSesiones : 1;
+            talleres.push({ tema, asistencia_pct });
+        }
+        const lastCv = await this.prisma.cv.findFirst({
+            where: { participanteId },
+            orderBy: { subidoEn: 'desc' },
+        });
+        const cvTexto = (lastCv && 'texto' in lastCv
+            && typeof lastCv.texto === 'string')
+            ? lastCv.texto
+            : undefined;
+        const dto = {
+            participanteId,
+            talleres,
+            ...(cvTexto ? { cvTexto } : {}),
+        };
+        this.logPayload('buildAnalyzeDtoFromDb', {
+            participanteId,
+            talleres,
+            cvTexto: cvTexto
+                ? `${(cvTexto || '').substring(0, 200)}... [truncated]`
+                : undefined,
+        });
+        return dto;
+    }
+    async analyzeByParticipantId(participanteId) {
+        const dto = await this.buildAnalyzeDtoFromDb(participanteId);
+        this.logPayload('analyze/profile (from DB)', dto);
+        return this.analyzeProfileAndSave(dto);
     }
     async healthCheck() {
         try {
@@ -39,6 +99,7 @@ let IaService = IaService_1 = class IaService {
     }
     async analyzeProfile(dto) {
         try {
+            this.logPayload('analyze/profile', dto);
             const res = await fetch(`${this.baseUrl}/analyze/profile`, {
                 method: 'POST',
                 headers: {
@@ -52,7 +113,18 @@ let IaService = IaService_1 = class IaService {
                 throw new common_1.HttpException(`IA error: ${res.status} - ${text}`, res.status);
             }
             const data = await res.json();
-            this.logger.log(`Profile analyzed for participant: ${dto.participanteId}`);
+            try {
+                const competenciasLen = Array.isArray(data?.competencias)
+                    ? data.competencias.length
+                    : 0;
+                this.logger.log(`Profile analyzed for participant: ${dto.participanteId} (competencias: ${competenciasLen})`);
+                console.log('[IA] analyze/profile response ->', JSON.stringify({
+                    competenciasLen,
+                    sample: data?.competencias?.slice?.(0, 3) || [],
+                    meta: data?.meta || undefined,
+                }));
+            }
+            catch { }
             return data;
         }
         catch (error) {
@@ -62,6 +134,55 @@ let IaService = IaService_1 = class IaService {
             }
             throw new common_1.HttpException('Error connecting to IA service', common_1.HttpStatus.SERVICE_UNAVAILABLE);
         }
+    }
+    async analyzeProfileAndSave(dto) {
+        const analysis = await this.analyzeProfile(dto);
+        const participanteId = dto.participanteId;
+        const fuente = analysis?.meta?.mode || 'ia';
+        if (!participanteId) {
+            throw new common_1.HttpException('participanteId requerido', common_1.HttpStatus.BAD_REQUEST);
+        }
+        const competencias = analysis?.competencias || [];
+        await this.prisma.$transaction(async (tx) => {
+            for (const comp of competencias) {
+                const nombre = comp.competencia || comp.nombre;
+                if (!nombre)
+                    continue;
+                const competencia = await tx.competencia.upsert({
+                    where: { nombre },
+                    update: {},
+                    create: { nombre },
+                });
+                const nivelFloat = comp.nivel ?? 0;
+                const nivel = Math.round(nivelFloat <= 1 ? nivelFloat * 100 : nivelFloat);
+                const confianza = comp.confianza;
+                await tx.perfilCompetencia.upsert({
+                    where: {
+                        participanteId_competenciaId: {
+                            participanteId,
+                            competenciaId: competencia.id,
+                        },
+                    },
+                    update: {
+                        nivel,
+                        confianza,
+                        fuente,
+                    },
+                    create: {
+                        participanteId,
+                        competenciaId: competencia.id,
+                        nivel,
+                        confianza,
+                        fuente,
+                    },
+                });
+            }
+        });
+        const competenciasLen = Array.isArray(analysis?.competencias)
+            ? analysis.competencias.length
+            : 0;
+        this.logger.log(`Persisted competencias for participanteId=${participanteId} (total: ${competenciasLen})`);
+        return { saved: true, participanteId, competencias: analysis.competencias, meta: analysis.meta };
     }
     async analyzeJob(dto) {
         try {
@@ -96,6 +217,6 @@ let IaService = IaService_1 = class IaService {
 exports.IaService = IaService;
 exports.IaService = IaService = IaService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], IaService);
 //# sourceMappingURL=ia.service.js.map

@@ -7,8 +7,6 @@
 ```json
 {
   "participanteId": "PART-12345",
-  "incluirCV": true,
-  "incluirTalleres": true,
   "talleres": [
     { "tema": "atención al paciente en salud primaria", "asistencia_pct": 1.0 },
     { "tema": "protocolos de bioseguridad", "asistencia_pct": 0.95 },
@@ -22,7 +20,7 @@
     { "tema": "gestión de inventarios y logística", "asistencia_pct": 0.9 }
   ],
   "cvTexto": "Profesional con experiencia transversal en salud comunitaria, educación, finanzas personales, marketing y operaciones. Participación en programas de atención primaria, diseño de contenidos educativos, asesorías financieras básicas, campañas de marketing digital y proyectos de mejora de procesos en manufactura y logística. Habilidades en comunicación, trabajo en equipo, liderazgo, orientación al servicio, pensamiento analítico y organización.",
-  "useML": true
+  
 }
 ```
 
@@ -31,14 +29,12 @@
 ```json
 {
   "participanteId": "PART-67890",
-  "incluirTalleres": true,
   "talleres": [
     { "tema": "primeros auxilios y rcp", "asistencia_pct": 1.0 },
     { "tema": "evaluación del aprendizaje", "asistencia_pct": 0.9 },
     { "tema": "introducción a finanzas corporativas", "asistencia_pct": 0.95 },
     { "tema": "técnicas de negociación en ventas", "asistencia_pct": 0.9 }
-  ],
-  "useML": true
+  ]
 }
 ```
 
@@ -47,9 +43,8 @@
 ```json
 {
   "participanteId": "PART-99999",
-  "incluirCV": true,
   "cvTexto": "Profesional con 5 años de experiencia en atención al cliente, coordinación de equipos, formación y evaluación, planificación de campañas de marketing, y apoyo administrativo-financiero. Enfoque en mejora continua, resolución de problemas, comunicación efectiva y orientación a resultados. Certificaciones en gestión de proyectos y servicio al cliente.",
-  "useML": true
+  
 }
 ```
 
@@ -58,8 +53,7 @@
 ```json
 {
   "participanteId": "PART-MIN",
-  "incluirTalleres": true,
-  "useML": true
+  
 }
 ```
 
@@ -154,5 +148,5 @@
 - `topK` debe ser un número entre 1 y 20 (por defecto: 6)
 - `participanteId` es obligatorio
 - Los nombres de talleres deben ser en minúsculas según el código original
-- `useML` activa el uso de machine learning en el análisis
+- El análisis con ML está siempre activo; los talleres y el CV son opcionales
 

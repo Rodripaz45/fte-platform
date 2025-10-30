@@ -34,16 +34,16 @@ export declare class TalleresService {
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             origen: string | null;
             dedupeHash: string | null;
         }[];
         feedbacks: {
             id: string;
             creadoEn: Date;
-            participanteId: string;
             tallerId: string;
+            participanteId: string;
             puntaje: number | null;
             comentario: string | null;
         }[];

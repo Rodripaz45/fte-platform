@@ -19,6 +19,8 @@ const feedback_module_1 = require("./feedback/feedback.module");
 const reportes_module_1 = require("./reportes/reportes.module");
 const participantes_module_1 = require("./participantes/participantes.module");
 const sesiones_module_1 = require("./sesiones/sesiones.module");
+const ia_module_1 = require("./ia/ia.module");
+const cvs_module_1 = require("./cvs/cvs.module");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const roles_guard_1 = require("./auth/roles.guard");
 let AppModule = class AppModule {
@@ -37,6 +39,8 @@ exports.AppModule = AppModule = __decorate([
             sesiones_module_1.SesionesModule,
             feedback_module_1.FeedbackModule,
             reportes_module_1.ReportesModule,
+            ia_module_1.IaModule,
+            cvs_module_1.CvsModule,
         ],
         providers: [
             { provide: core_1.APP_GUARD, useClass: jwt_auth_guard_1.JwtAuthGuard },

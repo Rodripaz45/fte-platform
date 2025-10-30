@@ -1,9 +1,11 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
+import { IaService } from '../ia/ia.service';
 export declare class InscripcionesService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly ia;
+    constructor(prisma: PrismaService, ia: IaService);
     create(dto: CreateInscripcioneDto): Promise<{
         participante: {
             id: string;
@@ -32,8 +34,8 @@ export declare class InscripcionesService {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
         dedupeHash: string | null;
     }>;
@@ -75,8 +77,8 @@ export declare class InscripcionesService {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
         dedupeHash: string | null;
     })[]>;
@@ -118,8 +120,8 @@ export declare class InscripcionesService {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
         dedupeHash: string | null;
     }>;
@@ -151,8 +153,8 @@ export declare class InscripcionesService {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
         dedupeHash: string | null;
     }>;
@@ -161,8 +163,8 @@ export declare class InscripcionesService {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        participanteId: string;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
         dedupeHash: string | null;
     }>;

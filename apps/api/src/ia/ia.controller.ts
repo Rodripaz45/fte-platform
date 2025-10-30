@@ -1,7 +1,6 @@
 // apps/api/src/ia/ia.controller.ts
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Param, Body } from '@nestjs/common';
 import { IaService } from './ia.service';
-import { AnalyzeProfileDto } from './dto/analyze-profile.dto';
 import { AnalyzeJobDto } from './dto/analyze-job.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,9 +18,9 @@ export class IaController {
   }
 
   @Public()
-  @Post('analyze/profile')
-  async analyzeProfile(@Body() dto: AnalyzeProfileDto) {
-    return this.iaService.analyzeProfile(dto);
+  @Post('reprocesar/:participanteId')
+  async reprocesar(@Param('participanteId') participanteId: string) {
+    return this.iaService.analyzeByParticipantId(participanteId);
   }
 
   @Public()

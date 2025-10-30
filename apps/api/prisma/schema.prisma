@@ -172,6 +172,7 @@ model Cv {
   participanteId String       @map("participante_id")
   url            String
   version        String?
+  texto          String?      @db.Text
   subidoEn       DateTime     @default(now()) @map("subido_en")
   participante   Participante @relation(fields: [participanteId], references: [id])
 

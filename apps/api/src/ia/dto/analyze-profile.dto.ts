@@ -1,4 +1,4 @@
-import { IsString, IsBoolean, IsOptional, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TallerLiteDto {
@@ -13,14 +13,6 @@ export class AnalyzeProfileDto {
   @IsString()
   participanteId: string;
 
-  @IsBoolean()
-  @IsOptional()
-  incluirCV?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  incluirTalleres?: boolean;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TallerLiteDto)
@@ -30,10 +22,6 @@ export class AnalyzeProfileDto {
   @IsString()
   @IsOptional()
   cvTexto?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  useML?: boolean;
 }
 
 export interface CompetenciaResult {

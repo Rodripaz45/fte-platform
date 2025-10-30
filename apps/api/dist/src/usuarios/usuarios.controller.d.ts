@@ -19,8 +19,8 @@ export declare class UsuariosController {
             rolId: number;
         })[];
     } & {
-        email: string;
         id: string;
+        email: string;
         nombre: string;
         passwordHash: string;
         estado: string | null;
@@ -38,8 +38,8 @@ export declare class UsuariosController {
             rolId: number;
         })[];
     } & {
-        email: string;
         id: string;
+        email: string;
         nombre: string;
         passwordHash: string;
         estado: string | null;

@@ -6,10 +6,11 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
+import { IaService } from '../ia/ia.service';
 
 @Injectable()
 export class InscripcionesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly ia: IaService) {}
 
   /**
    * Crea una inscripción validando:
@@ -106,11 +107,24 @@ export class InscripcionesService {
     });
     if (!actual) throw new NotFoundException('Inscripción no encontrada');
 
-    return this.prisma.inscripcion.update({
+    const updated = await this.prisma.inscripcion.update({
       where: { id },
       data: { estado: dto.estado },
       include: { taller: true, participante: true },
     });
+
+    // Disparar análisis cuando el taller se marca como FINALIZADO
+    if (dto.estado === 'FINALIZADO') {
+      try {
+        await this.ia.analyzeByParticipantId(updated.participanteId);
+      } catch (e) {
+        // Loguear pero no romper la actualización de negocio
+        // eslint-disable-next-line no-console
+        console.error('IA analyze error:', e?.message || e);
+      }
+    }
+
+    return updated;
   }
 
   async remove(id: string) {
