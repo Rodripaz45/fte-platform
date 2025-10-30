@@ -6,45 +6,45 @@ export declare class CvsService {
     constructor(prisma: PrismaService);
     private sanitizeText;
     create(dto: CreateCvDto): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     findAll(params?: {
         participanteId?: string;
     }): import("@prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }[]>;
     findOne(id: string): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     update(id: string, dto: UpdateCvDto): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     remove(id: string): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
 }

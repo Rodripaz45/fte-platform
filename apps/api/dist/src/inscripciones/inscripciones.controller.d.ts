@@ -29,24 +29,24 @@ export declare class InscripcionesController {
         };
     } & {
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tallerId: string;
         participanteId: string;
         origen: string | null;
+        estado: string | null;
         dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     findAll(): Promise<({
         participante: {
             usuario: {
                 id: string;
-                email: string;
-                nombre: string;
-                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
+                nombre: string;
+                email: string;
+                passwordHash: string;
             };
         } & {
             id: string;
@@ -72,24 +72,24 @@ export declare class InscripcionesController {
         };
     } & {
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tallerId: string;
         participanteId: string;
         origen: string | null;
+        estado: string | null;
         dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     })[]>;
     findOne(id: string): Promise<{
         participante: {
             usuario: {
                 id: string;
-                email: string;
-                nombre: string;
-                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
+                nombre: string;
+                email: string;
+                passwordHash: string;
             };
         } & {
             id: string;
@@ -115,13 +115,13 @@ export declare class InscripcionesController {
         };
     } & {
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tallerId: string;
         participanteId: string;
         origen: string | null;
+        estado: string | null;
         dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     update(id: string, dto: UpdateInscripcioneDto): Promise<{
         participante: {
@@ -148,22 +148,22 @@ export declare class InscripcionesController {
         };
     } & {
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tallerId: string;
         participanteId: string;
         origen: string | null;
+        estado: string | null;
         dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        estado: string | null;
-        creadoEn: Date;
-        actualizadoEn: Date;
         tallerId: string;
         participanteId: string;
         origen: string | null;
+        estado: string | null;
         dedupeHash: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
     }>;
 }

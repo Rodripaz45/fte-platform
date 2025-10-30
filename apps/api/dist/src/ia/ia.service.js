@@ -143,41 +143,39 @@ let IaService = IaService_1 = class IaService {
             throw new common_1.HttpException('participanteId requerido', common_1.HttpStatus.BAD_REQUEST);
         }
         const competencias = analysis?.competencias || [];
-        await this.prisma.$transaction(async (tx) => {
-            for (const comp of competencias) {
-                const nombre = comp.competencia || comp.nombre;
-                if (!nombre)
-                    continue;
-                const competencia = await tx.competencia.upsert({
-                    where: { nombre },
-                    update: {},
-                    create: { nombre },
-                });
-                const nivelFloat = comp.nivel ?? 0;
-                const nivel = Math.round(nivelFloat <= 1 ? nivelFloat * 100 : nivelFloat);
-                const confianza = comp.confianza;
-                await tx.perfilCompetencia.upsert({
-                    where: {
-                        participanteId_competenciaId: {
-                            participanteId,
-                            competenciaId: competencia.id,
-                        },
-                    },
-                    update: {
-                        nivel,
-                        confianza,
-                        fuente,
-                    },
-                    create: {
+        for (const comp of competencias) {
+            const nombre = comp.competencia || comp.nombre;
+            if (!nombre)
+                continue;
+            const competencia = await this.prisma.competencia.upsert({
+                where: { nombre },
+                update: {},
+                create: { nombre },
+            });
+            const nivelFloat = comp.nivel ?? 0;
+            const nivel = Math.round(nivelFloat <= 1 ? nivelFloat * 100 : nivelFloat);
+            const confianza = comp.confianza;
+            await this.prisma.perfilCompetencia.upsert({
+                where: {
+                    participanteId_competenciaId: {
                         participanteId,
                         competenciaId: competencia.id,
-                        nivel,
-                        confianza,
-                        fuente,
                     },
-                });
-            }
-        });
+                },
+                update: {
+                    nivel,
+                    confianza,
+                    fuente,
+                },
+                create: {
+                    participanteId,
+                    competenciaId: competencia.id,
+                    nivel,
+                    confianza,
+                    fuente,
+                },
+            });
+        }
         const competenciasLen = Array.isArray(analysis?.competencias)
             ? analysis.competencias.length
             : 0;

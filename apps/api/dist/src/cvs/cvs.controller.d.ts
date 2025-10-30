@@ -5,43 +5,43 @@ export declare class CvsController {
     private readonly cvsService;
     constructor(cvsService: CvsService);
     create(dto: CreateCvDto): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     findAll(participanteId?: string): import("@prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }[]>;
     findOne(id: string): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     update(id: string, dto: UpdateCvDto): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
     remove(id: string): Promise<{
+        id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
-        id: string;
         subidoEn: Date;
-        participanteId: string;
     }>;
 }
