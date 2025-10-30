@@ -20,6 +20,7 @@ const update_cv_dto_1 = require("./dto/update-cv.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const public_decorator_1 = require("../auth/public.decorator");
+const swagger_1 = require("@nestjs/swagger");
 let CvsController = class CvsController {
     cvsService;
     constructor(cvsService) {
@@ -45,6 +46,8 @@ exports.CvsController = CvsController;
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear CV. Extrae texto automáticamente del PDF en url' }),
+    (0, swagger_1.ApiBody)({ type: create_cv_dto_1.CreateCvDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_cv_dto_1.CreateCvDto]),
@@ -53,6 +56,8 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar CVs (opcional: por participanteId)' }),
+    (0, swagger_1.ApiQuery)({ name: 'participanteId', required: false }),
     __param(0, (0, common_1.Query)('participanteId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -60,6 +65,8 @@ __decorate([
 ], CvsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener un CV por id' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -68,6 +75,9 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Actualizar un CV (url, version, texto)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String }),
+    (0, swagger_1.ApiBody)({ type: update_cv_dto_1.UpdateCvDto }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -77,6 +87,8 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Eliminar un CV por id' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -84,6 +96,7 @@ __decorate([
 ], CvsController.prototype, "remove", null);
 exports.CvsController = CvsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiTags)('CVs'),
     (0, common_1.Controller)('cvs'),
     __metadata("design:paramtypes", [cvs_service_1.CvsService])
 ], CvsController);

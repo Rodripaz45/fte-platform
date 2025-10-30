@@ -18,6 +18,7 @@ const ia_service_1 = require("./ia.service");
 const analyze_job_dto_1 = require("./dto/analyze-job.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const public_decorator_1 = require("../auth/public.decorator");
+const swagger_1 = require("@nestjs/swagger");
 let IaController = class IaController {
     iaService;
     constructor(iaService) {
@@ -37,6 +38,7 @@ exports.IaController = IaController;
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('health'),
+    (0, swagger_1.ApiOperation)({ summary: 'Health check del microservicio IA' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -44,6 +46,8 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('reprocesar/:participanteId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Reconstruye desde BD, analiza y persiste competencias' }),
+    (0, swagger_1.ApiParam)({ name: 'participanteId', type: String }),
     __param(0, (0, common_1.Param)('participanteId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -52,6 +56,8 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('analyze/job'),
+    (0, swagger_1.ApiOperation)({ summary: 'Analiza competencias requeridas para una oferta/puesto' }),
+    (0, swagger_1.ApiBody)({ type: analyze_job_dto_1.AnalyzeJobDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [analyze_job_dto_1.AnalyzeJobDto]),
@@ -59,6 +65,7 @@ __decorate([
 ], IaController.prototype, "analyzeJob", null);
 exports.IaController = IaController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiTags)('IA'),
     (0, common_1.Controller)('ia'),
     __metadata("design:paramtypes", [ia_service_1.IaService])
 ], IaController);

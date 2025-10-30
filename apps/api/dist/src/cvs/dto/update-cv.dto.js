@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateCvDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateCvDto {
     url;
     version;
@@ -18,16 +19,19 @@ class UpdateCvDto {
 }
 exports.UpdateCvDto = UpdateCvDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Nueva URL del PDF', example: 'https://storage.example.com/cvs/mi-cv-v2.pdf' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateCvDto.prototype, "url", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Nueva versión del CV', example: 'v3' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateCvDto.prototype, "version", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Texto del CV (limpio)', example: 'Profesional con experiencia en...' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

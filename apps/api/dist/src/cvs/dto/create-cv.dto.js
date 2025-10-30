@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCvDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class CreateCvDto {
     participanteId;
     url;
@@ -19,19 +20,23 @@ class CreateCvDto {
 }
 exports.CreateCvDto = CreateCvDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: 'ID del participante', example: '88417ff0-c107-4c73-b3ce-aaa47415e30b' }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCvDto.prototype, "participanteId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: 'URL pública de descarga directa del PDF', example: 'https://storage.example.com/cvs/mi-cv.pdf' }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCvDto.prototype, "url", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Versión del CV', example: 'v2' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCvDto.prototype, "version", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Texto del CV (si se omite, se extrae del PDF)', example: 'Profesional con experiencia en...' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
