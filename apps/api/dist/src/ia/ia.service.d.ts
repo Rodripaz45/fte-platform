@@ -22,5 +22,12 @@ export declare class IaService {
         competencias: import("./dto/analyze-profile.dto").CompetenciaResult[];
         meta: any;
     }>;
+    getCompetenciasByParticipanteId(participanteId: string): Promise<{
+        competencia: string;
+        nivel: number;
+        confianza: number;
+        fuente: string;
+        actualizadoEn: Date;
+    }[]>;
     analyzeJob(dto: AnalyzeJobDto): Promise<AnalyzeJobResponse>;
 }

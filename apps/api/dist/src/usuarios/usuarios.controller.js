@@ -23,9 +23,16 @@ let UsuariosController = class UsuariosController {
     constructor(usuariosService) {
         this.usuariosService = usuariosService;
     }
-    me(req) {
-        const { userId, email, roles } = req.user;
-        return { id: userId, email, roles };
+    async me(req) {
+        const { sub: userId, email, roles } = req.user;
+        const usuario = await this.usuariosService.findOne(userId);
+        return {
+            id: usuario.id,
+            email: usuario.email,
+            nombre: usuario.nombre,
+            roles,
+            participanteId: usuario.participante?.id || null,
+        };
     }
     findAll() {
         return this.usuariosService.findAll();
@@ -41,7 +48,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UsuariosController.prototype, "me", null);
 __decorate([
     (0, roles_decorator_1.Roles)('ADMIN'),

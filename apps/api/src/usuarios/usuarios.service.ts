@@ -17,7 +17,10 @@ export class UsuariosService {
   async findOne(id: string) {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id },
-      include: { roles: { include: { rol: true } } },
+      include: { 
+        roles: { include: { rol: true } },
+        participante: true,
+      },
     });
 
     if (!usuario) {

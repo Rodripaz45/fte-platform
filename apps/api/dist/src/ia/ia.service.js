@@ -182,6 +182,25 @@ let IaService = IaService_1 = class IaService {
         this.logger.log(`Persisted competencias for participanteId=${participanteId} (total: ${competenciasLen})`);
         return { saved: true, participanteId, competencias: analysis.competencias, meta: analysis.meta };
     }
+    async getCompetenciasByParticipanteId(participanteId) {
+        const perfiles = await this.prisma.perfilCompetencia.findMany({
+            where: { participanteId },
+            include: {
+                competencia: true,
+            },
+            orderBy: [
+                { confianza: 'desc' },
+                { nivel: 'desc' },
+            ],
+        });
+        return perfiles.map((perfil) => ({
+            competencia: perfil.competencia.nombre,
+            nivel: perfil.nivel || 0,
+            confianza: perfil.confianza || 0,
+            fuente: perfil.fuente || 'ia',
+            actualizadoEn: perfil.actualizadoEn,
+        }));
+    }
     async analyzeJob(dto) {
         try {
             const res = await fetch(`${this.baseUrl}/analyze/job`, {

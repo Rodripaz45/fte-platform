@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { ParticipantesService } from './participantes.service';
 import { CreateParticipanteDto } from './dto/create-participante.dto';
 import { UpdateParticipanteDto } from './dto/update-participante.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
+import type { Request as ExpressRequest } from 'express';
 
 @ApiBearerAuth()
 @Controller('participantes')
@@ -14,6 +15,27 @@ export class ParticipantesController {
   @Post()
   create(@Body() dto: CreateParticipanteDto) {
     return this.participantesService.create(dto);
+  }
+
+  /**
+   * Endpoint para que un PARTICIPANTE cree su propio perfil
+   * Solo puede crear su propio perfil (usando su usuarioId del token)
+   */
+  @Roles('PARTICIPANTE')
+  @Post('me')
+  async createMyProfile(@Req() req: ExpressRequest, @Body() dto: Omit<CreateParticipanteDto, 'usuarioId'>) {
+    type AuthenticatedRequest = ExpressRequest & {
+      user: { sub: string; email: string; roles: string[] };
+    };
+    const { sub: userId } = (req as AuthenticatedRequest).user;
+    
+    // Usar el usuarioId del token, no del body
+    const createDto: CreateParticipanteDto = {
+      ...dto,
+      usuarioId: userId,
+    };
+    
+    return this.participantesService.create(createDto);
   }
 
   @Roles('ADMIN', 'TRAINER')

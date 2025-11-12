@@ -8,19 +8,27 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var CvsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CvsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const ia_service_1 = require("../ia/ia.service");
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const openai_1 = __importDefault(require("openai"));
-let CvsService = class CvsService {
+let CvsService = CvsService_1 = class CvsService {
     prisma;
-    constructor(prisma) {
+    iaService;
+    logger = new common_1.Logger(CvsService_1.name);
+    constructor(prisma, iaService) {
         this.prisma = prisma;
+        this.iaService = iaService;
     }
     sanitizeText(raw) {
         if (!raw)
@@ -37,6 +45,14 @@ let CvsService = class CvsService {
         return txt.trim();
     }
     async create(dto) {
+        const existingCv = await this.prisma.cv.findFirst({
+            where: { participanteId: dto.participanteId },
+        });
+        if (existingCv) {
+            await this.prisma.cv.delete({
+                where: { id: existingCv.id },
+            });
+        }
         let texto = dto.texto;
         if (!texto && dto.url) {
             try {
@@ -101,14 +117,39 @@ let CvsService = class CvsService {
                 console.log('[CV] Error limpieza OpenAI:', e?.message);
             }
         }
-        return this.prisma.cv.create({
+        const nuevoCv = await this.prisma.cv.create({
             data: {
                 participanteId: dto.participanteId,
                 url: dto.url,
-                version: dto.version,
                 ...(texto ? { texto } : {}),
             },
         });
+        await this.clearCompetencias(dto.participanteId);
+        this.analyzeParticipantProfile(dto.participanteId).catch((error) => {
+            this.logger.error(`Error ejecutando análisis automático para participante ${dto.participanteId}:`, error);
+        });
+        return nuevoCv;
+    }
+    async clearCompetencias(participanteId) {
+        try {
+            const deleted = await this.prisma.perfilCompetencia.deleteMany({
+                where: { participanteId },
+            });
+            this.logger.log(`Competencias eliminadas para participante ${participanteId}: ${deleted.count}`);
+        }
+        catch (error) {
+            this.logger.error(`Error eliminando competencias para participante ${participanteId}:`, error);
+        }
+    }
+    async analyzeParticipantProfile(participanteId) {
+        try {
+            this.logger.log(`Iniciando análisis automático para participante: ${participanteId}`);
+            await this.iaService.analyzeByParticipantId(participanteId);
+            this.logger.log(`Análisis completado para participante: ${participanteId}`);
+        }
+        catch (error) {
+            this.logger.error(`Error en análisis automático para participante ${participanteId}:`, error);
+        }
     }
     findAll(params) {
         const where = params?.participanteId
@@ -132,8 +173,10 @@ let CvsService = class CvsService {
     }
 };
 exports.CvsService = CvsService;
-exports.CvsService = CvsService = __decorate([
+exports.CvsService = CvsService = CvsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => ia_service_1.IaService))),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        ia_service_1.IaService])
 ], CvsService);
 //# sourceMappingURL=cvs.service.js.map

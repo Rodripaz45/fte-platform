@@ -1,13 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import { IaService } from '../ia/ia.service';
 import pdfParse from 'pdf-parse';
 import OpenAI from 'openai';
 
 @Injectable()
 export class CvsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(CvsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => IaService))
+    private readonly iaService: IaService,
+  ) {}
 
   private sanitizeText(raw: string): string {
     if (!raw) return raw;
@@ -27,6 +34,17 @@ export class CvsService {
   }
 
   async create(dto: CreateCvDto) {
+    // Si ya existe un CV para este participante, eliminarlo primero
+    const existingCv = await this.prisma.cv.findFirst({
+      where: { participanteId: dto.participanteId },
+    });
+
+    if (existingCv) {
+      await this.prisma.cv.delete({
+        where: { id: existingCv.id },
+      });
+    }
+
     // Si no viene texto, intentamos extraerlo del PDF en dto.url
     let texto: string | undefined = dto.texto;
     if (!texto && dto.url) {
@@ -100,14 +118,66 @@ export class CvsService {
       }
     }
 
-    return this.prisma.cv.create({
+    const nuevoCv = await this.prisma.cv.create({
       data: {
         participanteId: dto.participanteId,
         url: dto.url,
-        version: dto.version,
         ...(texto ? { texto } : {}),
       },
     });
+
+    // Limpiar competencias anteriores antes de ejecutar el análisis
+    // El análisis generará nuevas competencias basadas en el nuevo CV
+    await this.clearCompetencias(dto.participanteId);
+
+    // Ejecutar análisis automático en segundo plano (no bloquea la respuesta)
+    // Si hay texto extraído, el análisis incluirá el CV
+    this.analyzeParticipantProfile(dto.participanteId).catch((error) => {
+      this.logger.error(
+        `Error ejecutando análisis automático para participante ${dto.participanteId}:`,
+        error,
+      );
+    });
+
+    return nuevoCv;
+  }
+
+  /**
+   * Elimina todas las competencias anteriores de un participante
+   */
+  private async clearCompetencias(participanteId: string): Promise<void> {
+    try {
+      const deleted = await this.prisma.perfilCompetencia.deleteMany({
+        where: { participanteId },
+      });
+      this.logger.log(
+        `Competencias eliminadas para participante ${participanteId}: ${deleted.count}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error eliminando competencias para participante ${participanteId}:`,
+        error,
+      );
+      // No lanzar el error para no afectar la creación del CV
+    }
+  }
+
+  /**
+   * Ejecuta el análisis del perfil del participante en segundo plano
+   * No bloquea la creación del CV
+   */
+  private async analyzeParticipantProfile(participanteId: string): Promise<void> {
+    try {
+      this.logger.log(`Iniciando análisis automático para participante: ${participanteId}`);
+      await this.iaService.analyzeByParticipantId(participanteId);
+      this.logger.log(`Análisis completado para participante: ${participanteId}`);
+    } catch (error) {
+      this.logger.error(
+        `Error en análisis automático para participante ${participanteId}:`,
+        error,
+      );
+      // No lanzar el error para no afectar la creación del CV
+    }
   }
 
   findAll(params?: { participanteId?: string }) {

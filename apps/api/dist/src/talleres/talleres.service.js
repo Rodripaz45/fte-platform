@@ -52,9 +52,16 @@ let TalleresService = class TalleresService {
     }
     async update(id, dto) {
         const taller = await this.findOne(id);
+        const data = { ...dto };
+        if (dto.fechaInicio) {
+            data.fechaInicio = new Date(dto.fechaInicio);
+        }
+        if (dto.fechaFin) {
+            data.fechaFin = new Date(dto.fechaFin);
+        }
         return this.prisma.taller.update({
             where: { id: taller.id },
-            data: dto,
+            data,
         });
     }
     async remove(id) {

@@ -79,6 +79,31 @@ export class InscripcionesService {
     });
   }
 
+  /**
+   * Obtiene las inscripciones de un usuario por su usuarioId
+   * (obtiene primero el participanteId del usuario)
+   */
+  async findByUsuarioId(usuarioId: string) {
+    // Obtener el participante del usuario
+    const participante = await this.prisma.participante.findUnique({
+      where: { usuarioId },
+      select: { id: true },
+    });
+
+    if (!participante) {
+      return []; // Si no tiene perfil de participante, retornar array vacío
+    }
+
+    return this.prisma.inscripcion.findMany({
+      where: { participanteId: participante.id },
+      include: {
+        taller: true,
+        participante: { include: { usuario: true } },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+  }
+
   async findOne(id: string) {
     const inscripcion = await this.prisma.inscripcion.findUnique({
       where: { id },

@@ -45,9 +45,19 @@ export class TalleresService {
 
   async update(id: string, dto: UpdateTallereDto) {
     const taller = await this.findOne(id);
+    
+    // Convertir fechas a Date si vienen como string
+    const data: any = { ...dto };
+    if (dto.fechaInicio) {
+      data.fechaInicio = new Date(dto.fechaInicio);
+    }
+    if (dto.fechaFin) {
+      data.fechaFin = new Date(dto.fechaFin);
+    }
+    
     return this.prisma.taller.update({
       where: { id: taller.id },
-      data: dto,
+      data,
     });
   }
 

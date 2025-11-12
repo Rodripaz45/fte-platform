@@ -95,10 +95,10 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
-            tallerId: string;
             responsableId: string | null;
         };
     } & {
@@ -164,10 +164,10 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
-            tallerId: string;
             responsableId: string | null;
         };
     } & {

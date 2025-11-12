@@ -35,4 +35,12 @@ export class IaController {
   async analyzeJob(@Body() dto: AnalyzeJobDto) {
     return this.iaService.analyzeJob(dto);
   }
+
+  @Public()
+  @Get('competencias/:participanteId')
+  @ApiOperation({ summary: 'Obtener competencias de un participante' })
+  @ApiParam({ name: 'participanteId', type: String })
+  async getCompetencias(@Param('participanteId') participanteId: string) {
+    return this.iaService.getCompetenciasByParticipanteId(participanteId);
+  }
 }

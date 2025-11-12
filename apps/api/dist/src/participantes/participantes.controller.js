@@ -27,6 +27,14 @@ let ParticipantesController = class ParticipantesController {
     create(dto) {
         return this.participantesService.create(dto);
     }
+    async createMyProfile(req, dto) {
+        const { sub: userId } = req.user;
+        const createDto = {
+            ...dto,
+            usuarioId: userId,
+        };
+        return this.participantesService.create(createDto);
+    }
     findAll() {
         return this.participantesService.findAll();
     }
@@ -49,6 +57,15 @@ __decorate([
     __metadata("design:paramtypes", [create_participante_dto_1.CreateParticipanteDto]),
     __metadata("design:returntype", void 0)
 ], ParticipantesController.prototype, "create", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE'),
+    (0, common_1.Post)('me'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ParticipantesController.prototype, "createMyProfile", null);
 __decorate([
     (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(),

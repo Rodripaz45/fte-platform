@@ -26,13 +26,23 @@ export class UsuariosController {
   // === NUEVO ENDPOINT PROTEGIDO ===
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: ExpressRequest) {
+  async me(@Req() req: ExpressRequest) {
     type AuthenticatedRequest = ExpressRequest & {
-      user: { userId: string; email: string; roles: string[] };
+      user: { sub: string; email: string; roles: string[] };
     };
     // `req.user` viene de JwtStrategy.validate()
-    const { userId, email, roles } = (req as AuthenticatedRequest).user;
-    return { id: userId, email, roles };
+    const { sub: userId, email, roles } = (req as AuthenticatedRequest).user;
+    
+    // Obtener información completa del usuario incluyendo participante
+    const usuario = await this.usuariosService.findOne(userId);
+    
+    return { 
+      id: usuario.id, 
+      email: usuario.email, 
+      nombre: usuario.nombre,
+      roles,
+      participanteId: usuario.participante?.id || null,
+    };
   }
 
 

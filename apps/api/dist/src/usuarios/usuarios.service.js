@@ -28,7 +28,10 @@ let UsuariosService = class UsuariosService {
     async findOne(id) {
         const usuario = await this.prisma.usuario.findUnique({
             where: { id },
-            include: { roles: { include: { rol: true } } },
+            include: {
+                roles: { include: { rol: true } },
+                participante: true,
+            },
         });
         if (!usuario) {
             throw new common_1.NotFoundException('Usuario no encontrado');

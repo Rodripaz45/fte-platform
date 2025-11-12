@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const cvs_service_1 = require("./cvs.service");
 const cvs_controller_1 = require("./cvs.controller");
 const prisma_module_1 = require("../../prisma/prisma.module");
+const ia_module_1 = require("../ia/ia.module");
 let CvsModule = class CvsModule {
 };
 exports.CvsModule = CvsModule;
 exports.CvsModule = CvsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => ia_module_1.IaModule)],
         controllers: [cvs_controller_1.CvsController],
         providers: [cvs_service_1.CvsService],
         exports: [cvs_service_1.CvsService],

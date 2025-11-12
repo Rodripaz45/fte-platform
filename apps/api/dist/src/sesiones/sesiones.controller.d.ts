@@ -8,10 +8,10 @@ export declare class SesionesController {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        tallerId: string;
         responsableId: string | null;
     }>;
     findAll(tallerId?: string, page?: string, pageSize?: string): Promise<{
@@ -44,10 +44,10 @@ export declare class SesionesController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
-            tallerId: string;
             responsableId: string | null;
         })[];
     }>;
@@ -107,10 +107,10 @@ export declare class SesionesController {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        tallerId: string;
         responsableId: string | null;
     }>;
     update(id: string, dto: UpdateSesionDto): Promise<{
@@ -139,20 +139,20 @@ export declare class SesionesController {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        tallerId: string;
         responsableId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        tallerId: string;
         responsableId: string | null;
     }>;
 }

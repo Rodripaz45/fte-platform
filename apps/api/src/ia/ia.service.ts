@@ -241,6 +241,30 @@ export class IaService {
   }
 
   /**
+   * Obtiene las competencias de un participante desde la BD
+   */
+  async getCompetenciasByParticipanteId(participanteId: string) {
+    const perfiles = await this.prisma.perfilCompetencia.findMany({
+      where: { participanteId },
+      include: {
+        competencia: true,
+      },
+      orderBy: [
+        { confianza: 'desc' },
+        { nivel: 'desc' },
+      ],
+    });
+
+    return perfiles.map((perfil) => ({
+      competencia: perfil.competencia.nombre,
+      nivel: perfil.nivel || 0,
+      confianza: perfil.confianza || 0,
+      fuente: perfil.fuente || 'ia',
+      actualizadoEn: perfil.actualizadoEn,
+    }));
+  }
+
+  /**
    * Analiza los requisitos de un puesto de trabajo
    */
   async analyzeJob(dto: AnalyzeJobDto): Promise<AnalyzeJobResponse> {

@@ -27,6 +27,10 @@ let InscripcionesController = class InscripcionesController {
     create(dto) {
         return this.inscripcionesService.create(dto);
     }
+    async findMyInscripciones(req) {
+        const { sub: userId } = req.user;
+        return this.inscripcionesService.findByUsuarioId(userId);
+    }
     findAll() {
         return this.inscripcionesService.findAll();
     }
@@ -49,6 +53,14 @@ __decorate([
     __metadata("design:paramtypes", [create_inscripcione_dto_1.CreateInscripcioneDto]),
     __metadata("design:returntype", void 0)
 ], InscripcionesController.prototype, "create", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE'),
+    (0, common_1.Get)('me'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InscripcionesController.prototype, "findMyInscripciones", null);
 __decorate([
     (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
     (0, common_1.Get)(),

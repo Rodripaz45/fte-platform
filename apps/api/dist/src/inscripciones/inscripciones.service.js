@@ -68,6 +68,23 @@ let InscripcionesService = class InscripcionesService {
             orderBy: { creadoEn: 'desc' },
         });
     }
+    async findByUsuarioId(usuarioId) {
+        const participante = await this.prisma.participante.findUnique({
+            where: { usuarioId },
+            select: { id: true },
+        });
+        if (!participante) {
+            return [];
+        }
+        return this.prisma.inscripcion.findMany({
+            where: { participanteId: participante.id },
+            include: {
+                taller: true,
+                participante: { include: { usuario: true } },
+            },
+            orderBy: { creadoEn: 'desc' },
+        });
+    }
     async findOne(id) {
         const inscripcion = await this.prisma.inscripcion.findUnique({
             where: { id },

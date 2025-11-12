@@ -33,6 +33,9 @@ let IaController = class IaController {
     async analyzeJob(dto) {
         return this.iaService.analyzeJob(dto);
     }
+    async getCompetencias(participanteId) {
+        return this.iaService.getCompetenciasByParticipanteId(participanteId);
+    }
 };
 exports.IaController = IaController;
 __decorate([
@@ -63,6 +66,16 @@ __decorate([
     __metadata("design:paramtypes", [analyze_job_dto_1.AnalyzeJobDto]),
     __metadata("design:returntype", Promise)
 ], IaController.prototype, "analyzeJob", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('competencias/:participanteId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener competencias de un participante' }),
+    (0, swagger_1.ApiParam)({ name: 'participanteId', type: String }),
+    __param(0, (0, common_1.Param)('participanteId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], IaController.prototype, "getCompetencias", null);
 exports.IaController = IaController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiTags)('IA'),

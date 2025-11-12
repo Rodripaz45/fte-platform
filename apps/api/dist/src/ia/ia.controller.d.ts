@@ -11,4 +11,11 @@ export declare class IaController {
         meta: any;
     }>;
     analyzeJob(dto: AnalyzeJobDto): Promise<import("./dto/analyze-job.dto").AnalyzeJobResponse>;
+    getCompetencias(participanteId: string): Promise<{
+        competencia: string;
+        nivel: number;
+        confianza: number;
+        fuente: string;
+        actualizadoEn: Date;
+    }[]>;
 }

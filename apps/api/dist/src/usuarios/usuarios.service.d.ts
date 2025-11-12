@@ -14,14 +14,24 @@ export declare class UsuariosService {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
     })[]>;
     findOne(id: string): Promise<{
+        participante: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        } | null;
         roles: ({
             rol: {
                 id: number;
@@ -33,8 +43,8 @@ export declare class UsuariosService {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
