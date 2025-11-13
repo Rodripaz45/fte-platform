@@ -15,13 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SesionesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const notificaciones_service_1 = require("../notificaciones/notificaciones.service");
 const qrcode_1 = __importDefault(require("qrcode"));
 const crypto_1 = require("crypto");
 const os_1 = require("os");
 let SesionesService = class SesionesService {
     prisma;
-    constructor(prisma) {
+    notificacionesService;
+    constructor(prisma, notificacionesService) {
         this.prisma = prisma;
+        this.notificacionesService = notificacionesService;
     }
     getLocalIP() {
         if (process.env.LOCAL_IP) {
@@ -57,7 +60,7 @@ let SesionesService = class SesionesService {
     async create(dto) {
         const taller = await this.prisma.taller.findUnique({
             where: { id: dto.tallerId },
-            select: { id: true, estado: true },
+            include: { inscripciones: { include: { participante: { include: { usuario: true } } } } },
         });
         if (!taller)
             throw new common_1.NotFoundException('Taller no encontrado');
@@ -73,15 +76,41 @@ let SesionesService = class SesionesService {
             if (!responsable)
                 throw new common_1.NotFoundException('Usuario responsable no encontrado');
         }
-        return this.prisma.sesion.create({
+        const fechaSesion = new Date(dto.fecha);
+        const sesion = await this.prisma.sesion.create({
             data: {
                 tallerId: dto.tallerId,
-                fecha: new Date(dto.fecha),
+                fecha: fechaSesion,
                 horaInicio: dto.horaInicio ? new Date(dto.horaInicio) : null,
                 horaFin: dto.horaFin ? new Date(dto.horaFin) : null,
                 responsableId: dto.responsableId ?? null,
             },
         });
+        try {
+            const inscripcionesActivas = taller.inscripciones.filter(ins => ins.estado === 'INSCRITO' || ins.estado === 'FINALIZADO');
+            console.log(`[SesionesService] Creando notificaciones para ${inscripcionesActivas.length} participantes inscritos en el taller "${taller.tema}"`);
+            if (inscripcionesActivas.length > 0) {
+                const notificacionesPromesas = inscripcionesActivas.map(inscripcion => this.notificacionesService.crearRecordatorioSesion(inscripcion.participante.usuario.id, sesion.id, fechaSesion, taller.tema)
+                    .then(() => {
+                    console.log(`[SesionesService] Notificación creada para ${inscripcion.participante.usuario.email}`);
+                    return true;
+                })
+                    .catch(err => {
+                    console.error(`[SesionesService] Error notificando a ${inscripcion.participante.usuario.email}:`, err);
+                    return false;
+                }));
+                const resultados = await Promise.all(notificacionesPromesas);
+                const exitosas = resultados.filter(r => r === true).length;
+                console.log(`[SesionesService] Notificaciones creadas: ${exitosas}/${inscripcionesActivas.length} exitosas`);
+            }
+            else {
+                console.log(`[SesionesService] No hay participantes inscritos para notificar`);
+            }
+        }
+        catch (error) {
+            console.error('[SesionesService] Error creando notificaciones de sesión:', error);
+        }
+        return sesion;
     }
     async findAll(params) {
         const where = params?.tallerId ? { tallerId: params.tallerId } : undefined;
@@ -239,6 +268,7 @@ let SesionesService = class SesionesService {
 exports.SesionesService = SesionesService;
 exports.SesionesService = SesionesService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notificaciones_service_1.NotificacionesService])
 ], SesionesService);
 //# sourceMappingURL=sesiones.service.js.map

@@ -13,6 +13,7 @@ import { ParticipantesModule } from './participantes/participantes.module';
 import { SesionesModule } from './sesiones/sesiones.module';
 import { IaModule } from './ia/ia.module';
 import { CvsModule } from './cvs/cvs.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
@@ -31,6 +32,7 @@ import { RolesGuard } from './auth/roles.guard';
     ReportesModule,
     IaModule,
     CvsModule,
+    NotificacionesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

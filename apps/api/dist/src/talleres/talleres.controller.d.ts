@@ -5,6 +5,12 @@ export declare class TalleresController {
     private readonly talleresService;
     constructor(talleresService: TalleresService);
     create(createTallereDto: CreateTallereDto): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -15,11 +21,17 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     findAll(): Promise<({
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -30,10 +42,16 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -44,6 +62,7 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     })[]>;
     findOne(id: string): Promise<{
         cuposDisponibles: null;
@@ -67,6 +86,11 @@ export declare class TalleresController {
             puntaje: number | null;
             comentario: string | null;
         }[];
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -77,6 +101,7 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
@@ -99,6 +124,11 @@ export declare class TalleresController {
             puntaje: number | null;
             comentario: string | null;
         }[];
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -109,8 +139,15 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     update(id: string, updateTallereDto: UpdateTallereDto): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -121,6 +158,7 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -133,5 +171,6 @@ export declare class TalleresController {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
 }

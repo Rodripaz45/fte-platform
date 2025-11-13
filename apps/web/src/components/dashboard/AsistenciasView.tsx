@@ -73,7 +73,7 @@ export default function AsistenciasView() {
   // Polling de sesiones cada 30 segundos
   usePolling(() => {
     loadSesiones();
-  }, { interval: 30000 });
+  }, { interval: 30000, pauseWhenDialogOpen: true });
 
   // Polling de asistencias y resumen cuando hay una sesión seleccionada
   usePolling(() => {
@@ -81,7 +81,7 @@ export default function AsistenciasView() {
       loadAsistencias();
       loadResumen();
     }
-  }, { interval: 30000, enabled: !!selectedSesionId });
+  }, { interval: 30000, enabled: !!selectedSesionId, pauseWhenDialogOpen: true });
 
   const loadSesiones = async () => {
     try {

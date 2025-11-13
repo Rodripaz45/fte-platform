@@ -67,7 +67,7 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     } else if (defaultTallerId) {
       loadSesiones(defaultTallerId);
     }
-  }, { interval: 30000 });
+  }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTalleres = async () => {
     try {

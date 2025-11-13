@@ -36,7 +36,7 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
   // Polling de datos del taller cada 30 segundos
   usePolling(() => {
     loadTallerData();
-  }, { interval: 30000 });
+  }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTallerData = async () => {
     try {

@@ -12,16 +12,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TalleresService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const notificaciones_service_1 = require("../notificaciones/notificaciones.service");
 let TalleresService = class TalleresService {
     prisma;
-    constructor(prisma) {
+    notificacionesService;
+    constructor(prisma, notificacionesService) {
         this.prisma = prisma;
+        this.notificacionesService = notificacionesService;
     }
     async create(dto) {
         if (dto.fechaInicio && dto.fechaFin && dto.fechaInicio >= dto.fechaFin) {
             throw new common_1.BadRequestException('La fecha de inicio debe ser anterior a la fecha de fin');
         }
-        return this.prisma.taller.create({
+        const trainer = await this.prisma.usuario.findUnique({
+            where: { id: dto.trainerId },
+            include: { roles: { include: { rol: true } } },
+        });
+        if (!trainer) {
+            throw new common_1.NotFoundException('Trainer no encontrado');
+        }
+        const tieneRolTrainer = trainer.roles.some(ur => ur.rol.nombre === 'TRAINER');
+        if (!tieneRolTrainer) {
+            throw new common_1.BadRequestException('El usuario especificado no tiene rol TRAINER');
+        }
+        if (trainer.estado !== 'ACTIVO') {
+            throw new common_1.BadRequestException('El trainer debe estar activo');
+        }
+        const taller = await this.prisma.taller.create({
             data: {
                 tema: dto.tema,
                 modalidad: dto.modalidad,
@@ -30,11 +47,40 @@ let TalleresService = class TalleresService {
                 fechaFin: dto.fechaFin ? new Date(dto.fechaFin) : null,
                 sede: dto.sede,
                 estado: dto.estado ?? 'PROGRAMADO',
+                trainerId: dto.trainerId,
+            },
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
             },
         });
+        try {
+            const participantes = await this.prisma.participante.findMany({
+                include: { usuario: true },
+            });
+            Promise.all(participantes.map(participante => this.notificacionesService.crearNotificacionNuevoTaller(participante.usuario.id, taller.tema).catch(err => console.error(`Error notificando a ${participante.usuario.email}:`, err)))).catch(() => { });
+        }
+        catch (error) {
+            console.error('Error creando notificaciones de nuevo taller:', error);
+        }
+        return taller;
     }
     async findAll() {
         const talleres = await this.prisma.taller.findMany({
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+            },
             orderBy: { creadoEn: 'desc' },
         });
         return Promise.all(talleres.map(async (taller) => {
@@ -68,6 +114,13 @@ let TalleresService = class TalleresService {
             include: {
                 inscripciones: true,
                 feedbacks: true,
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
             },
         });
         if (!taller)
@@ -92,6 +145,22 @@ let TalleresService = class TalleresService {
     }
     async update(id, dto) {
         const taller = await this.findOne(id);
+        if (dto.trainerId) {
+            const trainer = await this.prisma.usuario.findUnique({
+                where: { id: dto.trainerId },
+                include: { roles: { include: { rol: true } } },
+            });
+            if (!trainer) {
+                throw new common_1.NotFoundException('Trainer no encontrado');
+            }
+            const tieneRolTrainer = trainer.roles.some(ur => ur.rol.nombre === 'TRAINER');
+            if (!tieneRolTrainer) {
+                throw new common_1.BadRequestException('El usuario especificado no tiene rol TRAINER');
+            }
+            if (trainer.estado !== 'ACTIVO') {
+                throw new common_1.BadRequestException('El trainer debe estar activo');
+            }
+        }
         const data = { ...dto };
         if (dto.fechaInicio) {
             data.fechaInicio = new Date(dto.fechaInicio);
@@ -102,6 +171,15 @@ let TalleresService = class TalleresService {
         return this.prisma.taller.update({
             where: { id: taller.id },
             data,
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+            },
         });
     }
     async remove(id) {
@@ -112,6 +190,7 @@ let TalleresService = class TalleresService {
 exports.TalleresService = TalleresService;
 exports.TalleresService = TalleresService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notificaciones_service_1.NotificacionesService])
 ], TalleresService);
 //# sourceMappingURL=talleres.service.js.map

@@ -7,10 +7,15 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
 import { IaService } from '../ia/ia.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class InscripcionesService {
-  constructor(private readonly prisma: PrismaService, private readonly ia: IaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ia: IaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /**
    * Crea una inscripción validando:
@@ -71,14 +76,28 @@ export class InscripcionesService {
       );
     }
 
-    return this.prisma.inscripcion.create({
+    const inscripcion = await this.prisma.inscripcion.create({
       data: {
         participanteId: dto.participanteId,
         tallerId: dto.tallerId,
         estado: 'INSCRITO',
       },
-      include: { taller: true, participante: true },
+      include: { taller: true, participante: { include: { usuario: true } } },
     });
+
+    // Crear notificación de confirmación de inscripción
+    try {
+      await this.notificacionesService.crearConfirmacionInscripcion(
+        inscripcion.participante.usuario.id,
+        inscripcion.taller.tema,
+        inscripcion.taller.fechaInicio || undefined,
+      );
+    } catch (error) {
+      // No fallar la inscripción si falla la notificación
+      console.error('Error creando notificación de inscripción:', error);
+    }
+
+    return inscripcion;
   }
 
   async findAll() {

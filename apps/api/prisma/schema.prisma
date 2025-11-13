@@ -18,6 +18,7 @@ model Usuario {
   notificaciones Notificacion[]
   participante   Participante?
   sesiones       Sesion[]       @relation("UsuarioResponsableSesiones")
+  talleres       Taller[]       @relation("TallerTrainer")
   roles          UsuarioRol[]
 }
 
@@ -65,12 +66,15 @@ model Taller {
   fechaFin      DateTime?           @map("fecha_fin")
   sede          String?
   estado        String?
+  trainerId     String              @map("trainer_id")
   creadoEn      DateTime            @default(now()) @map("creado_en")
   actualizadoEn DateTime            @updatedAt @map("actualizado_en")
   inscripciones Inscripcion[]
   feedbacks     Retroalimentacion[]
   sesiones      Sesion[]
+  trainer       Usuario             @relation("TallerTrainer", fields: [trainerId], references: [id])
 
+  @@index([trainerId])
   @@map("talleres")
 }
 
@@ -163,10 +167,13 @@ model Notificacion {
   canal     String?
   tipo      String?
   estado    String?
+  titulo    String?  @db.Text
+  mensaje   String?  @db.Text
   creadoEn  DateTime @default(now()) @map("creado_en")
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
   @@index([usuarioId])
+  @@index([estado])
   @@map("notificaciones")
 }
 

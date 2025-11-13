@@ -24,6 +24,34 @@ async function main() {
             genero: 'N/D',
         },
     });
+    const rolTrainer = await prisma.rol.upsert({
+        where: { nombre: 'TRAINER' },
+        update: {},
+        create: { nombre: 'TRAINER' },
+    });
+    const trainerUsuario = await prisma.usuario.upsert({
+        where: { email: 'demo.trainer@fte.local' },
+        update: {},
+        create: {
+            nombre: 'Demo Trainer',
+            email: 'demo.trainer@fte.local',
+            passwordHash: 'seeded',
+            estado: 'ACTIVO',
+        },
+    });
+    await prisma.usuarioRol.upsert({
+        where: {
+            usuarioId_rolId: {
+                usuarioId: trainerUsuario.id,
+                rolId: rolTrainer.id,
+            },
+        },
+        update: {},
+        create: {
+            usuarioId: trainerUsuario.id,
+            rolId: rolTrainer.id,
+        },
+    });
     const taller = await prisma.taller.create({
         data: {
             tema: 'marketing digital y redes sociales',
@@ -31,6 +59,7 @@ async function main() {
             cupos: 30,
             sede: 'Sede Central',
             estado: 'PROGRAMADO',
+            trainerId: trainerUsuario.id,
         },
     });
     const sesion1 = await prisma.sesion.create({

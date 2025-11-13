@@ -1,10 +1,18 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 export declare class TalleresService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notificacionesService;
+    constructor(prisma: PrismaService, notificacionesService: NotificacionesService);
     create(dto: CreateTallereDto): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -15,11 +23,17 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     findAll(): Promise<({
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -30,10 +44,16 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -44,6 +64,7 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     })[]>;
     findOne(id: string): Promise<{
         cuposDisponibles: null;
@@ -67,6 +88,11 @@ export declare class TalleresService {
             puntaje: number | null;
             comentario: string | null;
         }[];
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -77,6 +103,7 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
@@ -99,6 +126,11 @@ export declare class TalleresService {
             puntaje: number | null;
             comentario: string | null;
         }[];
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -109,8 +141,15 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     update(id: string, dto: UpdateTallereDto): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -121,6 +160,7 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -133,5 +173,6 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        trainerId: string;
     }>;
 }

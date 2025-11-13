@@ -1,6 +1,12 @@
 // Servicio API para Talleres
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
+export interface Trainer {
+  id: string;
+  nombre: string;
+  email: string;
+}
+
 export interface Taller {
   id: string;
   tema: string;
@@ -10,6 +16,8 @@ export interface Taller {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  trainerId: string;
+  trainer?: Trainer;
   creadoEn?: string;
   actualizadoEn?: string;
   // Campos adicionales para información de cupos
@@ -26,6 +34,7 @@ export interface CreateTallerDto {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  trainerId: string;
 }
 
 export interface UpdateTallerDto {
@@ -36,6 +45,7 @@ export interface UpdateTallerDto {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  trainerId?: string;
 }
 
 const getAuthHeaders = () => {

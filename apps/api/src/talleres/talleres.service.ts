@@ -2,17 +2,40 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class TalleresService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   async create(dto: CreateTallereDto) {
     if (dto.fechaInicio && dto.fechaFin && dto.fechaInicio >= dto.fechaFin) {
       throw new BadRequestException('La fecha de inicio debe ser anterior a la fecha de fin');
     }
 
-    return this.prisma.taller.create({
+    // Validar que el trainer existe y tiene rol TRAINER
+    const trainer = await this.prisma.usuario.findUnique({
+      where: { id: dto.trainerId },
+      include: { roles: { include: { rol: true } } },
+    });
+
+    if (!trainer) {
+      throw new NotFoundException('Trainer no encontrado');
+    }
+
+    const tieneRolTrainer = trainer.roles.some(ur => ur.rol.nombre === 'TRAINER');
+    if (!tieneRolTrainer) {
+      throw new BadRequestException('El usuario especificado no tiene rol TRAINER');
+    }
+
+    if (trainer.estado !== 'ACTIVO') {
+      throw new BadRequestException('El trainer debe estar activo');
+    }
+
+    const taller = await this.prisma.taller.create({
       data: {
         tema: dto.tema,
         modalidad: dto.modalidad,
@@ -21,12 +44,53 @@ export class TalleresService {
         fechaFin: dto.fechaFin ? new Date(dto.fechaFin) : null,
         sede: dto.sede,
         estado: dto.estado ?? 'PROGRAMADO',
+        trainerId: dto.trainerId,
+      },
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+          },
+        },
       },
     });
+
+    // Notificar a todos los participantes activos sobre el nuevo taller
+    try {
+      const participantes = await this.prisma.participante.findMany({
+        include: { usuario: true },
+      });
+
+      // Crear notificaciones en paralelo (sin esperar)
+      Promise.all(
+        participantes.map(participante =>
+          this.notificacionesService.crearNotificacionNuevoTaller(
+            participante.usuario.id,
+            taller.tema,
+          ).catch(err => console.error(`Error notificando a ${participante.usuario.email}:`, err))
+        )
+      ).catch(() => {}); // Ignorar errores en el Promise.all
+    } catch (error) {
+      // No fallar la creación del taller si falla la notificación
+      console.error('Error creando notificaciones de nuevo taller:', error);
+    }
+
+    return taller;
   }
 
   async findAll() {
     const talleres = await this.prisma.taller.findMany({
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+          },
+        },
+      },
       orderBy: { creadoEn: 'desc' },
     });
 
@@ -69,6 +133,13 @@ export class TalleresService {
       include: {
         inscripciones: true,
         feedbacks: true,
+        trainer: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+          },
+        },
       },
     });
     if (!taller) throw new NotFoundException('Taller no encontrado');
@@ -104,6 +175,27 @@ export class TalleresService {
   async update(id: string, dto: UpdateTallereDto) {
     const taller = await this.findOne(id);
     
+    // Validar trainer si se está actualizando
+    if (dto.trainerId) {
+      const trainer = await this.prisma.usuario.findUnique({
+        where: { id: dto.trainerId },
+        include: { roles: { include: { rol: true } } },
+      });
+
+      if (!trainer) {
+        throw new NotFoundException('Trainer no encontrado');
+      }
+
+      const tieneRolTrainer = trainer.roles.some(ur => ur.rol.nombre === 'TRAINER');
+      if (!tieneRolTrainer) {
+        throw new BadRequestException('El usuario especificado no tiene rol TRAINER');
+      }
+
+      if (trainer.estado !== 'ACTIVO') {
+        throw new BadRequestException('El trainer debe estar activo');
+      }
+    }
+    
     // Convertir fechas a Date si vienen como string
     const data: any = { ...dto };
     if (dto.fechaInicio) {
@@ -116,6 +208,15 @@ export class TalleresService {
     return this.prisma.taller.update({
       where: { id: taller.id },
       data,
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+          },
+        },
+      },
     });
   }
 

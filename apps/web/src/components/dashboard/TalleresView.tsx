@@ -23,8 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Calendar, Users, MapPin } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Users, MapPin, User } from "lucide-react";
 import { talleresApi, type Taller, type CreateTallerDto, type UpdateTallerDto } from "@/lib/api/talleres";
+import { trainersApi, type Trainer } from "@/lib/api/trainers";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePolling } from "@/hooks/usePolling";
 
@@ -35,6 +36,7 @@ interface TalleresViewProps {
 export default function TalleresView({ onTallerClick }: TalleresViewProps) {
   const { user } = useAuth();
   const [talleres, setTalleres] = useState<Taller[]>([]);
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTaller, setEditingTaller] = useState<Taller | null>(null);
@@ -42,6 +44,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [formModalidad, setFormModalidad] = useState<string>('');
   const [formEstado, setFormEstado] = useState<string>('PROGRAMADO');
+  const [formTrainerId, setFormTrainerId] = useState<string>('');
 
   const isAdmin = user?.roles?.some(role => role === 'ADMIN') ?? false;
   const isTrainer = user?.roles?.some(role => role === 'TRAINER') ?? false;
@@ -49,12 +52,15 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
 
   useEffect(() => {
     loadTalleres();
-  }, []);
+    if (canEdit) {
+      loadTrainers();
+    }
+  }, [canEdit]);
 
-  // Polling de talleres cada 30 segundos
+  // Polling de talleres cada 30 segundos (pausado cuando hay diálogo abierto)
   usePolling(() => {
     loadTalleres();
-  }, { interval: 30000 });
+  }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTalleres = async () => {
     try {
@@ -69,10 +75,21 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
     }
   };
 
+  const loadTrainers = async () => {
+    try {
+      const data = await trainersApi.getAll();
+      // Filtrar solo trainers activos
+      setTrainers(data.filter(t => t.estado === 'ACTIVO'));
+    } catch (err) {
+      console.error('Error cargando trainers:', err);
+    }
+  };
+
   const handleCreate = () => {
     setEditingTaller(null);
     setFormModalidad('');
     setFormEstado('PROGRAMADO');
+    setFormTrainerId('');
     setIsDialogOpen(true);
   };
 
@@ -80,6 +97,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
     setEditingTaller(taller);
     setFormModalidad(taller.modalidad || '');
     setFormEstado(taller.estado || 'PROGRAMADO');
+    setFormTrainerId(taller.trainerId || '');
     setIsDialogOpen(true);
   };
 
@@ -103,6 +121,12 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
     // Validar campos requeridos
     if (!formModalidad) {
       setError('La modalidad es requerida');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formTrainerId) {
+      setError('El trainer es requerido');
       setIsSubmitting(false);
       return;
     }
@@ -137,6 +161,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
           fechaFin,
           sede: formData.get("sede") as string || undefined,
           estado: formEstado,
+          trainerId: formTrainerId,
         };
         await talleresApi.update(editingTaller.id, updateData);
       } else {
@@ -148,6 +173,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
           fechaFin,
           sede: formData.get("sede") as string || undefined,
           estado: formEstado,
+          trainerId: formTrainerId,
         };
         await talleresApi.create(createData);
       }
@@ -233,6 +259,24 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
                       </SelectContent>
                     </Select>
                     <input type="hidden" name="modalidad" value={formModalidad} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="trainerId">Trainer *</Label>
+                    <Select
+                      value={formTrainerId}
+                      onValueChange={setFormTrainerId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un trainer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {trainers.map((trainer) => (
+                          <SelectItem key={trainer.id} value={trainer.id}>
+                            {trainer.nombre} ({trainer.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
@@ -373,6 +417,12 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
                         month: 'short',
                         day: 'numeric',
                       })}
+                    </div>
+                  )}
+                  {taller.trainer && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="w-4 h-4" />
+                      Trainer: {taller.trainer.nombre}
                     </div>
                   )}
                 </div>

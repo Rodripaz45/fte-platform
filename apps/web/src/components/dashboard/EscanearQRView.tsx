@@ -469,16 +469,16 @@ export default function EscanearQRView() {
                   </div>
                 )}
                 {!isRegistrando && (
-                  <Button
-                    onClick={handleRegistrarAsistencia}
-                    disabled={isRegistrando}
-                    className="w-full"
-                    size="lg"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Registrar Asistencia
+                <Button
+                  onClick={handleRegistrarAsistencia}
+                  disabled={isRegistrando}
+                  className="w-full"
+                  size="lg"
+                >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Registrar Asistencia
                   </Button>
-                )}
+                  )}
               </CardContent>
             </Card>
           )}

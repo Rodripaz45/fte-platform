@@ -2,15 +2,27 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInscripcioneDto } from './dto/create-inscripcione.dto';
 import { UpdateInscripcioneDto } from './dto/update-inscripcione.dto';
 import { IaService } from '../ia/ia.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 export declare class InscripcionesService {
     private readonly prisma;
     private readonly ia;
-    constructor(prisma: PrismaService, ia: IaService);
+    private readonly notificacionesService;
+    constructor(prisma: PrismaService, ia: IaService, notificacionesService: NotificacionesService);
     create(dto: CreateInscripcioneDto): Promise<{
         participante: {
+            usuario: {
+                id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+            };
+        } & {
             id: string;
-            actualizadoEn: Date;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
@@ -19,41 +31,42 @@ export declare class InscripcionesService {
         };
         taller: {
             id: string;
-            actualizadoEn: Date;
             estado: string | null;
             creadoEn: Date;
+            actualizadoEn: Date;
             tema: string;
             modalidad: string;
             cupos: number | null;
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     }>;
     findAll(): Promise<({
         participante: {
             usuario: {
                 id: string;
-                actualizadoEn: Date;
+                email: string;
                 nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
-                email: string;
-                passwordHash: string;
+                actualizadoEn: Date;
             };
         } & {
             id: string;
-            actualizadoEn: Date;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
@@ -62,41 +75,42 @@ export declare class InscripcionesService {
         };
         taller: {
             id: string;
-            actualizadoEn: Date;
             estado: string | null;
             creadoEn: Date;
+            actualizadoEn: Date;
             tema: string;
             modalidad: string;
             cupos: number | null;
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     })[]>;
     findByUsuarioId(usuarioId: string): Promise<({
         participante: {
             usuario: {
                 id: string;
-                actualizadoEn: Date;
+                email: string;
                 nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
-                email: string;
-                passwordHash: string;
+                actualizadoEn: Date;
             };
         } & {
             id: string;
-            actualizadoEn: Date;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
@@ -105,41 +119,42 @@ export declare class InscripcionesService {
         };
         taller: {
             id: string;
-            actualizadoEn: Date;
             estado: string | null;
             creadoEn: Date;
+            actualizadoEn: Date;
             tema: string;
             modalidad: string;
             cupos: number | null;
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     })[]>;
     findOne(id: string): Promise<{
         participante: {
             usuario: {
                 id: string;
-                actualizadoEn: Date;
+                email: string;
                 nombre: string;
+                passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
-                email: string;
-                passwordHash: string;
+                actualizadoEn: Date;
             };
         } & {
             id: string;
-            actualizadoEn: Date;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
@@ -148,31 +163,32 @@ export declare class InscripcionesService {
         };
         taller: {
             id: string;
-            actualizadoEn: Date;
             estado: string | null;
             creadoEn: Date;
+            actualizadoEn: Date;
             tema: string;
             modalidad: string;
             cupos: number | null;
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     }>;
     update(id: string, dto: UpdateInscripcioneDto): Promise<{
         participante: {
             id: string;
-            actualizadoEn: Date;
             creadoEn: Date;
+            actualizadoEn: Date;
             usuarioId: string;
             documento: string | null;
             telefono: string | null;
@@ -181,34 +197,35 @@ export declare class InscripcionesService {
         };
         taller: {
             id: string;
-            actualizadoEn: Date;
             estado: string | null;
             creadoEn: Date;
+            actualizadoEn: Date;
             tema: string;
             modalidad: string;
             cupos: number | null;
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        participanteId: string;
+        estado: string | null;
+        creadoEn: Date;
         actualizadoEn: Date;
         tallerId: string;
+        participanteId: string;
         origen: string | null;
-        estado: string | null;
         dedupeHash: string | null;
-        creadoEn: Date;
     }>;
 }

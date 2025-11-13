@@ -36,6 +36,7 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
@@ -81,6 +82,7 @@ export declare class FeedbackController {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                trainerId: string;
             };
         } & {
             id: string;
@@ -132,6 +134,7 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;
@@ -173,6 +176,7 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
     } & {
         id: string;

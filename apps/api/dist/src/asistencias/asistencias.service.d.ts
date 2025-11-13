@@ -87,6 +87,7 @@ export declare class AsistenciasService {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                trainerId: string;
             };
             responsable: {
                 id: string;
@@ -151,6 +152,7 @@ export declare class AsistenciasService {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                trainerId: string;
             };
             responsable: {
                 id: string;
@@ -240,6 +242,7 @@ export declare class AsistenciasService {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                trainerId: string;
             };
         } & {
             id: string;

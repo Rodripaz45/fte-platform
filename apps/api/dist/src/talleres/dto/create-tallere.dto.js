@@ -20,6 +20,7 @@ class CreateTallereDto {
     fechaFin;
     sede;
     estado;
+    trainerId;
 }
 exports.CreateTallereDto = CreateTallereDto;
 __decorate([
@@ -65,4 +66,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateTallereDto.prototype, "estado", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'ID del trainer asignado al taller' }),
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateTallereDto.prototype, "trainerId", void 0);
 //# sourceMappingURL=create-tallere.dto.js.map

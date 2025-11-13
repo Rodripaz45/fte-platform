@@ -29,7 +29,39 @@ async function main() {
     },
   });
 
-  // 2) Taller + Sesiones
+  // 2) Crear Trainer
+  const rolTrainer = await prisma.rol.upsert({
+    where: { nombre: 'TRAINER' },
+    update: {},
+    create: { nombre: 'TRAINER' },
+  });
+
+  const trainerUsuario = await prisma.usuario.upsert({
+    where: { email: 'demo.trainer@fte.local' },
+    update: {},
+    create: {
+      nombre: 'Demo Trainer',
+      email: 'demo.trainer@fte.local',
+      passwordHash: 'seeded',
+      estado: 'ACTIVO',
+    },
+  });
+
+  await prisma.usuarioRol.upsert({
+    where: {
+      usuarioId_rolId: {
+        usuarioId: trainerUsuario.id,
+        rolId: rolTrainer.id,
+      },
+    },
+    update: {},
+    create: {
+      usuarioId: trainerUsuario.id,
+      rolId: rolTrainer.id,
+    },
+  });
+
+  // 3) Taller + Sesiones (con trainer asignado)
   const taller = await prisma.taller.create({
     data: {
       tema: 'marketing digital y redes sociales',
@@ -37,6 +69,7 @@ async function main() {
       cupos: 30,
       sede: 'Sede Central',
       estado: 'PROGRAMADO',
+      trainerId: trainerUsuario.id,
     },
   });
 
@@ -59,7 +92,7 @@ async function main() {
     },
   });
 
-  // 3) Inscripción del participante en el taller
+  // 4) Inscripción del participante en el taller
   const inscripcion = await prisma.inscripcion.upsert({
     where: {
       tallerId_participanteId: { tallerId: taller.id, participanteId: participante.id },
@@ -72,7 +105,7 @@ async function main() {
     },
   });
 
-  // 4) Asistencias: marcar PRESENTE en 2 de 3 sesiones (~66%)
+  // 5) Asistencias: marcar PRESENTE en 2 de 3 sesiones (~66%)
   await prisma.asistencia.upsert({
     where: { sesionId_participanteId: { sesionId: sesion1.id, participanteId: participante.id } },
     update: { estado: 'PRESENTE', tomadoEn: new Date() },
@@ -89,7 +122,7 @@ async function main() {
     create: { sesionId: sesion3.id, participanteId: participante.id, estado: 'AUSENTE', tomadoEn: new Date() },
   });
 
-  // 5) CV (solo metadata; texto del PDF se extraerá luego)
+  // 6) CV (solo metadata; texto del PDF se extraerá luego)
   await prisma.cv.create({
     data: {
       participanteId: participante.id,

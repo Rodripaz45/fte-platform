@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsInt, Min, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsInt, Min, IsDateString, IsUUID } from 'class-validator';
 
 export class CreateTallereDto {
   @ApiProperty() @IsString() @IsNotEmpty()
@@ -22,4 +22,7 @@ export class CreateTallereDto {
 
   @ApiProperty({ default: 'PROGRAMADO' }) @IsOptional() @IsString()
   estado?: string;
+
+  @ApiProperty({ description: 'ID del trainer asignado al taller' }) @IsUUID() @IsNotEmpty()
+  trainerId!: string;
 }

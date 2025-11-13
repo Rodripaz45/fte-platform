@@ -13,12 +13,15 @@ exports.InscripcionesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const ia_service_1 = require("../ia/ia.service");
+const notificaciones_service_1 = require("../notificaciones/notificaciones.service");
 let InscripcionesService = class InscripcionesService {
     prisma;
     ia;
-    constructor(prisma, ia) {
+    notificacionesService;
+    constructor(prisma, ia, notificacionesService) {
         this.prisma = prisma;
         this.ia = ia;
+        this.notificacionesService = notificacionesService;
     }
     async create(dto) {
         const participante = await this.prisma.participante.findUnique({
@@ -56,14 +59,21 @@ let InscripcionesService = class InscripcionesService {
         if (yaExiste && yaExiste.estado !== 'CANCELADO') {
             throw new common_1.BadRequestException('El participante ya está inscrito en este taller');
         }
-        return this.prisma.inscripcion.create({
+        const inscripcion = await this.prisma.inscripcion.create({
             data: {
                 participanteId: dto.participanteId,
                 tallerId: dto.tallerId,
                 estado: 'INSCRITO',
             },
-            include: { taller: true, participante: true },
+            include: { taller: true, participante: { include: { usuario: true } } },
         });
+        try {
+            await this.notificacionesService.crearConfirmacionInscripcion(inscripcion.participante.usuario.id, inscripcion.taller.tema, inscripcion.taller.fechaInicio || undefined);
+        }
+        catch (error) {
+            console.error('Error creando notificación de inscripción:', error);
+        }
+        return inscripcion;
     }
     async findAll() {
         return this.prisma.inscripcion.findMany({
@@ -136,6 +146,8 @@ let InscripcionesService = class InscripcionesService {
 exports.InscripcionesService = InscripcionesService;
 exports.InscripcionesService = InscripcionesService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService, ia_service_1.IaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        ia_service_1.IaService,
+        notificaciones_service_1.NotificacionesService])
 ], InscripcionesService);
 //# sourceMappingURL=inscripciones.service.js.map

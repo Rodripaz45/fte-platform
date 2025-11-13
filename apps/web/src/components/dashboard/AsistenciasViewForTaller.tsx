@@ -77,7 +77,7 @@ export default function AsistenciasViewForTaller({ tallerId, sesiones, inscripci
       loadAsistencias();
       loadResumen();
     }
-  }, { interval: 30000, enabled: !!selectedSesionId });
+  }, { interval: 30000, enabled: !!selectedSesionId, pauseWhenDialogOpen: true });
 
   const loadParticipantesParaSesion = async () => {
     if (!selectedSesionId) return;
@@ -219,10 +219,10 @@ export default function AsistenciasViewForTaller({ tallerId, sesiones, inscripci
             <QrCode className="w-4 h-4 mr-2" />
             Generar QR
           </Button>
-          <Button onClick={handleTomarAsistencia} disabled={!selectedSesionId}>
-            <FileCheck className="w-4 h-4 mr-2" />
-            Tomar Asistencia
-          </Button>
+        <Button onClick={handleTomarAsistencia} disabled={!selectedSesionId}>
+          <FileCheck className="w-4 h-4 mr-2" />
+          Tomar Asistencia
+        </Button>
         </div>
       </div>
 

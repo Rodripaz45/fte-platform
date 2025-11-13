@@ -11,11 +11,13 @@ const common_1 = require("@nestjs/common");
 const sesiones_service_1 = require("./sesiones.service");
 const sesiones_controller_1 = require("./sesiones.controller");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const notificaciones_module_1 = require("../notificaciones/notificaciones.module");
 let SesionesModule = class SesionesModule {
 };
 exports.SesionesModule = SesionesModule;
 exports.SesionesModule = SesionesModule = __decorate([
     (0, common_1.Module)({
+        imports: [notificaciones_module_1.NotificacionesModule],
         controllers: [sesiones_controller_1.SesionesController],
         providers: [sesiones_service_1.SesionesService, prisma_service_1.PrismaService],
         exports: [sesiones_service_1.SesionesService],

@@ -12,12 +12,13 @@ const inscripciones_service_1 = require("./inscripciones.service");
 const inscripciones_controller_1 = require("./inscripciones.controller");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const ia_module_1 = require("../ia/ia.module");
+const notificaciones_module_1 = require("../notificaciones/notificaciones.module");
 let InscripcionesModule = class InscripcionesModule {
 };
 exports.InscripcionesModule = InscripcionesModule;
 exports.InscripcionesModule = InscripcionesModule = __decorate([
     (0, common_1.Module)({
-        imports: [ia_module_1.IaModule],
+        imports: [ia_module_1.IaModule, notificaciones_module_1.NotificacionesModule],
         controllers: [inscripciones_controller_1.InscripcionesController],
         providers: [inscripciones_service_1.InscripcionesService, prisma_service_1.PrismaService],
     })

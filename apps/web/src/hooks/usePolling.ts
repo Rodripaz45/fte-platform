@@ -4,6 +4,16 @@ interface UsePollingOptions {
   enabled?: boolean;
   interval?: number; // en milisegundos
   pauseWhenHidden?: boolean; // pausar cuando la pestaña no está visible
+  pauseWhenDialogOpen?: boolean; // pausar cuando hay un diálogo abierto
+}
+
+/**
+ * Detecta si hay un diálogo/modal abierto en la página
+ */
+function isDialogOpen(): boolean {
+  // Buscar elementos con role="dialog" o que sean diálogos de shadcn/ui
+  const dialogs = document.querySelectorAll('[role="dialog"], [data-state="open"]');
+  return dialogs.length > 0;
 }
 
 /**
@@ -19,6 +29,7 @@ export function usePolling(
     enabled = true,
     interval = 30000, // 30 segundos por defecto
     pauseWhenHidden = true,
+    pauseWhenDialogOpen = true, // Por defecto pausar cuando hay diálogo abierto
   } = options;
 
   const callbackRef = useRef(callback);
@@ -74,9 +85,17 @@ export function usePolling(
 
     // Configurar intervalo
     intervalRef.current = setInterval(() => {
-      if (isVisibleRef.current) {
-        callbackRef.current();
+      // No ejecutar si la pestaña no está visible
+      if (!isVisibleRef.current) {
+        return;
       }
+      
+      // No ejecutar si hay un diálogo abierto y está habilitada la opción
+      if (pauseWhenDialogOpen && isDialogOpen()) {
+        return;
+      }
+      
+      callbackRef.current();
     }, interval);
 
     // Limpiar al desmontar o cuando cambien las dependencias
@@ -101,9 +120,15 @@ export function usePolling(
     if (!intervalRef.current && enabled) {
       callbackRef.current();
       intervalRef.current = setInterval(() => {
-        if (isVisibleRef.current) {
-          callbackRef.current();
+        if (!isVisibleRef.current) {
+          return;
         }
+        
+        if (pauseWhenDialogOpen && isDialogOpen()) {
+          return;
+        }
+        
+        callbackRef.current();
       }, interval);
     }
   };

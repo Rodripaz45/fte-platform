@@ -153,12 +153,12 @@ export default function QRCodeModal({
 
         {/* Contenedor del QR */}
         <div className="mb-4">
-          {isGenerating ? (
+        {isGenerating ? (
             <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
               <RefreshCw className="w-10 h-10 animate-spin text-blue-500 mb-2" />
               <p className="text-sm text-gray-600">Generando código QR...</p>
-            </div>
-          ) : qrData ? (
+          </div>
+        ) : qrData ? (
             <div className="text-center">
               <div className="inline-block p-4 bg-white border-2 border-gray-200 rounded-lg">
                 <img
@@ -173,15 +173,15 @@ export default function QRCodeModal({
                   Expira: {format(new Date(qrData.expiracion), "HH:mm", { locale: es })}
                 </span>
               </div>
-              {timeRemaining !== null && timeRemaining === 0 && (
+            {timeRemaining !== null && timeRemaining === 0 && (
                 <div className="mt-3 bg-yellow-50 text-yellow-700 px-4 py-2 rounded-md text-sm">
                   ⚠️ El código QR ha expirado. Cierra y genera uno nuevo.
-                </div>
-              )}
-            </div>
+              </div>
+            )}
+          </div>
           ) : null}
         </div>
-      </div>
-    </div>
+            </div>
+          </div>
   );
 }

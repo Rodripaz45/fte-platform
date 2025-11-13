@@ -68,12 +68,12 @@ export default function DashboardEjecutivo() {
   // Polling del dashboard cada 30 segundos
   usePolling(() => {
     loadDashboard();
-  }, { interval: 30000 });
+  }, { interval: 30000, pauseWhenDialogOpen: true });
 
   // Polling de talleres cada 60 segundos (menos frecuente)
   usePolling(() => {
     loadTalleres();
-  }, { interval: 60000 });
+  }, { interval: 60000, pauseWhenDialogOpen: true });
 
   const loadTalleres = async () => {
     try {

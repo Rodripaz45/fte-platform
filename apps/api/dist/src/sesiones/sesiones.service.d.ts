@@ -3,9 +3,11 @@ import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
 import { GenerarQRDto } from './dto/generar-qr.dto';
 import { ValidarQRDto } from './dto/validar-qr.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 export declare class SesionesService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notificacionesService;
+    constructor(prisma: PrismaService, notificacionesService: NotificacionesService);
     private getLocalIP;
     private getFrontendUrl;
     private validarHoras;
@@ -41,6 +43,7 @@ export declare class SesionesService {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                trainerId: string;
             };
             responsable: {
                 id: string;
@@ -76,6 +79,7 @@ export declare class SesionesService {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
         asistencias: ({
             participante: {
@@ -140,6 +144,7 @@ export declare class SesionesService {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            trainerId: string;
         };
         responsable: {
             id: string;

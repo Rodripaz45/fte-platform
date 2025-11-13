@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode } from "lucide-react";
+import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell } from "lucide-react";
 import TalleresView from "@/components/dashboard/TalleresView";
 import BusquedaPuestosView from "@/components/dashboard/BusquedaPuestosView";
 import TallerDetailView from "@/components/dashboard/TallerDetailView";
@@ -17,6 +17,9 @@ import MisInscripcionesView from "@/components/dashboard/MisInscripcionesView";
 import FeedbackParticipanteView from "@/components/dashboard/FeedbackParticipanteView";
 import CompletarPerfilModal from "@/components/dashboard/CompletarPerfilModal";
 import DashboardEjecutivo from "@/components/dashboard/DashboardEjecutivo";
+import TrainersView from "@/components/dashboard/TrainersView";
+import NotificacionesView from "@/components/dashboard/NotificacionesView";
+import NotificacionesBadge from "@/components/dashboard/NotificacionesBadge";
 import { type Taller } from "@/lib/api/talleres";
 
 export default function DashboardPage() {
@@ -103,6 +106,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <NotificacionesBadge />
             <Badge variant="outline" className="gap-2">
               <Shield className="w-3 h-3" />
               {userRole}
@@ -128,9 +132,17 @@ export default function DashboardPage() {
                 <GraduationCap className="w-4 h-4" />
                 Talleres
               </TabsTrigger>
+              <TabsTrigger value="trainers" className="gap-2">
+                <Users className="w-4 h-4" />
+                Trainers
+              </TabsTrigger>
               <TabsTrigger value="job-search" className="gap-2">
                 <Search className="w-4 h-4" />
                 Búsqueda de Puestos
+              </TabsTrigger>
+              <TabsTrigger value="notificaciones" className="gap-2">
+                <Bell className="w-4 h-4" />
+                Notificaciones
               </TabsTrigger>
             </TabsList>
 
@@ -142,19 +154,46 @@ export default function DashboardPage() {
               <TalleresView />
             </TabsContent>
 
+            <TabsContent value="trainers" className="space-y-4">
+              <TrainersView />
+            </TabsContent>
+
             <TabsContent value="job-search" className="space-y-4">
               <BusquedaPuestosView />
             </TabsContent>
+
+            <TabsContent value="notificaciones" className="space-y-4">
+              <NotificacionesView />
+            </TabsContent>
           </Tabs>
         ) : isTrainer ? (
-          selectedTaller ? (
-            <TallerDetailView 
-              tallerId={selectedTaller.id} 
-              onBack={() => setSelectedTaller(null)} 
-            />
-          ) : (
-            <TalleresView onTallerClick={(taller) => setSelectedTaller(taller)} />
-          )
+          <Tabs defaultValue="talleres" className="space-y-6">
+            <TabsList className="bg-muted">
+              <TabsTrigger value="talleres" className="gap-2">
+                <GraduationCap className="w-4 h-4" />
+                Mis Talleres
+              </TabsTrigger>
+              <TabsTrigger value="notificaciones" className="gap-2">
+                <Bell className="w-4 h-4" />
+                Notificaciones
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="talleres" className="space-y-4">
+              {selectedTaller ? (
+                <TallerDetailView 
+                  tallerId={selectedTaller.id} 
+                  onBack={() => setSelectedTaller(null)} 
+                />
+              ) : (
+                <TalleresView onTallerClick={(taller) => setSelectedTaller(taller)} />
+              )}
+            </TabsContent>
+
+            <TabsContent value="notificaciones" className="space-y-4">
+              <NotificacionesView />
+            </TabsContent>
+          </Tabs>
         ) : isParticipante ? (
           <Tabs defaultValue="cvs" className="space-y-6">
             <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4">
@@ -175,6 +214,10 @@ export default function DashboardPage() {
                   <MessageSquare className="w-4 h-4" />
                   <span className="text-xs sm:text-sm whitespace-nowrap">Feedback</span>
                 </TabsTrigger>
+                <TabsTrigger value="notificaciones" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <Bell className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Notificaciones</span>
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -192,6 +235,10 @@ export default function DashboardPage() {
 
             <TabsContent value="feedback" className="space-y-4">
               <FeedbackParticipanteView />
+            </TabsContent>
+
+            <TabsContent value="notificaciones" className="space-y-4">
+              <NotificacionesView />
             </TabsContent>
           </Tabs>
         ) : (

@@ -6,4 +6,5 @@ export declare class CreateTallereDto {
     fechaFin?: Date;
     sede?: string;
     estado?: string;
+    trainerId: string;
 }

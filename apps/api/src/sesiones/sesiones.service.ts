@@ -4,13 +4,17 @@ import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
 import { GenerarQRDto } from './dto/generar-qr.dto';
 import { ValidarQRDto } from './dto/validar-qr.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import QRCode from 'qrcode';
 import { randomBytes } from 'crypto';
 import { networkInterfaces } from 'os';
 
 @Injectable()
 export class SesionesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /**
    * Obtiene la IP local de la máquina (no localhost)
@@ -71,7 +75,7 @@ export class SesionesService {
     // Taller debe existir y no estar finalizado (opcional)
     const taller = await this.prisma.taller.findUnique({
       where: { id: dto.tallerId },
-      select: { id: true, estado: true },
+      include: { inscripciones: { include: { participante: { include: { usuario: true } } } } },
     });
     if (!taller) throw new NotFoundException('Taller no encontrado');
     if (taller.estado === 'FINALIZADO') {
@@ -90,15 +94,57 @@ export class SesionesService {
       if (!responsable) throw new NotFoundException('Usuario responsable no encontrado');
     }
 
-    return this.prisma.sesion.create({
+    const fechaSesion = new Date(dto.fecha);
+    const sesion = await this.prisma.sesion.create({
       data: {
         tallerId: dto.tallerId,
-        fecha: new Date(dto.fecha),
+        fecha: fechaSesion,
         horaInicio: dto.horaInicio ? new Date(dto.horaInicio) : null,
         horaFin: dto.horaFin ? new Date(dto.horaFin) : null,
         responsableId: dto.responsableId ?? null,
       },
     });
+
+    // Crear notificaciones de recordatorio para participantes inscritos
+    try {
+      const inscripcionesActivas = taller.inscripciones.filter(
+        ins => ins.estado === 'INSCRITO' || ins.estado === 'FINALIZADO'
+      );
+
+      console.log(`[SesionesService] Creando notificaciones para ${inscripcionesActivas.length} participantes inscritos en el taller "${taller.tema}"`);
+
+      if (inscripcionesActivas.length > 0) {
+        // Crear notificaciones en paralelo
+        const notificacionesPromesas = inscripcionesActivas.map(inscripcion =>
+          this.notificacionesService.crearRecordatorioSesion(
+            inscripcion.participante.usuario.id,
+            sesion.id,
+            fechaSesion,
+            taller.tema,
+          )
+            .then(() => {
+              console.log(`[SesionesService] Notificación creada para ${inscripcion.participante.usuario.email}`);
+              return true;
+            })
+            .catch(err => {
+              console.error(`[SesionesService] Error notificando a ${inscripcion.participante.usuario.email}:`, err);
+              return false;
+            })
+        );
+
+        // Esperar a que todas las notificaciones se completen (pero no fallar si alguna falla)
+        const resultados = await Promise.all(notificacionesPromesas);
+        const exitosas = resultados.filter(r => r === true).length;
+        console.log(`[SesionesService] Notificaciones creadas: ${exitosas}/${inscripcionesActivas.length} exitosas`);
+      } else {
+        console.log(`[SesionesService] No hay participantes inscritos para notificar`);
+      }
+    } catch (error) {
+      // No fallar la creación de la sesión si falla la notificación
+      console.error('[SesionesService] Error creando notificaciones de sesión:', error);
+    }
+
+    return sesion;
   }
 
   /**

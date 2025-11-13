@@ -10,11 +10,13 @@ exports.TalleresModule = void 0;
 const common_1 = require("@nestjs/common");
 const talleres_service_1 = require("./talleres.service");
 const talleres_controller_1 = require("./talleres.controller");
+const notificaciones_module_1 = require("../notificaciones/notificaciones.module");
 let TalleresModule = class TalleresModule {
 };
 exports.TalleresModule = TalleresModule;
 exports.TalleresModule = TalleresModule = __decorate([
     (0, common_1.Module)({
+        imports: [notificaciones_module_1.NotificacionesModule],
         controllers: [talleres_controller_1.TalleresController],
         providers: [talleres_service_1.TalleresService],
     })

@@ -16,6 +16,8 @@ exports.UsuariosController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const usuarios_service_1 = require("./usuarios.service");
+const create_trainer_dto_1 = require("./dto/create-trainer.dto");
+const update_trainer_dto_1 = require("./dto/update-trainer.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 let UsuariosController = class UsuariosController {
@@ -39,6 +41,18 @@ let UsuariosController = class UsuariosController {
     }
     findOne(id) {
         return this.usuariosService.findOne(id);
+    }
+    findAllTrainers() {
+        return this.usuariosService.findAllTrainers();
+    }
+    createTrainer(dto) {
+        return this.usuariosService.createTrainer(dto);
+    }
+    updateTrainer(id, dto) {
+        return this.usuariosService.updateTrainer(id, dto);
+    }
+    deleteTrainer(id) {
+        return this.usuariosService.deleteTrainer(id);
     }
 };
 exports.UsuariosController = UsuariosController;
@@ -65,6 +79,49 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UsuariosController.prototype, "findOne", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Get)('trainers/all'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener todos los usuarios con rol TRAINER' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de trainers' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], UsuariosController.prototype, "findAllTrainers", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Post)('trainers'),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear un nuevo usuario con rol TRAINER' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Trainer creado exitosamente' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'El email ya está registrado' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_trainer_dto_1.CreateTrainerDto]),
+    __metadata("design:returntype", void 0)
+], UsuariosController.prototype, "createTrainer", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Patch)('trainers/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Actualizar un usuario trainer' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Trainer actualizado exitosamente' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Trainer no encontrado' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_trainer_dto_1.UpdateTrainerDto]),
+    __metadata("design:returntype", void 0)
+], UsuariosController.prototype, "updateTrainer", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Delete)('trainers/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Desactivar un usuario trainer' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Trainer desactivado exitosamente' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Trainer no encontrado' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], UsuariosController.prototype, "deleteTrainer", null);
 exports.UsuariosController = UsuariosController = __decorate([
     (0, swagger_1.ApiTags)('usuarios'),
     (0, swagger_1.ApiBearerAuth)(),
