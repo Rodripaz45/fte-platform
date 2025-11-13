@@ -2,6 +2,7 @@
 import { Controller, Get, Post, UseGuards, Param, Body } from '@nestjs/common';
 import { IaService } from './ia.service';
 import { AnalyzeJobDto } from './dto/analyze-job.dto';
+import { MatchCandidatesDto } from './dto/match-candidates.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Public } from '../auth/public.decorator';
@@ -42,5 +43,13 @@ export class IaController {
   @ApiParam({ name: 'participanteId', type: String })
   async getCompetencias(@Param('participanteId') participanteId: string) {
     return this.iaService.getCompetenciasByParticipanteId(participanteId);
+  }
+
+  @Roles('ADMIN')
+  @Post('match-candidates')
+  @ApiOperation({ summary: 'Encuentra candidatos que coincidan con las competencias de un puesto de trabajo' })
+  @ApiBody({ type: MatchCandidatesDto })
+  async matchCandidates(@Body() dto: MatchCandidatesDto) {
+    return this.iaService.matchCandidates(dto);
   }
 }

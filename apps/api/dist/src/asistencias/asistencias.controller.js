@@ -18,6 +18,7 @@ const asistencias_service_1 = require("./asistencias.service");
 const tomar_asistencia_dto_1 = require("./dto/tomar-asistencia.dto");
 const create_asistencia_dto_1 = require("./dto/create-asistencia.dto");
 const update_asistencia_dto_1 = require("./dto/update-asistencia.dto");
+const registrar_asistencia_qr_dto_1 = require("./dto/registrar-asistencia-qr.dto");
 const swagger_1 = require("@nestjs/swagger");
 const roles_decorator_1 = require("../auth/roles.decorator");
 let AsistenciasController = class AsistenciasController {
@@ -45,6 +46,18 @@ let AsistenciasController = class AsistenciasController {
     }
     remove(id) {
         return this.asistenciasService.remove(id);
+    }
+    async registrarAsistenciaPorQR(dto, req) {
+        const { sub: userId } = req.user;
+        const prisma = this.asistenciasService['prisma'];
+        const participante = await prisma.participante.findUnique({
+            where: { usuarioId: userId },
+            select: { id: true },
+        });
+        if (!participante) {
+            throw new common_1.BadRequestException('Usuario no tiene perfil de participante');
+        }
+        return this.asistenciasService.registrarAsistenciaPorQR(dto, participante.id);
     }
 };
 exports.AsistenciasController = AsistenciasController;
@@ -105,6 +118,18 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AsistenciasController.prototype, "remove", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE'),
+    (0, common_1.Post)('registrar-qr'),
+    (0, swagger_1.ApiOperation)({ summary: 'Registrar asistencia mediante código QR (solo para participantes)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Asistencia registrada exitosamente' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Código QR inválido o expirado' }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [registrar_asistencia_qr_dto_1.RegistrarAsistenciaQRDto, Object]),
+    __metadata("design:returntype", Promise)
+], AsistenciasController.prototype, "registrarAsistenciaPorQR", null);
 exports.AsistenciasController = AsistenciasController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('asistencias'),

@@ -36,12 +36,18 @@ let InscripcionesService = class InscripcionesService {
         if (taller.estado === 'FINALIZADO') {
             throw new common_1.BadRequestException('No se puede inscribir en un taller finalizado');
         }
-        const inscripcionesActivas = await this.prisma.inscripcion.count({
-            where: { tallerId: dto.tallerId, estado: { in: ['INSCRITO'] } },
-        });
-        const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : 0;
-        if (cupoMax > 0 && inscripcionesActivas >= cupoMax) {
-            throw new common_1.BadRequestException('El taller ya alcanzó su cupo máximo');
+        const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
+        if (cupoMax !== null && cupoMax > 0) {
+            const inscripcionesActivas = await this.prisma.inscripcion.count({
+                where: {
+                    tallerId: dto.tallerId,
+                    estado: { in: ['INSCRITO', 'FINALIZADO'] }
+                },
+            });
+            const cuposDisponibles = cupoMax - inscripcionesActivas;
+            if (cuposDisponibles <= 0) {
+                throw new common_1.BadRequestException(`El taller ya alcanzó su cupo máximo (${cupoMax} participantes). No hay cupos disponibles.`);
+            }
         }
         const yaExiste = await this.prisma.inscripcion.findFirst({
             where: { participanteId: dto.participanteId, tallerId: dto.tallerId },

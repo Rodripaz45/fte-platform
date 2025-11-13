@@ -18,6 +18,7 @@ exports.SesionesModule = SesionesModule = __decorate([
     (0, common_1.Module)({
         controllers: [sesiones_controller_1.SesionesController],
         providers: [sesiones_service_1.SesionesService, prisma_service_1.PrismaService],
+        exports: [sesiones_service_1.SesionesService],
     })
 ], SesionesModule);
 //# sourceMappingURL=sesiones.module.js.map

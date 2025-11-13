@@ -20,11 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Users, FileCheck } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Users, FileCheck, QrCode } from "lucide-react";
 import { asistenciasApi, type Asistencia, type TomarAsistenciaDto, type ItemAsistenciaDto, type AsistenciaResumen } from "@/lib/api/asistencias";
 import { sesionesApi, type Sesion } from "@/lib/api/sesiones";
 import { participantesApi, type Participante } from "@/lib/api/participantes";
 import { inscripcionesApi } from "@/lib/api/inscripciones";
+import QRCodeModal from "./QRCodeModal";
+import { usePolling } from "@/hooks/usePolling";
 
 export default function AsistenciasView() {
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
@@ -37,6 +39,7 @@ export default function AsistenciasView() {
   const [asistenciasForm, setAsistenciasForm] = useState<Record<string, 'PRESENTE' | 'AUSENTE' | 'TARDE'>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   useEffect(() => {
     loadSesiones();
@@ -66,6 +69,19 @@ export default function AsistenciasView() {
       setAsistenciasForm(formData);
     }
   }, [participantes, asistencias]);
+
+  // Polling de sesiones cada 30 segundos
+  usePolling(() => {
+    loadSesiones();
+  }, { interval: 30000 });
+
+  // Polling de asistencias y resumen cuando hay una sesión seleccionada
+  usePolling(() => {
+    if (selectedSesionId) {
+      loadAsistencias();
+      loadResumen();
+    }
+  }, { interval: 30000, enabled: !!selectedSesionId });
 
   const loadSesiones = async () => {
     try {
@@ -208,10 +224,20 @@ export default function AsistenciasView() {
           <h2 className="text-2xl font-bold">Asistencias</h2>
           <p className="text-muted-foreground">Toma y gestiona las asistencias de las sesiones</p>
         </div>
-        <Button onClick={handleTomarAsistencia} disabled={!selectedSesionId}>
-          <FileCheck className="w-4 h-4 mr-2" />
-          Tomar Asistencia
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsQRModalOpen(true)} 
+            disabled={!selectedSesionId}
+          >
+            <QrCode className="w-4 h-4 mr-2" />
+            Generar QR
+          </Button>
+          <Button onClick={handleTomarAsistencia} disabled={!selectedSesionId}>
+            <FileCheck className="w-4 h-4 mr-2" />
+            Tomar Asistencia
+          </Button>
+        </div>
       </div>
 
       {/* Selector de sesión */}
@@ -409,6 +435,20 @@ export default function AsistenciasView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de QR */}
+      {selectedSesionId && (
+        <QRCodeModal
+          sesionId={selectedSesionId}
+          sesionTema={selectedSesion?.taller?.tema}
+          open={isQRModalOpen}
+          onClose={() => setIsQRModalOpen(false)}
+          onQRGenerated={() => {
+            loadAsistencias();
+            loadResumen();
+          }}
+        />
+      )}
     </div>
   );
 }

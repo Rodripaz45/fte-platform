@@ -1,18 +1,24 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
+import { GenerarQRDto } from './dto/generar-qr.dto';
+import { ValidarQRDto } from './dto/validar-qr.dto';
 export declare class SesionesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private getLocalIP;
+    private getFrontendUrl;
     private validarHoras;
     create(dto: CreateSesionDto): Promise<{
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+        tallerId: string;
         responsableId: string | null;
     }>;
     findAll(params?: {
@@ -49,10 +55,12 @@ export declare class SesionesService {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
-            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            codigoQR: string | null;
+            codigoQRExpiracion: Date | null;
+            tallerId: string;
             responsableId: string | null;
         })[];
     }>;
@@ -112,10 +120,12 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+        tallerId: string;
         responsableId: string | null;
     }>;
     update(id: string, dto: UpdateSesionDto): Promise<{
@@ -144,20 +154,66 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+        tallerId: string;
         responsableId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+        tallerId: string;
+        responsableId: string | null;
+    }>;
+    generarQR(dto: GenerarQRDto): Promise<{
+        sesionId: string;
+        codigoQR: string;
+        qrUrl: string;
+        qrImage: string;
+        expiracion: string;
+        duracionMinutos: number;
+    }>;
+    validarQR(dto: ValidarQRDto): Promise<{
+        sesionId: string;
+        taller: {
+            id: string;
+            tema: string;
+            modalidad: string;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+        };
+        fecha: Date;
+        horaInicio: Date | null;
+        horaFin: Date | null;
+        valido: boolean;
+    }>;
+    regenerarQR(sesionId: string, duracionMinutos?: number): Promise<{
+        sesionId: string;
+        codigoQR: string;
+        qrUrl: string;
+        qrImage: string;
+        expiracion: string;
+        duracionMinutos: number;
+    }>;
+    invalidarQR(sesionId: string): Promise<{
+        id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        fecha: Date;
+        horaInicio: Date | null;
+        horaFin: Date | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+        tallerId: string;
         responsableId: string | null;
     }>;
 }

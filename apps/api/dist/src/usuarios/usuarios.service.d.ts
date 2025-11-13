@@ -14,8 +14,8 @@ export declare class UsuariosService {
         })[];
     } & {
         id: string;
-        nombre: string;
         email: string;
+        nombre: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
@@ -43,8 +43,8 @@ export declare class UsuariosService {
         })[];
     } & {
         id: string;
-        nombre: string;
         email: string;
+        nombre: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;

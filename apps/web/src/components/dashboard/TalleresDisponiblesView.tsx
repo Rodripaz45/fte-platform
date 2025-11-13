@@ -64,7 +64,8 @@ export default function TalleresDisponiblesView() {
         participanteId,
         tallerId,
       });
-      await loadInscripciones();
+      // Recargar tanto inscripciones como talleres para actualizar cupos
+      await Promise.all([loadInscripciones(), loadTalleres()]);
       alert('Te has inscrito exitosamente al taller');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al inscribirse al taller');
@@ -77,6 +78,31 @@ export default function TalleresDisponiblesView() {
     return inscripciones.some(
       (insc) => insc.tallerId === tallerId && insc.estado === 'INSCRITO'
     );
+  };
+
+  const tieneCuposDisponibles = (taller: Taller) => {
+    // Si no tiene cupos limitados, siempre hay disponibilidad
+    if (!taller.tieneCuposLimitados) {
+      return true;
+    }
+    // Si tiene cupos limitados, verificar que haya disponibles
+    return (taller.cuposDisponibles ?? 0) > 0;
+  };
+
+  const getMensajeCupos = (taller: Taller) => {
+    if (!taller.tieneCuposLimitados) {
+      return null; // Sin límite de cupos
+    }
+    
+    const disponibles = taller.cuposDisponibles ?? 0;
+    const ocupados = taller.cuposOcupados ?? 0;
+    const total = taller.cupos ?? 0;
+
+    if (disponibles <= 0) {
+      return `Cupos agotados (${ocupados}/${total})`;
+    }
+
+    return `${disponibles} cupo${disponibles !== 1 ? 's' : ''} disponible${disponibles !== 1 ? 's' : ''} (${ocupados}/${total})`;
   };
 
   const getEstadoBadgeVariant = (estado?: string) => {
@@ -158,10 +184,20 @@ export default function TalleresDisponiblesView() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm mb-4">
-                    {taller.cupos && (
+                    {taller.tieneCuposLimitados && (
+                      <div className={`flex items-center gap-2 ${
+                        (taller.cuposDisponibles ?? 0) <= 0 
+                          ? 'text-destructive font-medium' 
+                          : 'text-muted-foreground'
+                      }`}>
+                        <Users className="w-4 h-4" />
+                        {getMensajeCupos(taller)}
+                      </div>
+                    )}
+                    {!taller.tieneCuposLimitados && taller.cuposOcupados !== undefined && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Users className="w-4 h-4" />
-                        {taller.cupos} cupos disponibles
+                        {taller.cuposOcupados} inscrito{taller.cuposOcupados !== 1 ? 's' : ''} (sin límite de cupos)
                       </div>
                     )}
                     {taller.fechaInicio && (
@@ -173,7 +209,11 @@ export default function TalleresDisponiblesView() {
                   </div>
                   <Button
                     onClick={() => handleInscribirse(taller.id)}
-                    disabled={yaInscrito || inscribiendoId === taller.id}
+                    disabled={
+                      yaInscrito || 
+                      inscribiendoId === taller.id || 
+                      !tieneCuposDisponibles(taller)
+                    }
                     className="w-full"
                     variant={yaInscrito ? 'outline' : 'default'}
                   >
@@ -183,6 +223,11 @@ export default function TalleresDisponiblesView() {
                       <>
                         <BookOpen className="w-4 h-4 mr-2" />
                         Ya Inscrito
+                      </>
+                    ) : !tieneCuposDisponibles(taller) ? (
+                      <>
+                        <Users className="w-4 h-4 mr-2" />
+                        Cupos Agotados
                       </>
                     ) : (
                       <>

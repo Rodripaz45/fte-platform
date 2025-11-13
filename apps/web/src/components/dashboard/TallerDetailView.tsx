@@ -13,6 +13,7 @@ import { inscripcionesApi, type Inscripcion } from "@/lib/api/inscripciones";
 import { feedbackApi, type Feedback, type FeedbackResumen } from "@/lib/api/feedback";
 import SesionesView from "./SesionesView";
 import AsistenciasViewForTaller from "./AsistenciasViewForTaller";
+import { usePolling } from "@/hooks/usePolling";
 
 interface TallerDetailViewProps {
   tallerId: string;
@@ -31,6 +32,11 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
   useEffect(() => {
     loadTallerData();
   }, [tallerId]);
+
+  // Polling de datos del taller cada 30 segundos
+  usePolling(() => {
+    loadTallerData();
+  }, { interval: 30000 });
 
   const loadTallerData = async () => {
     try {

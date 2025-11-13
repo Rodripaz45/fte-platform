@@ -38,14 +38,26 @@ export class InscripcionesService {
       );
     }
 
-    // Cuenta sólo inscripciones activas
-    const inscripcionesActivas = await this.prisma.inscripcion.count({
-      where: { tallerId: dto.tallerId, estado: { in: ['INSCRITO'] } },
-    });
+    // Validación mejorada de cupos
+    const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
+    
+    // Si el taller tiene cupos definidos, validar disponibilidad
+    if (cupoMax !== null && cupoMax > 0) {
+      // Cuenta sólo inscripciones activas (INSCRITO o FINALIZADO)
+      const inscripcionesActivas = await this.prisma.inscripcion.count({
+        where: { 
+          tallerId: dto.tallerId, 
+          estado: { in: ['INSCRITO', 'FINALIZADO'] } 
+        },
+      });
 
-    const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : 0;
-    if (cupoMax > 0 && inscripcionesActivas >= cupoMax) {
-      throw new BadRequestException('El taller ya alcanzó su cupo máximo');
+      const cuposDisponibles = cupoMax - inscripcionesActivas;
+      
+      if (cuposDisponibles <= 0) {
+        throw new BadRequestException(
+          `El taller ya alcanzó su cupo máximo (${cupoMax} participantes). No hay cupos disponibles.`
+        );
+      }
     }
 
     // Duplicado (si existe y no está cancelado)

@@ -2,9 +2,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TomarAsistenciaDto } from './dto/tomar-asistencia.dto';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
+import { RegistrarAsistenciaQRDto } from './dto/registrar-asistencia-qr.dto';
+import { SesionesService } from '../sesiones/sesiones.service';
 export declare class AsistenciasService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly sesionesService;
+    constructor(prisma: PrismaService, sesionesService: SesionesService);
     private validarSesionYRelacion;
     create(dto: CreateAsistenciaDto): Promise<{
         participante: {
@@ -98,10 +101,12 @@ export declare class AsistenciasService {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
-            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            codigoQR: string | null;
+            codigoQRExpiracion: Date | null;
+            tallerId: string;
             responsableId: string | null;
         };
     } & {
@@ -160,10 +165,12 @@ export declare class AsistenciasService {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
-            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            codigoQR: string | null;
+            codigoQRExpiracion: Date | null;
+            tallerId: string;
             responsableId: string | null;
         };
     } & {
@@ -199,5 +206,60 @@ export declare class AsistenciasService {
         ausentes: number;
         tarde: number;
         total: number;
+    }>;
+    registrarAsistenciaPorQR(dto: RegistrarAsistenciaQRDto, participanteId: string): Promise<{
+        participante: {
+            usuario: {
+                id: string;
+                email: string;
+                nombre: string;
+                passwordHash: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+            };
+        } & {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            usuarioId: string;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+        };
+        sesion: {
+            taller: {
+                id: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                tema: string;
+                modalidad: string;
+                cupos: number | null;
+                fechaInicio: Date | null;
+                fechaFin: Date | null;
+                sede: string | null;
+            };
+        } & {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            fecha: Date;
+            horaInicio: Date | null;
+            horaFin: Date | null;
+            codigoQR: string | null;
+            codigoQRExpiracion: Date | null;
+            tallerId: string;
+            responsableId: string | null;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        participanteId: string;
+        sesionId: string;
+        tomadoEn: Date | null;
     }>;
 }

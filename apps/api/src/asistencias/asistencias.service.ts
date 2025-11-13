@@ -1,12 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TomarAsistenciaDto } from './dto/tomar-asistencia.dto';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
+import { RegistrarAsistenciaQRDto } from './dto/registrar-asistencia-qr.dto';
+import { SesionesService } from '../sesiones/sesiones.service';
 
 @Injectable()
 export class AsistenciasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => SesionesService))
+    private readonly sesionesService: SesionesService,
+  ) {}
 
   private async validarSesionYRelacion(dto: { sesionId: string; participanteId: string }) {
     const sesion = await this.prisma.sesion.findUnique({
@@ -189,5 +195,58 @@ export class AsistenciasService {
     ]);
 
     return { sesionId, presentes, ausentes, tarde, total };
+  }
+
+  /**
+   * Registra asistencia mediante código QR
+   * Valida el código QR, obtiene el participanteId del usuario autenticado
+   * y registra la asistencia como PRESENTE
+   */
+  async registrarAsistenciaPorQR(dto: RegistrarAsistenciaQRDto, participanteId: string) {
+    // Validar código QR
+    const validacionQR = await this.sesionesService.validarQR({ codigoQR: dto.codigoQR });
+    const sesionId = validacionQR.sesionId;
+
+    // Validar que el participante esté inscrito
+    await this.validarSesionYRelacion({ sesionId, participanteId });
+
+    // Verificar si ya existe asistencia registrada
+    const asistenciaExistente = await this.prisma.asistencia.findUnique({
+      where: {
+        sesionId_participanteId: {
+          sesionId,
+          participanteId,
+        },
+      },
+    });
+
+    if (asistenciaExistente) {
+      // Si ya existe, actualizar a PRESENTE
+      return this.prisma.asistencia.update({
+        where: { id: asistenciaExistente.id },
+        data: {
+          estado: 'PRESENTE',
+          tomadoEn: new Date(),
+        },
+        include: {
+          sesion: { include: { taller: true } },
+          participante: { include: { usuario: true } },
+        },
+      });
+    }
+
+    // Crear nueva asistencia
+    return this.prisma.asistencia.create({
+      data: {
+        sesionId,
+        participanteId,
+        estado: 'PRESENTE',
+        tomadoEn: new Date(),
+      },
+      include: {
+        sesion: { include: { taller: true } },
+        participante: { include: { usuario: true } },
+      },
+    });
   }
 }

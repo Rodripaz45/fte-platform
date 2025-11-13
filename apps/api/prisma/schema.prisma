@@ -75,19 +75,22 @@ model Taller {
 }
 
 model Sesion {
-  id            String       @id @default(uuid())
-  tallerId      String       @map("taller_id")
-  fecha         DateTime
-  horaInicio    DateTime?    @map("hora_inicio")
-  horaFin       DateTime?    @map("hora_fin")
-  responsableId String?      @map("responsable_id")
-  creadoEn      DateTime     @default(now()) @map("creado_en")
-  actualizadoEn DateTime     @updatedAt @map("actualizado_en")
-  asistencias   Asistencia[]
-  responsable   Usuario?     @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
-  taller        Taller       @relation(fields: [tallerId], references: [id])
+  id                String       @id @default(uuid())
+  tallerId          String       @map("taller_id")
+  fecha             DateTime
+  horaInicio        DateTime?    @map("hora_inicio")
+  horaFin           DateTime?    @map("hora_fin")
+  responsableId     String?      @map("responsable_id")
+  codigoQR          String?      @map("codigo_qr")
+  codigoQRExpiracion DateTime?   @map("codigo_qr_expiracion")
+  creadoEn          DateTime     @default(now()) @map("creado_en")
+  actualizadoEn     DateTime     @updatedAt @map("actualizado_en")
+  asistencias       Asistencia[]
+  responsable       Usuario?     @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
+  taller            Taller       @relation(fields: [tallerId], references: [id])
 
   @@index([tallerId])
+  @@index([codigoQR])
   @@map("sesiones")
 }
 

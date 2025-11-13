@@ -8,14 +8,46 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SesionesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const qrcode_1 = __importDefault(require("qrcode"));
+const crypto_1 = require("crypto");
+const os_1 = require("os");
 let SesionesService = class SesionesService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
+    }
+    getLocalIP() {
+        if (process.env.LOCAL_IP) {
+            return process.env.LOCAL_IP;
+        }
+        const nets = (0, os_1.networkInterfaces)();
+        const addresses = [];
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name] || []) {
+                const family = net.family;
+                const isIPv4 = family === 'IPv4' || family === 4;
+                if (isIPv4 && !net.internal) {
+                    addresses.push(net.address);
+                }
+            }
+        }
+        return addresses[0] || 'localhost';
+    }
+    getFrontendUrl() {
+        if (process.env.FRONTEND_URL) {
+            return process.env.FRONTEND_URL;
+        }
+        const localIP = this.getLocalIP();
+        const frontendPort = process.env.FRONTEND_PORT || '3000';
+        const protocol = process.env.FRONTEND_PROTOCOL || 'http';
+        return `${protocol}://${localIP}:${frontendPort}`;
     }
     validarHoras(horaInicio, horaFin) {
         if (horaInicio && horaFin && new Date(horaInicio) >= new Date(horaFin)) {
@@ -118,6 +150,90 @@ let SesionesService = class SesionesService {
     async remove(id) {
         await this.findOne(id);
         return this.prisma.sesion.delete({ where: { id } });
+    }
+    async generarQR(dto) {
+        const sesion = await this.prisma.sesion.findUnique({
+            where: { id: dto.sesionId },
+            include: { taller: true },
+        });
+        if (!sesion) {
+            throw new common_1.NotFoundException('Sesión no encontrada');
+        }
+        const codigoQR = (0, crypto_1.randomBytes)(16).toString('hex');
+        const duracionMinutos = dto.duracionMinutos || 60;
+        const expiracion = new Date();
+        expiracion.setMinutes(expiracion.getMinutes() + duracionMinutos);
+        await this.prisma.sesion.update({
+            where: { id: dto.sesionId },
+            data: {
+                codigoQR,
+                codigoQRExpiracion: expiracion,
+            },
+        });
+        const frontendUrl = this.getFrontendUrl();
+        const qrUrl = `${frontendUrl}/asistencia/qr/${codigoQR}`;
+        const qrDataURL = await qrcode_1.default.toDataURL(qrUrl, {
+            errorCorrectionLevel: 'M',
+            type: 'image/png',
+            width: 300,
+            margin: 1,
+        });
+        return {
+            sesionId: sesion.id,
+            codigoQR,
+            qrUrl,
+            qrImage: qrDataURL,
+            expiracion: expiracion.toISOString(),
+            duracionMinutos,
+        };
+    }
+    async validarQR(dto) {
+        const sesion = await this.prisma.sesion.findFirst({
+            where: { codigoQR: dto.codigoQR },
+            include: {
+                taller: {
+                    select: {
+                        id: true,
+                        tema: true,
+                        modalidad: true,
+                        fechaInicio: true,
+                        fechaFin: true,
+                    },
+                },
+            },
+        });
+        if (!sesion) {
+            throw new common_1.NotFoundException('Código QR no válido');
+        }
+        if (sesion.codigoQRExpiracion && new Date() > sesion.codigoQRExpiracion) {
+            throw new common_1.BadRequestException('El código QR ha expirado');
+        }
+        return {
+            sesionId: sesion.id,
+            taller: sesion.taller,
+            fecha: sesion.fecha,
+            horaInicio: sesion.horaInicio,
+            horaFin: sesion.horaFin,
+            valido: true,
+        };
+    }
+    async regenerarQR(sesionId, duracionMinutos) {
+        return this.generarQR({ sesionId, duracionMinutos });
+    }
+    async invalidarQR(sesionId) {
+        const sesion = await this.prisma.sesion.findUnique({
+            where: { id: sesionId },
+        });
+        if (!sesion) {
+            throw new common_1.NotFoundException('Sesión no encontrada');
+        }
+        return this.prisma.sesion.update({
+            where: { id: sesionId },
+            data: {
+                codigoQR: null,
+                codigoQRExpiracion: null,
+            },
+        });
     }
 };
 exports.SesionesService = SesionesService;

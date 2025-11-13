@@ -2,6 +2,7 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { AnalyzeProfileDto, AnalyzeProfileResponse } from './dto/analyze-profile.dto';
 import { AnalyzeJobDto, AnalyzeJobResponse } from './dto/analyze-job.dto';
+import { MatchCandidatesDto, MatchCandidatesResponse, CandidatoMatch, CompetenciaMatch } from './dto/match-candidates.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -300,6 +301,159 @@ export class IaService {
       throw new HttpException(
         'Error connecting to IA service',
         HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+  }
+
+  /**
+   * Normaliza el nombre de una competencia para comparación
+   */
+  private normalizeCompetencia(nombre: string): string {
+    return nombre
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+      .trim();
+  }
+
+  /**
+   * Encuentra candidatos que coincidan con las competencias requeridas de un puesto
+   */
+  async matchCandidates(dto: MatchCandidatesDto): Promise<MatchCandidatesResponse> {
+    const startTime = Date.now();
+
+    try {
+      // 1. Analizar el puesto para obtener competencias requeridas
+      const jobAnalysis = await this.analyzeJob({
+        puestoTexto: dto.puestoTexto,
+        topK: dto.topK || 6,
+      });
+
+      const competenciasRequeridas = jobAnalysis.competencias || [];
+      
+      if (competenciasRequeridas.length === 0) {
+        return {
+          candidatos: [],
+          total: 0,
+          competenciasRequeridas: [],
+          meta: { tiempo: (Date.now() - startTime) / 1000 },
+        };
+      }
+
+      // Normalizar nombres de competencias requeridas
+      const competenciasRequeridasNormalizadas = competenciasRequeridas.map(comp => ({
+        original: comp.competencia,
+        normalizada: this.normalizeCompetencia(comp.competencia),
+        relevancia: comp.relevancia || 0,
+      }));
+
+      // 2. Obtener todos los participantes con sus competencias
+      const participantes = await this.prisma.participante.findMany({
+        include: {
+          usuario: true,
+          perfiles: {
+            include: {
+              competencia: true,
+            },
+          },
+        },
+      });
+
+      // 3. Calcular matching score para cada participante
+      const candidatos: CandidatoMatch[] = [];
+
+      for (const participante of participantes) {
+        // Normalizar competencias del participante
+        const competenciasParticipante = participante.perfiles.map(perfil => ({
+          original: perfil.competencia.nombre,
+          normalizada: this.normalizeCompetencia(perfil.competencia.nombre),
+          nivel: perfil.nivel || 0,
+          confianza: perfil.confianza || 0,
+        }));
+
+        // Encontrar competencias coincidentes
+        const competenciasCoincidentes: CompetenciaMatch[] = [];
+        const competenciasFaltantes: string[] = [];
+
+        for (const reqComp of competenciasRequeridasNormalizadas) {
+          const match = competenciasParticipante.find(
+            pComp => pComp.normalizada === reqComp.normalizada
+          );
+
+          if (match) {
+            competenciasCoincidentes.push({
+              competencia: reqComp.original,
+              nivel: match.nivel,
+              relevancia: reqComp.relevancia,
+              confianza: match.confianza,
+            });
+          } else {
+            competenciasFaltantes.push(reqComp.original);
+          }
+        }
+
+        // Calcular porcentaje de match: competencias coincidentes / total requeridas
+        const porcentajeMatch = (competenciasCoincidentes.length / competenciasRequeridasNormalizadas.length) * 100;
+
+        // Calcular promedio de niveles para desempate
+        const promedioNivel = competenciasCoincidentes.length > 0
+          ? competenciasCoincidentes.reduce((sum, comp) => sum + comp.nivel, 0) / competenciasCoincidentes.length
+          : 0;
+
+        // Solo incluir si cumple con el mínimo de competencias
+        if (competenciasCoincidentes.length >= (dto.minCompetencias || 0)) {
+          candidatos.push({
+            participanteId: participante.id,
+            nombre: participante.usuario.nombre,
+            email: participante.usuario.email,
+            porcentajeMatch: Math.round(porcentajeMatch * 100) / 100,
+            promedioNivel: Math.round(promedioNivel * 100) / 100,
+            competenciasCoincidentes,
+            competenciasFaltantes,
+            totalCompetenciasRequeridas: competenciasRequeridasNormalizadas.length,
+            totalCompetenciasCoincidentes: competenciasCoincidentes.length,
+          });
+        }
+      }
+
+      // 4. Ordenar: primero por cantidad de competencias coincidentes (mayor a menor)
+      // Si hay empate, ordenar por promedio de niveles (mayor a menor)
+      candidatos.sort((a, b) => {
+        // Primero comparar por cantidad de competencias coincidentes
+        if (b.totalCompetenciasCoincidentes !== a.totalCompetenciasCoincidentes) {
+          return b.totalCompetenciasCoincidentes - a.totalCompetenciasCoincidentes;
+        }
+        // Si hay empate, comparar por promedio de niveles
+        return b.promedioNivel - a.promedioNivel;
+      });
+
+      // 5. Aplicar límite
+      const limit = dto.limit || 50;
+      const candidatosLimitados = candidatos.slice(0, limit);
+
+      const tiempo = (Date.now() - startTime) / 1000;
+
+      this.logger.log(
+        `Match candidates completed: ${candidatosLimitados.length} candidates found in ${tiempo.toFixed(2)}s`
+      );
+
+      return {
+        candidatos: candidatosLimitados,
+        total: candidatos.length,
+        competenciasRequeridas: competenciasRequeridas.map(comp => ({
+          competencia: comp.competencia,
+          relevancia: comp.relevancia || 0,
+        })),
+        meta: { tiempo },
+      };
+    } catch (error) {
+      this.logger.error('Error matching candidates', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error matching candidates',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

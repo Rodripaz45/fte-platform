@@ -25,10 +25,42 @@ export class TalleresService {
     });
   }
 
-  findAll() {
-    return this.prisma.taller.findMany({
+  async findAll() {
+    const talleres = await this.prisma.taller.findMany({
       orderBy: { creadoEn: 'desc' },
     });
+
+    // Enriquecer con información de cupos disponibles
+    return Promise.all(
+      talleres.map(async (taller) => {
+        const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
+        
+        if (cupoMax === null || cupoMax === 0) {
+          return {
+            ...taller,
+            cuposDisponibles: null,
+            cuposOcupados: 0,
+            tieneCuposLimitados: false,
+          };
+        }
+
+        const inscripcionesActivas = await this.prisma.inscripcion.count({
+          where: {
+            tallerId: taller.id,
+            estado: { in: ['INSCRITO', 'FINALIZADO'] },
+          },
+        });
+
+        const cuposDisponibles = Math.max(0, cupoMax - inscripcionesActivas);
+
+        return {
+          ...taller,
+          cuposDisponibles,
+          cuposOcupados: inscripcionesActivas,
+          tieneCuposLimitados: true,
+        };
+      }),
+    );
   }
 
   async findOne(id: string) {
@@ -40,7 +72,33 @@ export class TalleresService {
       },
     });
     if (!taller) throw new NotFoundException('Taller no encontrado');
-    return taller;
+
+    // Enriquecer con información de cupos disponibles
+    const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
+    
+    if (cupoMax === null || cupoMax === 0) {
+      return {
+        ...taller,
+        cuposDisponibles: null,
+        cuposOcupados: taller.inscripciones.filter(
+          (i) => i.estado === 'INSCRITO' || i.estado === 'FINALIZADO'
+        ).length,
+        tieneCuposLimitados: false,
+      };
+    }
+
+    const inscripcionesActivas = taller.inscripciones.filter(
+      (i) => i.estado === 'INSCRITO' || i.estado === 'FINALIZADO'
+    ).length;
+
+    const cuposDisponibles = Math.max(0, cupoMax - inscripcionesActivas);
+
+    return {
+      ...taller,
+      cuposDisponibles,
+      cuposOcupados: inscripcionesActivas,
+      tieneCuposLimitados: true,
+    };
   }
 
   async update(id: string, dto: UpdateTallereDto) {

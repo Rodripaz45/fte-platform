@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Calendar, Users, MapPin } from "lucide-react";
 import { talleresApi, type Taller, type CreateTallerDto, type UpdateTallerDto } from "@/lib/api/talleres";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePolling } from "@/hooks/usePolling";
 
 interface TalleresViewProps {
   onTallerClick?: (taller: Taller) => void;
@@ -49,6 +50,11 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
   useEffect(() => {
     loadTalleres();
   }, []);
+
+  // Polling de talleres cada 30 segundos
+  usePolling(() => {
+    loadTalleres();
+  }, { interval: 30000 });
 
   const loadTalleres = async () => {
     try {

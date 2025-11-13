@@ -1,5 +1,6 @@
 import { IaService } from './ia.service';
 import { AnalyzeJobDto } from './dto/analyze-job.dto';
+import { MatchCandidatesDto } from './dto/match-candidates.dto';
 export declare class IaController {
     private readonly iaService;
     constructor(iaService: IaService);
@@ -18,4 +19,5 @@ export declare class IaController {
         fuente: string;
         actualizadoEn: Date;
     }[]>;
+    matchCandidates(dto: MatchCandidatesDto): Promise<import("./dto/match-candidates.dto").MatchCandidatesResponse>;
 }

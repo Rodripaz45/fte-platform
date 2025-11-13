@@ -7,9 +7,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CORS (ajusta orígenes si quieres)
+  // CORS - Permitir todos los orígenes para desarrollo
+  // En producción, especifica los orígenes permitidos
   app.enableCors({
+    origin: true, // Permite todos los orígenes (útil para desarrollo móvil)
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Validación global
@@ -28,8 +32,10 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   const port = process.env.PORT || 4000;
-  await app.listen(port);
+  const host = process.env.HOST || '0.0.0.0'; // Escuchar en todas las interfaces
+  await app.listen(port, host);
   // eslint-disable-next-line no-console
-  console.log(`🚀 API running on http://localhost:${port} (Swagger: /docs)`);
+  console.log(`🚀 API running on http://${host === '0.0.0.0' ? 'localhost' : host}:${port} (Swagger: /docs)`);
+  console.log(`📱 Accesible desde la red local en: http://TU_IP:${port}`);
 }
 bootstrap();

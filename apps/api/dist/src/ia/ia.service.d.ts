@@ -1,5 +1,6 @@
 import { AnalyzeProfileDto, AnalyzeProfileResponse } from './dto/analyze-profile.dto';
 import { AnalyzeJobDto, AnalyzeJobResponse } from './dto/analyze-job.dto';
+import { MatchCandidatesDto, MatchCandidatesResponse } from './dto/match-candidates.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 export declare class IaService {
     private readonly prisma;
@@ -30,4 +31,6 @@ export declare class IaService {
         actualizadoEn: Date;
     }[]>;
     analyzeJob(dto: AnalyzeJobDto): Promise<AnalyzeJobResponse>;
+    private normalizeCompetencia;
+    matchCandidates(dto: MatchCandidatesDto): Promise<MatchCandidatesResponse>;
 }

@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Calendar, Clock } from "lucide-react";
 import { sesionesApi, type Sesion, type CreateSesionDto, type UpdateSesionDto } from "@/lib/api/sesiones";
 import { talleresApi, type Taller } from "@/lib/api/talleres";
+import { usePolling } from "@/hooks/usePolling";
 
 interface SesionesViewProps {
   defaultTallerId?: string;
@@ -56,6 +57,17 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
       loadSesiones();
     }
   }, [selectedTallerId]);
+
+  // Polling de sesiones cada 30 segundos
+  usePolling(() => {
+    if (selectedTallerId && !defaultTallerId) {
+      loadSesiones(selectedTallerId);
+    } else if (!selectedTallerId && !defaultTallerId) {
+      loadSesiones();
+    } else if (defaultTallerId) {
+      loadSesiones(defaultTallerId);
+    }
+  }, { interval: 30000 });
 
   const loadTalleres = async () => {
     try {

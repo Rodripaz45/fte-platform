@@ -17,8 +17,11 @@ const common_1 = require("@nestjs/common");
 const sesiones_service_1 = require("./sesiones.service");
 const create_sesion_dto_1 = require("./dto/create-sesion.dto");
 const update_sesion_dto_1 = require("./dto/update-sesion.dto");
+const generar_qr_dto_1 = require("./dto/generar-qr.dto");
+const validar_qr_dto_1 = require("./dto/validar-qr.dto");
 const swagger_1 = require("@nestjs/swagger");
 const roles_decorator_1 = require("../auth/roles.decorator");
+const public_decorator_1 = require("../auth/public.decorator");
 let SesionesController = class SesionesController {
     sesionesService;
     constructor(sesionesService) {
@@ -42,6 +45,21 @@ let SesionesController = class SesionesController {
     }
     remove(id) {
         return this.sesionesService.remove(id);
+    }
+    generarQR(dto) {
+        return this.sesionesService.generarQR(dto);
+    }
+    validarQR(dto) {
+        return this.sesionesService.validarQR(dto);
+    }
+    getSesionByQR(codigoQR) {
+        return this.sesionesService.validarQR({ codigoQR });
+    }
+    regenerarQR(sesionId, duracionMinutos) {
+        return this.sesionesService.regenerarQR(sesionId, duracionMinutos);
+    }
+    invalidarQR(sesionId) {
+        return this.sesionesService.invalidarQR(sesionId);
     }
 };
 exports.SesionesController = SesionesController;
@@ -86,6 +104,58 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "remove", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)('generar-qr'),
+    (0, swagger_1.ApiOperation)({ summary: 'Generar código QR para una sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Código QR generado exitosamente' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [generar_qr_dto_1.GenerarQRDto]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "generarQR", null);
+__decorate([
+    (0, common_1.Post)('validar-qr'),
+    (0, swagger_1.ApiOperation)({ summary: 'Validar código QR de una sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Código QR válido' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Código QR no válido' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [validar_qr_dto_1.ValidarQRDto]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "validarQR", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('qr/:codigoQR'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener información de sesión por código QR (público)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Información de la sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Código QR no válido' }),
+    __param(0, (0, common_1.Param)('codigoQR')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "getSesionByQR", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)(':id/regenerar-qr'),
+    (0, swagger_1.ApiOperation)({ summary: 'Regenerar código QR de una sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Código QR regenerado exitosamente' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('duracionMinutos')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "regenerarQR", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)(':id/invalidar-qr'),
+    (0, swagger_1.ApiOperation)({ summary: 'Invalidar código QR de una sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Código QR invalidado exitosamente' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "invalidarQR", null);
 exports.SesionesController = SesionesController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('sesiones'),

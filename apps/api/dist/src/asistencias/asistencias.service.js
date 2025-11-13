@@ -8,14 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AsistenciasService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const sesiones_service_1 = require("../sesiones/sesiones.service");
 let AsistenciasService = class AsistenciasService {
     prisma;
-    constructor(prisma) {
+    sesionesService;
+    constructor(prisma, sesionesService) {
         this.prisma = prisma;
+        this.sesionesService = sesionesService;
     }
     async validarSesionYRelacion(dto) {
         const sesion = await this.prisma.sesion.findUnique({
@@ -165,10 +171,50 @@ let AsistenciasService = class AsistenciasService {
         ]);
         return { sesionId, presentes, ausentes, tarde, total };
     }
+    async registrarAsistenciaPorQR(dto, participanteId) {
+        const validacionQR = await this.sesionesService.validarQR({ codigoQR: dto.codigoQR });
+        const sesionId = validacionQR.sesionId;
+        await this.validarSesionYRelacion({ sesionId, participanteId });
+        const asistenciaExistente = await this.prisma.asistencia.findUnique({
+            where: {
+                sesionId_participanteId: {
+                    sesionId,
+                    participanteId,
+                },
+            },
+        });
+        if (asistenciaExistente) {
+            return this.prisma.asistencia.update({
+                where: { id: asistenciaExistente.id },
+                data: {
+                    estado: 'PRESENTE',
+                    tomadoEn: new Date(),
+                },
+                include: {
+                    sesion: { include: { taller: true } },
+                    participante: { include: { usuario: true } },
+                },
+            });
+        }
+        return this.prisma.asistencia.create({
+            data: {
+                sesionId,
+                participanteId,
+                estado: 'PRESENTE',
+                tomadoEn: new Date(),
+            },
+            include: {
+                sesion: { include: { taller: true } },
+                participante: { include: { usuario: true } },
+            },
+        });
+    }
 };
 exports.AsistenciasService = AsistenciasService;
 exports.AsistenciasService = AsistenciasService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => sesiones_service_1.SesionesService))),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        sesiones_service_1.SesionesService])
 ], AsistenciasService);
 //# sourceMappingURL=asistencias.service.js.map

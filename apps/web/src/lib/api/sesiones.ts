@@ -8,6 +8,8 @@ export interface Sesion {
   horaInicio?: string;
   horaFin?: string;
   responsableId?: string;
+  codigoQR?: string;
+  codigoQRExpiracion?: string;
   taller?: {
     id: string;
     tema: string;
@@ -20,6 +22,30 @@ export interface Sesion {
   };
   creadoEn?: string;
   actualizadoEn?: string;
+}
+
+export interface GenerarQRResponse {
+  sesionId: string;
+  codigoQR: string;
+  qrUrl: string; // URL única para escanear
+  qrImage: string; // Data URL de la imagen QR
+  expiracion: string;
+  duracionMinutos: number;
+}
+
+export interface ValidarQRResponse {
+  sesionId: string;
+  taller: {
+    id: string;
+    tema: string;
+    modalidad: string;
+    fechaInicio?: string;
+    fechaFin?: string;
+  };
+  fecha: string;
+  horaInicio?: string;
+  horaFin?: string;
+  valido: boolean;
 }
 
 export interface CreateSesionDto {
@@ -142,6 +168,75 @@ export const sesionesApi = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Error al eliminar la sesión' }));
       throw new Error(error.message || 'Error al eliminar la sesión');
+    }
+  },
+
+  /**
+   * Generar código QR para una sesión
+   */
+  async generarQR(sesionId: string, duracionMinutos?: number): Promise<GenerarQRResponse> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/generar-qr`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ sesionId, duracionMinutos }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al generar código QR' }));
+      throw new Error(error.message || 'Error al generar código QR');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Validar código QR de una sesión
+   */
+  async validarQR(codigoQR: string): Promise<ValidarQRResponse> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/validar-qr`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ codigoQR }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Código QR inválido' }));
+      throw new Error(error.message || 'Código QR inválido');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Regenerar código QR de una sesión
+   */
+  async regenerarQR(sesionId: string, duracionMinutos?: number): Promise<GenerarQRResponse> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/${sesionId}/regenerar-qr`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ duracionMinutos }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al regenerar código QR' }));
+      throw new Error(error.message || 'Error al regenerar código QR');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Invalidar código QR de una sesión
+   */
+  async invalidarQR(sesionId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/${sesionId}/invalidar-qr`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al invalidar código QR' }));
+      throw new Error(error.message || 'Error al invalidar código QR');
     }
   },
 };

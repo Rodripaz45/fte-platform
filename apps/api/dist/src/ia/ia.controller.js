@@ -16,6 +16,8 @@ exports.IaController = void 0;
 const common_1 = require("@nestjs/common");
 const ia_service_1 = require("./ia.service");
 const analyze_job_dto_1 = require("./dto/analyze-job.dto");
+const match_candidates_dto_1 = require("./dto/match-candidates.dto");
+const roles_decorator_1 = require("../auth/roles.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const public_decorator_1 = require("../auth/public.decorator");
 const swagger_1 = require("@nestjs/swagger");
@@ -35,6 +37,9 @@ let IaController = class IaController {
     }
     async getCompetencias(participanteId) {
         return this.iaService.getCompetenciasByParticipanteId(participanteId);
+    }
+    async matchCandidates(dto) {
+        return this.iaService.matchCandidates(dto);
     }
 };
 exports.IaController = IaController;
@@ -76,6 +81,16 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], IaController.prototype, "getCompetencias", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Post)('match-candidates'),
+    (0, swagger_1.ApiOperation)({ summary: 'Encuentra candidatos que coincidan con las competencias de un puesto de trabajo' }),
+    (0, swagger_1.ApiBody)({ type: match_candidates_dto_1.MatchCandidatesDto }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [match_candidates_dto_1.MatchCandidatesDto]),
+    __metadata("design:returntype", Promise)
+], IaController.prototype, "matchCandidates", null);
 exports.IaController = IaController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiTags)('IA'),

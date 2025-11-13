@@ -2,10 +2,64 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
+import { GenerarQRDto } from './dto/generar-qr.dto';
+import { ValidarQRDto } from './dto/validar-qr.dto';
+import QRCode from 'qrcode';
+import { randomBytes } from 'crypto';
+import { networkInterfaces } from 'os';
 
 @Injectable()
 export class SesionesService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Obtiene la IP local de la máquina (no localhost)
+   * Busca la primera IP IPv4 que no sea localhost ni loopback
+   */
+  private getLocalIP(): string {
+    // Primero intentar desde variable de entorno
+    if (process.env.LOCAL_IP) {
+      return process.env.LOCAL_IP;
+    }
+
+    const nets = networkInterfaces();
+    const addresses: string[] = [];
+
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name] || []) {
+        // Saltar direcciones internas (no IPv4 o loopback)
+        // net.family puede ser 'IPv4' (string) o 4 (number) dependiendo de la versión de Node.js
+        const family = net.family as string | number;
+        const isIPv4 = family === 'IPv4' || family === 4;
+        if (isIPv4 && !net.internal) {
+          addresses.push(net.address);
+        }
+      }
+    }
+
+    // Retornar la primera IP encontrada, o localhost como fallback
+    return addresses[0] || 'localhost';
+  }
+
+  /**
+   * Obtiene la URL base del frontend
+   * Prioridad: FRONTEND_URL > IP local detectada > localhost
+   */
+  private getFrontendUrl(): string {
+    // Si hay una URL explícita configurada, usarla
+    if (process.env.FRONTEND_URL) {
+      return process.env.FRONTEND_URL;
+    }
+
+    // Obtener IP local
+    const localIP = this.getLocalIP();
+    const frontendPort = process.env.FRONTEND_PORT || '3000';
+    
+    // Usar http o https según configuración
+    const protocol = process.env.FRONTEND_PROTOCOL || 'http';
+    
+    return `${protocol}://${localIP}:${frontendPort}`;
+  }
 
   private validarHoras(horaInicio?: Date, horaFin?: Date) {
     if (horaInicio && horaFin && new Date(horaInicio) >= new Date(horaFin)) {
@@ -129,5 +183,126 @@ export class SesionesService {
   async remove(id: string) {
     await this.findOne(id);
     return this.prisma.sesion.delete({ where: { id } });
+  }
+
+  /**
+   * Genera un código QR único para una sesión
+   * El código expira después del tiempo especificado (por defecto 60 minutos)
+   * El QR contiene una URL única que registra la asistencia al ser escaneada
+   */
+  async generarQR(dto: GenerarQRDto) {
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: dto.sesionId },
+      include: { taller: true },
+    });
+
+    if (!sesion) {
+      throw new NotFoundException('Sesión no encontrada');
+    }
+
+    // Generar código único (32 caracteres hexadecimales)
+    const codigoQR = randomBytes(16).toString('hex');
+
+    // Calcular expiración (por defecto 60 minutos)
+    const duracionMinutos = dto.duracionMinutos || 60;
+    const expiracion = new Date();
+    expiracion.setMinutes(expiracion.getMinutes() + duracionMinutos);
+
+    // Guardar código en la sesión
+    await this.prisma.sesion.update({
+      where: { id: dto.sesionId },
+      data: {
+        codigoQR,
+        codigoQRExpiracion: expiracion,
+      },
+    });
+
+    // Generar URL única para el QR usando la IP local de la máquina
+    const frontendUrl = this.getFrontendUrl();
+    const qrUrl = `${frontendUrl}/asistencia/qr/${codigoQR}`;
+
+    // Generar imagen QR como base64 con la URL
+    const qrDataURL = await QRCode.toDataURL(qrUrl, {
+      errorCorrectionLevel: 'M',
+      type: 'image/png',
+      width: 300,
+      margin: 1,
+    });
+
+    return {
+      sesionId: sesion.id,
+      codigoQR,
+      qrUrl, // URL única para escanear
+      qrImage: qrDataURL, // Data URL de la imagen QR
+      expiracion: expiracion.toISOString(),
+      duracionMinutos,
+    };
+  }
+
+  /**
+   * Valida un código QR y retorna información de la sesión
+   * No registra asistencia automáticamente, solo valida
+   */
+  async validarQR(dto: ValidarQRDto) {
+    const sesion = await this.prisma.sesion.findFirst({
+      where: { codigoQR: dto.codigoQR },
+      include: {
+        taller: {
+          select: {
+            id: true,
+            tema: true,
+            modalidad: true,
+            fechaInicio: true,
+            fechaFin: true,
+          },
+        },
+      },
+    });
+
+    if (!sesion) {
+      throw new NotFoundException('Código QR no válido');
+    }
+
+    // Verificar expiración
+    if (sesion.codigoQRExpiracion && new Date() > sesion.codigoQRExpiracion) {
+      throw new BadRequestException('El código QR ha expirado');
+    }
+
+    return {
+      sesionId: sesion.id,
+      taller: sesion.taller,
+      fecha: sesion.fecha,
+      horaInicio: sesion.horaInicio,
+      horaFin: sesion.horaFin,
+      valido: true,
+    };
+  }
+
+  /**
+   * Regenera el código QR de una sesión (invalida el anterior)
+   */
+  async regenerarQR(sesionId: string, duracionMinutos?: number) {
+    return this.generarQR({ sesionId, duracionMinutos });
+  }
+
+  /**
+   * Invalida el código QR de una sesión
+   */
+  async invalidarQR(sesionId: string) {
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: sesionId },
+    });
+
+    if (!sesion) {
+      throw new NotFoundException('Sesión no encontrada');
+    }
+
+    return this.prisma.sesion.update({
+      where: { id: sesionId },
+      data: {
+        codigoQR: null,
+        codigoQRExpiracion: null,
+      },
+    });
   }
 }

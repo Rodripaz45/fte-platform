@@ -12,6 +12,10 @@ export interface Taller {
   estado?: string;
   creadoEn?: string;
   actualizadoEn?: string;
+  // Campos adicionales para información de cupos
+  cuposDisponibles?: number | null;
+  cuposOcupados?: number;
+  tieneCuposLimitados?: boolean;
 }
 
 export interface CreateTallerDto {

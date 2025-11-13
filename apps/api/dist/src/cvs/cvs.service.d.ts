@@ -10,11 +10,11 @@ export declare class CvsService {
     private sanitizeText;
     create(dto: CreateCvDto): Promise<{
         id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
         subidoEn: Date;
-        participanteId: string;
     }>;
     private clearCompetencias;
     private analyzeParticipantProfile;
@@ -22,34 +22,34 @@ export declare class CvsService {
         participanteId?: string;
     }): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
         subidoEn: Date;
-        participanteId: string;
     }[]>;
     findOne(id: string): Promise<{
         id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
         subidoEn: Date;
-        participanteId: string;
     }>;
     update(id: string, dto: UpdateCvDto): Promise<{
         id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
         subidoEn: Date;
-        participanteId: string;
     }>;
     remove(id: string): Promise<{
         id: string;
+        participanteId: string;
         url: string;
         version: string | null;
         texto: string | null;
         subidoEn: Date;
-        participanteId: string;
     }>;
 }

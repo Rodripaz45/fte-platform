@@ -11,13 +11,16 @@ const common_1 = require("@nestjs/common");
 const asistencias_service_1 = require("./asistencias.service");
 const asistencias_controller_1 = require("./asistencias.controller");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const sesiones_module_1 = require("../sesiones/sesiones.module");
 let AsistenciasModule = class AsistenciasModule {
 };
 exports.AsistenciasModule = AsistenciasModule;
 exports.AsistenciasModule = AsistenciasModule = __decorate([
     (0, common_1.Module)({
+        imports: [(0, common_1.forwardRef)(() => sesiones_module_1.SesionesModule)],
         controllers: [asistencias_controller_1.AsistenciasController],
         providers: [asistencias_service_1.AsistenciasService, prisma_service_1.PrismaService],
+        exports: [asistencias_service_1.AsistenciasService],
     })
 ], AsistenciasModule);
 //# sourceMappingURL=asistencias.module.js.map

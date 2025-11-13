@@ -185,5 +185,42 @@ export const asistenciasApi = {
 
     return response.json();
   },
+
+  /**
+   * Validar código QR (obtener información de la sesión)
+   */
+  async validarQR(codigoQR: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/qr/${codigoQR}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Código QR inválido' }));
+      throw new Error(error.message || 'Código QR inválido');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Registrar asistencia mediante código QR (solo para participantes)
+   */
+  async registrarPorQR(codigoQR: string): Promise<Asistencia> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/registrar-qr`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ codigoQR }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al registrar asistencia por QR' }));
+      throw new Error(error.message || 'Error al registrar asistencia por QR');
+    }
+
+    return response.json();
+  },
 };
 

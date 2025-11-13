@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Search, LogOut, Shield, Calendar, FileCheck, Users, MessageSquare, FileText, BookOpen } from "lucide-react";
+import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode } from "lucide-react";
 import TalleresView from "@/components/dashboard/TalleresView";
 import BusquedaPuestosView from "@/components/dashboard/BusquedaPuestosView";
 import TallerDetailView from "@/components/dashboard/TallerDetailView";
@@ -16,6 +16,7 @@ import TalleresDisponiblesView from "@/components/dashboard/TalleresDisponiblesV
 import MisInscripcionesView from "@/components/dashboard/MisInscripcionesView";
 import FeedbackParticipanteView from "@/components/dashboard/FeedbackParticipanteView";
 import CompletarPerfilModal from "@/components/dashboard/CompletarPerfilModal";
+import DashboardEjecutivo from "@/components/dashboard/DashboardEjecutivo";
 import { type Taller } from "@/lib/api/talleres";
 
 export default function DashboardPage() {
@@ -56,33 +57,6 @@ export default function DashboardPage() {
     return null;
   }
 
-  const stats = [
-    {
-      title: "Talleres Activos",
-      value: "12",
-      description: "En curso este mes",
-      icon: GraduationCap,
-    },
-    {
-      title: "Talleres Totales",
-      value: "45",
-      description: "Todos los talleres",
-      icon: GraduationCap,
-    },
-    {
-      title: "Búsquedas Realizadas",
-      value: "128",
-      description: "Puestos analizados",
-      icon: Search,
-    },
-    {
-      title: "Competencias Identificadas",
-      value: "1,234",
-      description: "Total de competencias",
-      icon: Search,
-    },
-  ];
-
   const handlePerfilCompletado = async () => {
     try {
       // Actualizar el usuario para obtener el nuevo participanteId
@@ -99,94 +73,6 @@ export default function DashboardPage() {
     logout();
     router.push("/auth");
   };
-
-  // Stats diferentes según el rol
-  const adminStats = [
-    {
-      title: "Talleres Activos",
-      value: "12",
-      description: "En curso este mes",
-      icon: GraduationCap,
-    },
-    {
-      title: "Talleres Totales",
-      value: "45",
-      description: "Todos los talleres",
-      icon: GraduationCap,
-    },
-    {
-      title: "Búsquedas Realizadas",
-      value: "128",
-      description: "Puestos analizados",
-      icon: Search,
-    },
-    {
-      title: "Competencias Identificadas",
-      value: "1,234",
-      description: "Total de competencias",
-      icon: Search,
-    },
-  ];
-
-  const trainerStats = [
-    {
-      title: "Sesiones Programadas",
-      value: "24",
-      description: "Este mes",
-      icon: Calendar,
-    },
-    {
-      title: "Asistencias Tomadas",
-      value: "156",
-      description: "Total registradas",
-      icon: FileCheck,
-    },
-    {
-      title: "Participantes",
-      value: "89",
-      description: "Activos",
-      icon: Users,
-    },
-    {
-      title: "Feedbacks Recibidos",
-      value: "67",
-      description: "En total",
-      icon: MessageSquare,
-    },
-  ];
-
-  const participanteStats = [
-    {
-      title: "CVs Subidos",
-      value: "3",
-      description: "Total",
-      icon: FileText,
-    },
-    {
-      title: "Talleres Inscritos",
-      value: "5",
-      description: "Activos",
-      icon: GraduationCap,
-    },
-    {
-      title: "Feedbacks Dados",
-      value: "2",
-      description: "En total",
-      icon: MessageSquare,
-    },
-    {
-      title: "Talleres Disponibles",
-      value: "12",
-      description: "Para inscribirse",
-      icon: Search,
-    },
-  ];
-
-  const displayStats = isAdmin 
-    ? adminStats 
-    : isTrainer 
-    ? trainerStats 
-    : participanteStats;
 
   return (
     <div className="min-h-screen bg-background">
@@ -230,26 +116,14 @@ export default function DashboardPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {displayStats.map((stat) => (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className="w-5 h-5 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Main Content Tabs - Diferentes según el rol */}
         {isAdmin ? (
-          <Tabs defaultValue="workshops" className="space-y-6">
+          <Tabs defaultValue="dashboard" className="space-y-6">
             <TabsList className="bg-muted">
+              <TabsTrigger value="dashboard" className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Dashboard
+              </TabsTrigger>
               <TabsTrigger value="workshops" className="gap-2">
                 <GraduationCap className="w-4 h-4" />
                 Talleres
@@ -259,6 +133,10 @@ export default function DashboardPage() {
                 Búsqueda de Puestos
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="dashboard" className="space-y-4">
+              <DashboardEjecutivo />
+            </TabsContent>
 
             <TabsContent value="workshops" className="space-y-4">
               <TalleresView />
@@ -279,24 +157,26 @@ export default function DashboardPage() {
           )
         ) : isParticipante ? (
           <Tabs defaultValue="cvs" className="space-y-6">
-            <TabsList className="bg-muted">
-              <TabsTrigger value="cvs" className="gap-2">
-                <FileText className="w-4 h-4" />
-                Mis CVs
-              </TabsTrigger>
-              <TabsTrigger value="talleres" className="gap-2">
-                <GraduationCap className="w-4 h-4" />
-                Talleres Disponibles
-              </TabsTrigger>
-              <TabsTrigger value="inscripciones" className="gap-2">
-                <BookOpen className="w-4 h-4" />
-                Mis Inscripciones
-              </TabsTrigger>
-              <TabsTrigger value="feedback" className="gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Feedback
-              </TabsTrigger>
-            </TabsList>
+            <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <TabsList className="bg-muted min-w-fit inline-flex">
+                <TabsTrigger value="cvs" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <FileText className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">CVs</span>
+                </TabsTrigger>
+                <TabsTrigger value="talleres" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <GraduationCap className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Talleres</span>
+                </TabsTrigger>
+                <TabsTrigger value="inscripciones" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <BookOpen className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Inscripciones</span>
+                </TabsTrigger>
+                <TabsTrigger value="feedback" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Feedback</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="cvs" className="space-y-4">
               <CVsView />
