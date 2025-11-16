@@ -27,7 +27,11 @@ let TalleresController = class TalleresController {
     create(createTallereDto) {
         return this.talleresService.create(createTallereDto);
     }
-    findAll() {
+    findAll(req) {
+        const user = req.user;
+        if (user.roles.includes('TRAINER')) {
+            return this.talleresService.findAllByTrainerId(user.sub);
+        }
         return this.talleresService.findAll();
     }
     findOne(id) {
@@ -51,8 +55,9 @@ __decorate([
 ], TalleresController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], TalleresController.prototype, "findAll", null);
 __decorate([

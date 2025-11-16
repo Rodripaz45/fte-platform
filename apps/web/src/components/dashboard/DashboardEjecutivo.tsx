@@ -67,7 +67,7 @@ export default function DashboardEjecutivo() {
 
   // Polling del dashboard cada 30 segundos
   usePolling(() => {
-    loadDashboard();
+    loadDashboardSilent();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
   // Polling de talleres cada 60 segundos (menos frecuente)
@@ -95,6 +95,16 @@ export default function DashboardEjecutivo() {
       setError(err instanceof Error ? err.message : 'Error al cargar dashboard');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadDashboardSilent = async () => {
+    try {
+      const data = await reportesApi.getDashboardEjecutivo(filtros);
+      setDashboardData(data);
+    } catch (err) {
+      console.error('Error cargando dashboard (silent):', err);
+      // No mostrar error en polling silencioso
     }
   };
 

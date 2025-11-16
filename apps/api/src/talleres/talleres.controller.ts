@@ -1,10 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { TalleresService } from './talleres.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
 import { Roles } from '../auth/roles.decorator'; // ← usa ruta relativa si no tienes path alias
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Request } from 'express';
 // import type { Role } from '../../auth/role.enum'; // (opcional, no lo necesitas aquí)
+
+interface AuthenticatedRequest extends Request {
+  user: { sub: string; email: string; roles: string[] };
+}
 
 @ApiBearerAuth()
 @Controller('talleres')
@@ -19,7 +24,13 @@ export class TalleresController {
 
   // Listar puede quedar abierto a cualquier autenticado (si tienes JwtGuard global)
   @Get()
-  findAll() {
+  findAll(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
+    // Si el usuario es TRAINER, filtrar por su trainerId
+    if (user.roles.includes('TRAINER')) {
+      return this.talleresService.findAllByTrainerId(user.sub);
+    }
+    // Si es ADMIN u otro rol, mostrar todos
     return this.talleresService.findAll();
   }
 

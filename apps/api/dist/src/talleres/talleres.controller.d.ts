@@ -1,6 +1,14 @@
 import { TalleresService } from './talleres.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
+import { Request } from 'express';
+interface AuthenticatedRequest extends Request {
+    user: {
+        sub: string;
+        email: string;
+        roles: string[];
+    };
+}
 export declare class TalleresController {
     private readonly talleresService;
     constructor(talleresService: TalleresService);
@@ -23,7 +31,7 @@ export declare class TalleresController {
         sede: string | null;
         trainerId: string;
     }>;
-    findAll(): Promise<({
+    findAll(req: AuthenticatedRequest): Promise<({
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
@@ -174,3 +182,4 @@ export declare class TalleresController {
         trainerId: string;
     }>;
 }
+export {};

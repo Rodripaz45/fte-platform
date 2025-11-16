@@ -61,11 +61,11 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
   // Polling de sesiones cada 30 segundos
   usePolling(() => {
     if (selectedTallerId && !defaultTallerId) {
-      loadSesiones(selectedTallerId);
+      loadSesionesSilent(selectedTallerId);
     } else if (!selectedTallerId && !defaultTallerId) {
-      loadSesiones();
+      loadSesionesSilent();
     } else if (defaultTallerId) {
-      loadSesiones(defaultTallerId);
+      loadSesionesSilent(defaultTallerId);
     }
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
@@ -92,9 +92,21 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     }
   };
 
+  const loadSesionesSilent = async (tallerId?: string) => {
+    try {
+      const params = tallerId ? { tallerId } : undefined;
+      const response = await sesionesApi.getAll(params);
+      setSesiones(response.items || []);
+    } catch (err) {
+      console.error('Error cargando sesiones (silent):', err);
+      // No mostrar error en polling silencioso
+    }
+  };
+
   const handleCreate = () => {
     setEditingSesion(null);
-    setSelectedTallerId('');
+    // Si hay un defaultTallerId, usarlo automáticamente
+    setSelectedTallerId(defaultTallerId || '');
     setIsDialogOpen(true);
   };
 
@@ -122,7 +134,8 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const tallerId = formData.get("tallerId") as string;
+    // Usar defaultTallerId si existe, sino el del formulario
+    const tallerId = defaultTallerId || (formData.get("tallerId") as string);
     const fechaRaw = formData.get("fecha") as string;
     const horaInicioRaw = formData.get("horaInicio") as string;
     const horaFinRaw = formData.get("horaFin") as string;
@@ -140,9 +153,28 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     }
 
     // Convertir fechas a formato ISO
-    const fecha = new Date(fechaRaw).toISOString();
-    const horaInicio = horaInicioRaw ? new Date(`${fechaRaw}T${horaInicioRaw}`).toISOString() : undefined;
-    const horaFin = horaFinRaw ? new Date(`${fechaRaw}T${horaFinRaw}`).toISOString() : undefined;
+    // Usar fecha local para evitar problemas de zona horaria
+    // fechaRaw viene en formato YYYY-MM-DD, crear fecha en zona horaria local
+    const [year, month, day] = fechaRaw.split('-').map(Number);
+    const fechaLocal = new Date(year, month - 1, day);
+    const fecha = fechaLocal.toISOString();
+    
+    // Para horas, combinar fecha y hora en zona horaria local
+    const horaInicio = horaInicioRaw 
+      ? (() => {
+          const [hours, minutes] = horaInicioRaw.split(':').map(Number);
+          const fechaHoraLocal = new Date(year, month - 1, day, hours, minutes);
+          return fechaHoraLocal.toISOString();
+        })()
+      : undefined;
+    
+    const horaFin = horaFinRaw
+      ? (() => {
+          const [hours, minutes] = horaFinRaw.split(':').map(Number);
+          const fechaHoraLocal = new Date(year, month - 1, day, hours, minutes);
+          return fechaHoraLocal.toISOString();
+        })()
+      : undefined;
 
     try {
       if (editingSesion) {
@@ -173,7 +205,15 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
+    // Extraer solo la parte de la fecha para evitar problemas de zona horaria
+    let date: Date;
+    if (dateString.includes('T')) {
+      const datePart = dateString.split('T')[0];
+      const [year, month, day] = datePart.split('-').map(Number);
+      date = new Date(year, month - 1, day);
+    } else {
+      date = new Date(dateString);
+    }
     return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
@@ -192,10 +232,17 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
 
   const getDateTimeLocal = (dateString?: string) => {
     if (!dateString) return '';
+    // Si la fecha viene en formato ISO, extraer solo la parte de la fecha (YYYY-MM-DD)
+    // Esto evita problemas de zona horaria
+    if (dateString.includes('T')) {
+      const datePart = dateString.split('T')[0];
+      return datePart;
+    }
+    // Si no viene en formato ISO, usar métodos UTC para evitar problemas de zona horaria
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
@@ -205,6 +252,40 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
+  };
+
+  // Obtener el taller seleccionado
+  const selectedTaller = talleres.find(t => t.id === (defaultTallerId || selectedTallerId));
+
+  // Para mostrar el período del taller en el modal de sesión,
+  // usamos el mismo criterio que en el detalle del taller:
+  // inicio a 00:00 y fin a 23:59 (solo informativo)
+  const formatTallerPeriodDateTime = (dateString?: string, isEnd?: boolean) => {
+    if (!dateString) return null;
+
+    let year: number;
+    let month: number;
+    let day: number;
+
+    if (dateString.includes('T')) {
+      const datePart = dateString.split('T')[0];
+      [year, month, day] = datePart.split('-').map(Number);
+    } else {
+      const d = new Date(dateString);
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+    }
+
+    const date = new Date(year, month - 1, day);
+    const datePartFormatted = date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const timePart = isEnd ? '23:59' : '00:00';
+    return `${datePartFormatted}, ${timePart}`;
   };
 
   return (
@@ -339,26 +420,55 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="tallerId">Taller *</Label>
-                <Select
-                  value={selectedTallerId}
-                  onValueChange={setSelectedTallerId}
-                >
-                  <SelectTrigger id="tallerId">
-                    <SelectValue placeholder="Selecciona un taller" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {talleres.map((taller) => (
-                      <SelectItem key={taller.id} value={taller.id}>
-                        {taller.tema} - {taller.modalidad}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <input type="hidden" name="tallerId" value={selectedTallerId} />
+                {defaultTallerId ? (
+                  // Si hay un defaultTallerId, mostrar el taller seleccionado pero deshabilitado
+                  <Input
+                    id="tallerId"
+                    value={talleres.find(t => t.id === defaultTallerId)?.tema || 'Taller seleccionado'}
+                    disabled
+                  />
+                ) : (
+                  <Select
+                    value={selectedTallerId}
+                    onValueChange={setSelectedTallerId}
+                  >
+                    <SelectTrigger id="tallerId">
+                      <SelectValue placeholder="Selecciona un taller" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {talleres.map((taller) => (
+                        <SelectItem key={taller.id} value={taller.id}>
+                          {taller.tema} - {taller.modalidad}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <input type="hidden" name="tallerId" value={defaultTallerId || selectedTallerId} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="fecha">Fecha *</Label>
+                {/* Mostrar fechas del taller si hay un taller seleccionado */}
+                {selectedTaller && (selectedTaller.fechaInicio || selectedTaller.fechaFin) && (
+                  <div className="mb-2 p-3 bg-muted rounded-md text-sm">
+                    <div className="font-medium mb-1">Período del taller:</div>
+                    <div className="space-y-1 text-muted-foreground">
+                      {selectedTaller.fechaInicio && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>Inicio: {formatTallerPeriodDateTime(selectedTaller.fechaInicio)}</span>
+                        </div>
+                      )}
+                      {selectedTaller.fechaFin && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>Fin: {formatTallerPeriodDateTime(selectedTaller.fechaFin, true)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <Input
                   id="fecha"
                   name="fecha"

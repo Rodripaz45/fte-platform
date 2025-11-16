@@ -127,6 +127,56 @@ export class TalleresService {
     );
   }
 
+  async findAllByTrainerId(trainerId: string) {
+    const talleres = await this.prisma.taller.findMany({
+      where: {
+        trainerId: trainerId,
+      },
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    // Enriquecer con información de cupos disponibles
+    return Promise.all(
+      talleres.map(async (taller) => {
+        const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
+        
+        if (cupoMax === null || cupoMax === 0) {
+          return {
+            ...taller,
+            cuposDisponibles: null,
+            cuposOcupados: 0,
+            tieneCuposLimitados: false,
+          };
+        }
+
+        const inscripcionesActivas = await this.prisma.inscripcion.count({
+          where: {
+            tallerId: taller.id,
+            estado: { in: ['INSCRITO', 'FINALIZADO'] },
+          },
+        });
+
+        const cuposDisponibles = Math.max(0, cupoMax - inscripcionesActivas);
+
+        return {
+          ...taller,
+          cuposDisponibles,
+          cuposOcupados: inscripcionesActivas,
+          tieneCuposLimitados: true,
+        };
+      }),
+    );
+  }
+
   async findOne(id: string) {
     const taller = await this.prisma.taller.findUnique({
       where: { id },

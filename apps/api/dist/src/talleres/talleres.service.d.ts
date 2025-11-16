@@ -66,6 +66,47 @@ export declare class TalleresService {
         sede: string | null;
         trainerId: string;
     })[]>;
+    findAllByTrainerId(trainerId: string): Promise<({
+        cuposDisponibles: null;
+        cuposOcupados: number;
+        tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        trainerId: string;
+    } | {
+        cuposDisponibles: number;
+        cuposOcupados: number;
+        tieneCuposLimitados: boolean;
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        trainerId: string;
+    })[]>;
     findOne(id: string): Promise<{
         cuposDisponibles: null;
         cuposOcupados: number;

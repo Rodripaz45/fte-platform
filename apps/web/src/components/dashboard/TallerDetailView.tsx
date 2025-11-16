@@ -35,7 +35,7 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
 
   // Polling de datos del taller cada 30 segundos
   usePolling(() => {
-    loadTallerData();
+    loadTallerDataSilent();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTallerData = async () => {
@@ -62,6 +62,27 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
     }
   };
 
+  const loadTallerDataSilent = async () => {
+    try {
+      const [tallerData, sesionesData, inscripcionesData, feedbacksData, resumenData] = await Promise.all([
+        talleresApi.getById(tallerId),
+        sesionesApi.getAll({ tallerId }),
+        inscripcionesApi.getByTallerId(tallerId),
+        feedbackApi.getAll({ tallerId }),
+        feedbackApi.getResumen(tallerId).catch(() => null),
+      ]);
+
+      setTaller(tallerData);
+      setSesiones(sesionesData.items || []);
+      setInscripciones(inscripcionesData);
+      setFeedbacks(feedbacksData.items || []);
+      setResumenFeedback(resumenData);
+    } catch (err) {
+      console.error('Error cargando datos del taller (silent):', err);
+      // No mostrar error en polling silencioso
+    }
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -72,16 +93,34 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
     });
   };
 
-  const formatDateTime = (dateString?: string) => {
+  // Formateo especial para fechas de inicio/fin de taller:
+  // mostramos siempre 00:00 para inicio y 23:59 para fin, evitando problemas de zona horaria
+  const formatTallerDateTime = (dateString?: string, isEnd?: boolean) => {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
+
+    let year: number;
+    let month: number;
+    let day: number;
+
+    if (dateString.includes('T')) {
+      const datePart = dateString.split('T')[0];
+      [year, month, day] = datePart.split('-').map(Number);
+    } else {
+      const d = new Date(dateString);
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+    }
+
+    const date = new Date(year, month - 1, day);
+    const datePartFormatted = date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
+
+    const timePart = isEnd ? '23:59' : '00:00';
+    return `${datePartFormatted}, ${timePart}`;
   };
 
   const getEstadoBadgeVariant = (estado?: string) => {
@@ -194,14 +233,14 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium">Fecha de Inicio:</span>
-                  <span>{formatDateTime(taller.fechaInicio)}</span>
+                  <span>{formatTallerDateTime(taller.fechaInicio)}</span>
                 </div>
               )}
               {taller.fechaFin && (
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium">Fecha de Fin:</span>
-                  <span>{formatDateTime(taller.fechaFin)}</span>
+                  <span>{formatTallerDateTime(taller.fechaFin, true)}</span>
                 </div>
               )}
               <div className="flex items-center gap-2">

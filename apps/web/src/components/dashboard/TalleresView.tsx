@@ -59,7 +59,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
 
   // Polling de talleres cada 30 segundos (pausado cuando hay diálogo abierto)
   usePolling(() => {
-    loadTalleres();
+    loadTalleresSilent();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTalleres = async () => {
@@ -72,6 +72,16 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
       setError(err instanceof Error ? err.message : 'Error al cargar talleres');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadTalleresSilent = async () => {
+    try {
+      const data = await talleresApi.getAll();
+      setTalleres(data);
+    } catch (err) {
+      console.error('Error cargando talleres (silent):', err);
+      // No mostrar error en polling silencioso
     }
   };
 

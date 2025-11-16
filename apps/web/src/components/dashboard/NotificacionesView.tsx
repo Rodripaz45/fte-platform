@@ -35,7 +35,7 @@ export default function NotificacionesView() {
 
   // Polling cada 30 segundos para actualizar notificaciones
   usePolling(() => {
-    loadNotificaciones();
+    loadNotificacionesSilent();
     loadCountNoLeidas();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
@@ -53,6 +53,19 @@ export default function NotificacionesView() {
       setError(err instanceof Error ? err.message : 'Error al cargar notificaciones');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadNotificacionesSilent = async () => {
+    try {
+      const todas = await notificacionesApi.getMisNotificaciones({ limit: 100 });
+      const noLeidasData = await notificacionesApi.getMisNotificaciones({ soloNoLeidas: true, limit: 100 });
+      
+      setNotificaciones(todas);
+      setNoLeidas(noLeidasData);
+    } catch (err) {
+      console.error('Error cargando notificaciones (silent):', err);
+      // No mostrar error en polling silencioso
     }
   };
 

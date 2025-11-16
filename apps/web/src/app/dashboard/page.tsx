@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell } from "lucide-react";
+import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell, Calendar } from "lucide-react";
 import TalleresView from "@/components/dashboard/TalleresView";
 import BusquedaPuestosView from "@/components/dashboard/BusquedaPuestosView";
 import TallerDetailView from "@/components/dashboard/TallerDetailView";
 import CVsView from "@/components/dashboard/CVsView";
 import TalleresDisponiblesView from "@/components/dashboard/TalleresDisponiblesView";
 import MisInscripcionesView from "@/components/dashboard/MisInscripcionesView";
+import MisSesionesView from "@/components/dashboard/MisSesionesView";
 import FeedbackParticipanteView from "@/components/dashboard/FeedbackParticipanteView";
 import CompletarPerfilModal from "@/components/dashboard/CompletarPerfilModal";
 import DashboardEjecutivo from "@/components/dashboard/DashboardEjecutivo";
@@ -210,6 +211,10 @@ export default function DashboardPage() {
                   <BookOpen className="w-4 h-4" />
                   <span className="text-xs sm:text-sm whitespace-nowrap">Inscripciones</span>
                 </TabsTrigger>
+                <TabsTrigger value="sesiones" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Sesiones</span>
+                </TabsTrigger>
                 <TabsTrigger value="feedback" className="gap-1 sm:gap-2 flex-shrink-0 px-3 sm:px-4">
                   <MessageSquare className="w-4 h-4" />
                   <span className="text-xs sm:text-sm whitespace-nowrap">Feedback</span>
@@ -231,6 +236,10 @@ export default function DashboardPage() {
 
             <TabsContent value="inscripciones" className="space-y-4">
               <MisInscripcionesView />
+            </TabsContent>
+
+            <TabsContent value="sesiones" className="space-y-4">
+              <MisSesionesView />
             </TabsContent>
 
             <TabsContent value="feedback" className="space-y-4">

@@ -45,7 +45,7 @@ export default function TrainersView() {
 
   // Polling cada 30 segundos (pausado cuando hay diálogo abierto)
   usePolling(() => {
-    loadTrainers();
+    loadTrainersSilent();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
   const loadTrainers = async () => {
@@ -59,6 +59,16 @@ export default function TrainersView() {
       setError(err instanceof Error ? err.message : 'Error al cargar trainers');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadTrainersSilent = async () => {
+    try {
+      const data = await trainersApi.getAll();
+      setTrainers(data);
+    } catch (err) {
+      console.error('Error cargando trainers (silent):', err);
+      // No mostrar error en polling silencioso
     }
   };
 

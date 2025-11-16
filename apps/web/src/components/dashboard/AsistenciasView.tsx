@@ -72,7 +72,7 @@ export default function AsistenciasView() {
 
   // Polling de sesiones cada 30 segundos
   usePolling(() => {
-    loadSesiones();
+    loadSesionesSilent();
   }, { interval: 30000, pauseWhenDialogOpen: true });
 
   // Polling de asistencias y resumen cuando hay una sesión seleccionada
@@ -93,6 +93,16 @@ export default function AsistenciasView() {
       setError(err instanceof Error ? err.message : 'Error al cargar sesiones');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadSesionesSilent = async () => {
+    try {
+      const response = await sesionesApi.getAll();
+      setSesiones(response.items || []);
+    } catch (err) {
+      console.error('Error cargando sesiones (silent):', err);
+      // No mostrar error en polling silencioso
     }
   };
 
