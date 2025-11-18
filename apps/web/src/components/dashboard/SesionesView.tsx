@@ -152,28 +152,20 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
       return;
     }
 
-    // Convertir fechas a formato ISO
-    // Usar fecha local para evitar problemas de zona horaria
-    // fechaRaw viene en formato YYYY-MM-DD, crear fecha en zona horaria local
-    const [year, month, day] = fechaRaw.split('-').map(Number);
-    const fechaLocal = new Date(year, month - 1, day);
-    const fecha = fechaLocal.toISOString();
+    // Convertir fechas a formato ISO 8601 válido (sin zona horaria)
+    // fechaRaw viene en formato YYYY-MM-DD del input type="date"
+    // horaInicioRaw y horaFinRaw vienen en formato HH:MM del input type="time"
+    // Construir strings ISO 8601 completos sin zona horaria para cumplir con @IsDateString
+    // fecha es requerido, así que siempre debe tener un valor
+    const fecha = `${fechaRaw}T00:00:00`;
     
-    // Para horas, combinar fecha y hora en zona horaria local
-    const horaInicio = horaInicioRaw 
-      ? (() => {
-          const [hours, minutes] = horaInicioRaw.split(':').map(Number);
-          const fechaHoraLocal = new Date(year, month - 1, day, hours, minutes);
-          return fechaHoraLocal.toISOString();
-        })()
+    // Para horas, combinar fecha y hora en formato ISO 8601 sin zona horaria
+    const horaInicio = horaInicioRaw && fechaRaw
+      ? `${fechaRaw}T${horaInicioRaw}:00`
       : undefined;
     
-    const horaFin = horaFinRaw
-      ? (() => {
-          const [hours, minutes] = horaFinRaw.split(':').map(Number);
-          const fechaHoraLocal = new Date(year, month - 1, day, hours, minutes);
-          return fechaHoraLocal.toISOString();
-        })()
+    const horaFin = horaFinRaw && fechaRaw
+      ? `${fechaRaw}T${horaFinRaw}:00`
       : undefined;
 
     try {

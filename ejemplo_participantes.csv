@@ -1,0 +1,12 @@
+nombre,documento,email,telefono,genero,fechaNac
+Juan Pérez,12345678,juan.perez@email.com,0987654321,M,1990-05-15
+María González,87654321,maria.gonzalez@email.com,0987654322,F,1992-08-20
+Carlos Rodríguez,11223344,carlos.rodriguez@email.com,0987654323,M,1988-12-10
+Ana Martínez,55667788,ana.martinez@email.com,0987654324,F,1995-03-25
+Luis Fernández,99887766,luis.fernandez@email.com,0987654325,M,1991-07-18
+Laura Sánchez,44332211,laura.sanchez@email.com,0987654326,F,1993-11-30
+Pedro López,22113344,pedro.lopez@email.com,0987654327,M,1989-04-12
+Carmen Torres,33445566,carmen.torres@email.com,0987654328,F,1994-09-05
+Roberto Díaz,77889900,roberto.diaz@email.com,0987654329,M,1990-01-22
+Sofía Ramírez,66778899,sofia.ramirez@email.com,0987654330,F,1992-06-14
+

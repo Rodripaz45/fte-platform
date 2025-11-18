@@ -22,6 +22,9 @@ const sesiones_module_1 = require("./sesiones/sesiones.module");
 const ia_module_1 = require("./ia/ia.module");
 const cvs_module_1 = require("./cvs/cvs.module");
 const notificaciones_module_1 = require("./notificaciones/notificaciones.module");
+const unidades_educativas_module_1 = require("./unidades-educativas/unidades-educativas.module");
+const importaciones_module_1 = require("./importaciones/importaciones.module");
+const certificados_module_1 = require("./certificados/certificados.module");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const roles_guard_1 = require("./auth/roles.guard");
 let AppModule = class AppModule {
@@ -43,6 +46,9 @@ exports.AppModule = AppModule = __decorate([
             ia_module_1.IaModule,
             cvs_module_1.CvsModule,
             notificaciones_module_1.NotificacionesModule,
+            unidades_educativas_module_1.UnidadesEducativasModule,
+            importaciones_module_1.ImportacionesModule,
+            certificados_module_1.CertificadosModule,
         ],
         providers: [
             { provide: core_1.APP_GUARD, useClass: jwt_auth_guard_1.JwtAuthGuard },

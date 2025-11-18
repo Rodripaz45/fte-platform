@@ -1,9 +1,11 @@
 import { ReportesService } from './reportes.service';
+import { PdfService } from './pdf.service';
 import { FiltrosReporteDto } from './dto/filtros-reporte.dto';
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 export declare class ReportesController {
     private readonly reportesService;
-    constructor(reportesService: ReportesService);
+    private readonly pdfService;
+    constructor(reportesService: ReportesService, pdfService: PdfService);
     dashboardEjecutivo(filtros: FiltrosReporteDto): Promise<{
         resumen: {
             promedioAsistencia: number;
@@ -139,4 +141,5 @@ export declare class ReportesController {
     }[]>;
     exportarCSV(filtros: FiltrosReporteDto, tipo: string, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     private convertirACSV;
+    exportarPDF(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 }

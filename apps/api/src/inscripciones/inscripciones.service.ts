@@ -19,7 +19,7 @@ export class InscripcionesService {
 
   /**
    * Crea una inscripción validando:
-   * - Taller existente y no FINALIZADO
+   * - Taller existente y PUBLICADO (solo talleres publicados pueden recibir inscripciones)
    * - Cupo disponible (cupos > inscripciones activas)
    * - No duplicado (único por participante/taller)
    */
@@ -37,9 +37,20 @@ export class InscripcionesService {
     });
     if (!taller) throw new NotFoundException('Taller no encontrado');
 
-    if (taller.estado === 'FINALIZADO') {
+    // Solo talleres PUBLICADOS pueden recibir inscripciones
+    if (taller.estado !== 'PUBLICADO') {
+      if (taller.estado === 'BORRADOR') {
+        throw new BadRequestException(
+          'No se puede inscribir en un taller que aún no está publicado',
+        );
+      }
+      if (taller.estado === 'CERRADO' || taller.estado === 'FINALIZADO' || taller.estado === 'CANCELADO') {
+        throw new BadRequestException(
+          `No se puede inscribir en un taller con estado ${taller.estado}`,
+        );
+      }
       throw new BadRequestException(
-        'No se puede inscribir en un taller finalizado',
+        `No se puede inscribir en un taller con estado ${taller.estado}`,
       );
     }
 

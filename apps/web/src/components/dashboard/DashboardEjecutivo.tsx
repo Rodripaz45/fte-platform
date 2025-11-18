@@ -108,20 +108,20 @@ export default function DashboardEjecutivo() {
     }
   };
 
-  const handleExportarCSV = async (tipo: 'inscripciones' | 'asistencia' | 'satisfaccion') => {
+  const handleExportarPDF = async (tipo: 'dashboard' | 'inscripciones' | 'asistencia' | 'satisfaccion') => {
     try {
-      const blob = await reportesApi.exportarCSV(tipo, filtros);
+      const blob = await reportesApi.exportarPDF(tipo, filtros);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      console.error('Error exportando CSV:', err);
-      alert('Error al exportar el reporte');
+      console.error('Error exportando PDF:', err);
+      alert('Error al exportar el reporte PDF');
     }
   };
 
@@ -453,19 +453,23 @@ export default function DashboardEjecutivo() {
       <Card>
         <CardHeader>
           <CardTitle>Exportar Reportes</CardTitle>
-          <CardDescription>Descargar reportes en formato CSV</CardDescription>
+          <CardDescription>Descargar reportes en formato PDF</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => handleExportarCSV('inscripciones')} variant="outline">
+            <Button onClick={() => handleExportarPDF('dashboard')} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Exportar Dashboard
+            </Button>
+            <Button onClick={() => handleExportarPDF('inscripciones')} variant="outline">
               <Download className="w-4 h-4 mr-2" />
               Exportar Inscripciones
             </Button>
-            <Button onClick={() => handleExportarCSV('asistencia')} variant="outline">
+            <Button onClick={() => handleExportarPDF('asistencia')} variant="outline">
               <Download className="w-4 h-4 mr-2" />
               Exportar Asistencia
             </Button>
-            <Button onClick={() => handleExportarCSV('satisfaccion')} variant="outline">
+            <Button onClick={() => handleExportarPDF('satisfaccion')} variant="outline">
               <Download className="w-4 h-4 mr-2" />
               Exportar Satisfacción
             </Button>

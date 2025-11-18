@@ -36,8 +36,14 @@ let InscripcionesService = class InscripcionesService {
         });
         if (!taller)
             throw new common_1.NotFoundException('Taller no encontrado');
-        if (taller.estado === 'FINALIZADO') {
-            throw new common_1.BadRequestException('No se puede inscribir en un taller finalizado');
+        if (taller.estado !== 'PUBLICADO') {
+            if (taller.estado === 'BORRADOR') {
+                throw new common_1.BadRequestException('No se puede inscribir en un taller que aún no está publicado');
+            }
+            if (taller.estado === 'CERRADO' || taller.estado === 'FINALIZADO' || taller.estado === 'CANCELADO') {
+                throw new common_1.BadRequestException(`No se puede inscribir en un taller con estado ${taller.estado}`);
+            }
+            throw new common_1.BadRequestException(`No se puede inscribir en un taller con estado ${taller.estado}`);
         }
         const cupoMax = typeof taller.cupos === 'number' ? taller.cupos : null;
         if (cupoMax !== null && cupoMax > 0) {

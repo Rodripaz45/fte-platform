@@ -177,9 +177,12 @@ export const reportesApi = {
   },
 
   /**
-   * Exportar reporte a CSV
+   * Exportar reporte a PDF
    */
-  async exportarCSV(tipo: 'inscripciones' | 'asistencia' | 'satisfaccion', filtros?: FiltrosReporte): Promise<Blob> {
+  async exportarPDF(
+    tipo: 'dashboard' | 'inscripciones' | 'asistencia' | 'satisfaccion',
+    filtros?: FiltrosReporte,
+  ): Promise<Blob> {
     const params = new URLSearchParams();
     params.append('tipo', tipo);
     if (filtros?.fechaInicio) params.append('fechaInicio', filtros.fechaInicio);
@@ -188,14 +191,17 @@ export const reportesApi = {
     if (filtros?.tallerId) params.append('tallerId', filtros.tallerId);
     if (filtros?.participanteId) params.append('participanteId', filtros.participanteId);
 
-    const response = await fetch(`${API_BASE_URL}/reportes/exportar/csv?${params.toString()}`, {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const response = await fetch(`${API_BASE_URL}/reportes/exportar/pdf?${params.toString()}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Error al exportar reporte' }));
-      throw new Error(error.message || 'Error al exportar reporte');
+      const error = await response.json().catch(() => ({ message: 'Error al exportar reporte PDF' }));
+      throw new Error(error.message || 'Error al exportar reporte PDF');
     }
 
     return response.blob();

@@ -19,6 +19,8 @@ const tomar_asistencia_dto_1 = require("./dto/tomar-asistencia.dto");
 const create_asistencia_dto_1 = require("./dto/create-asistencia.dto");
 const update_asistencia_dto_1 = require("./dto/update-asistencia.dto");
 const registrar_asistencia_qr_dto_1 = require("./dto/registrar-asistencia-qr.dto");
+const tomar_asistencia_ue_dto_1 = require("./dto/tomar-asistencia-ue.dto");
+const create_evidencia_dto_1 = require("./dto/create-evidencia.dto");
 const swagger_1 = require("@nestjs/swagger");
 const roles_decorator_1 = require("../auth/roles.decorator");
 let AsistenciasController = class AsistenciasController {
@@ -58,6 +60,24 @@ let AsistenciasController = class AsistenciasController {
             throw new common_1.BadRequestException('Usuario no tiene perfil de participante');
         }
         return this.asistenciasService.registrarAsistenciaPorQR(dto, participante.id);
+    }
+    tomarAsistenciaUE(dto) {
+        return this.asistenciasService.tomarAsistenciaUE(dto);
+    }
+    findAsistenciasUE(sesionId) {
+        return this.asistenciasService.findAsistenciasUE(sesionId);
+    }
+    resumenAsistenciasUE(sesionId) {
+        return this.asistenciasService.resumenAsistenciasUEPorSesion(sesionId);
+    }
+    crearEvidencia(dto) {
+        return this.asistenciasService.crearEvidencia(dto);
+    }
+    obtenerEvidencias(sesionId) {
+        return this.asistenciasService.obtenerEvidencias(sesionId);
+    }
+    eliminarEvidencia(id) {
+        return this.asistenciasService.eliminarEvidencia(id);
     }
 };
 exports.AsistenciasController = AsistenciasController;
@@ -130,6 +150,61 @@ __decorate([
     __metadata("design:paramtypes", [registrar_asistencia_qr_dto_1.RegistrarAsistenciaQRDto, Object]),
     __metadata("design:returntype", Promise)
 ], AsistenciasController.prototype, "registrarAsistenciaPorQR", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
+    (0, common_1.Post)('tomar-ue'),
+    (0, swagger_1.ApiOperation)({ summary: 'Tomar asistencia para participantes de Unidad Educativa' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [tomar_asistencia_ue_dto_1.TomarAsistenciaUEDto]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "tomarAsistenciaUE", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
+    (0, common_1.Get)('ue/:sesionId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener asistencias UE de una sesión' }),
+    __param(0, (0, common_1.Param)('sesionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "findAsistenciasUE", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
+    (0, common_1.Get)('ue/resumen/:sesionId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Resumen de asistencias UE por sesión' }),
+    __param(0, (0, common_1.Param)('sesionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "resumenAsistenciasUE", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN', 'PARTICIPANTE'),
+    (0, common_1.Post)('evidencias'),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear evidencia de sesión - captura de la sesión completa (URL debe venir de Firebase Storage)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Evidencia creada exitosamente' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_evidencia_dto_1.CreateEvidenciaDto]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "crearEvidencia", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN', 'PARTICIPANTE'),
+    (0, common_1.Get)('evidencias/:sesionId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener evidencias de una sesión' }),
+    __param(0, (0, common_1.Param)('sesionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "obtenerEvidencias", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('TRAINER', 'ADMIN'),
+    (0, common_1.Delete)('evidencias/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Eliminar evidencia' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AsistenciasController.prototype, "eliminarEvidencia", null);
 exports.AsistenciasController = AsistenciasController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('asistencias'),

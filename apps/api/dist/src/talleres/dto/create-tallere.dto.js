@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateTallereDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 class CreateTallereDto {
     tema;
     modalidad;
@@ -21,6 +22,9 @@ class CreateTallereDto {
     sede;
     estado;
     trainerId;
+    tipo;
+    unidadEducativaId;
+    unidadEducativaNombre;
 }
 exports.CreateTallereDto = CreateTallereDto;
 __decorate([
@@ -45,13 +49,15 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateTallereDto.prototype, "fechaInicio", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateTallereDto.prototype, "fechaFin", void 0);
 __decorate([
@@ -72,4 +78,22 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTallereDto.prototype, "trainerId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Tipo de taller: NORMAL o UNIDAD_EDUCATIVA' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTallereDto.prototype, "tipo", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'ID de la unidad educativa (requerido si tipo es UNIDAD_EDUCATIVA)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateTallereDto.prototype, "unidadEducativaId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Nombre de la unidad educativa (se creará si no existe)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTallereDto.prototype, "unidadEducativaNombre", void 0);
 //# sourceMappingURL=create-tallere.dto.js.map

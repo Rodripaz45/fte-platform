@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateSesionDto {
   @ApiProperty({ description: 'ID del taller' })
@@ -8,17 +9,21 @@ export class CreateSesionDto {
   tallerId!: string;
 
   @ApiProperty({ description: 'Fecha de la sesión (ISO)' })
-  @IsDateString()
+  @IsNotEmpty()
+  @Type(() => Date)
+  @IsDate()
   fecha!: Date;
 
   @ApiPropertyOptional({ description: 'Hora de inicio (ISO)' })
   @IsOptional()
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   horaInicio?: Date;
 
   @ApiPropertyOptional({ description: 'Hora de fin (ISO)' })
   @IsOptional()
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   horaFin?: Date;
 
   @ApiPropertyOptional({ description: 'Usuario responsable (opcional)' })

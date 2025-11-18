@@ -4,6 +4,8 @@ import { TomarAsistenciaDto } from './dto/tomar-asistencia.dto';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
 import { RegistrarAsistenciaQRDto } from './dto/registrar-asistencia-qr.dto';
+import { TomarAsistenciaUEDto } from './dto/tomar-asistencia-ue.dto';
+import { CreateEvidenciaDto } from './dto/create-evidencia.dto';
 import { SesionesService } from '../sesiones/sesiones.service';
 
 @Injectable()
@@ -248,5 +250,201 @@ export class AsistenciasService {
         participante: { include: { usuario: true } },
       },
     });
+  }
+
+  /**
+   * Tomar asistencia para participantes de Unidad Educativa
+   * Similar a tomar() pero para ListaParticipantesUE
+   */
+  async tomarAsistenciaUE(dto: TomarAsistenciaUEDto) {
+    if (!dto.items?.length) {
+      throw new BadRequestException('Debe enviar al menos un item de asistencia');
+    }
+
+    // Validar sesión y que el taller sea de tipo UNIDAD_EDUCATIVA
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: dto.sesionId },
+      include: {
+        taller: {
+          select: {
+            id: true,
+            tipo: true,
+          },
+        },
+      },
+    });
+    if (!sesion) throw new NotFoundException('Sesión no encontrada');
+
+    if (sesion.taller.tipo !== 'UNIDAD_EDUCATIVA') {
+      throw new BadRequestException('Este método solo es para talleres de tipo UNIDAD_EDUCATIVA');
+    }
+
+    // Pre-validaciones por cada participante UE
+    await Promise.all(
+      dto.items.map(async (item) => {
+        const participanteUE = await this.prisma.listaParticipantesUE.findUnique({
+          where: { id: item.listaParticipanteUEId },
+          select: { id: true, tallerId: true },
+        });
+        if (!participanteUE) {
+          throw new NotFoundException(`Participante UE no encontrado: ${item.listaParticipanteUEId}`);
+        }
+        if (participanteUE.tallerId !== sesion.tallerId) {
+          throw new BadRequestException(
+            `El participante UE no pertenece al taller de la sesión`,
+          );
+        }
+      }),
+    );
+
+    // Upsert en bloque (transacción)
+    const resultados = await this.prisma.$transaction(
+      dto.items.map((item) =>
+        this.prisma.asistenciaUE.upsert({
+          where: {
+            sesionId_listaParticipanteUEId: {
+              sesionId: dto.sesionId,
+              listaParticipanteUEId: item.listaParticipanteUEId,
+            },
+          },
+          update: {
+            estado: item.estado || 'PRESENTE',
+            observaciones: item.observaciones,
+            tomadoEn: new Date(),
+          },
+          create: {
+            sesionId: dto.sesionId,
+            listaParticipanteUEId: item.listaParticipanteUEId,
+            estado: item.estado || 'PRESENTE',
+            observaciones: item.observaciones,
+            tomadoEn: new Date(),
+          },
+          include: {
+            listaParticipante: true,
+          },
+        }),
+      ),
+    );
+
+    return { sesionId: dto.sesionId, total: resultados.length, items: resultados };
+  }
+
+  /**
+   * Obtener asistencias UE de una sesión
+   */
+  async findAsistenciasUE(sesionId: string) {
+    return this.prisma.asistenciaUE.findMany({
+      where: { sesionId },
+      include: {
+        listaParticipante: {
+          include: {
+            unidadEducativa: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+  }
+
+  /**
+   * Crear evidencia de sesión (captura de la sesión completa)
+   */
+  async crearEvidencia(dto: CreateEvidenciaDto) {
+    // Validar que la sesión existe
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: dto.sesionId },
+      select: { id: true },
+    });
+
+    if (!sesion) {
+      throw new NotFoundException('Sesión no encontrada');
+    }
+
+    return this.prisma.evidenciaAsistencia.create({
+      data: {
+        sesionId: dto.sesionId,
+        tipo: dto.tipo || 'FOTO',
+        url: dto.url,
+      },
+      include: {
+        sesion: {
+          include: {
+            taller: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Obtener evidencias de una sesión
+   */
+  async obtenerEvidencias(sesionId: string) {
+    // Validar que la sesión existe
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: sesionId },
+      select: { id: true },
+    });
+
+    if (!sesion) {
+      throw new NotFoundException('Sesión no encontrada');
+    }
+
+    return this.prisma.evidenciaAsistencia.findMany({
+      where: { sesionId },
+      orderBy: { creadoEn: 'desc' },
+    });
+  }
+
+  /**
+   * Eliminar evidencia
+   */
+  async eliminarEvidencia(evidenciaId: string) {
+    const evidencia = await this.prisma.evidenciaAsistencia.findUnique({
+      where: { id: evidenciaId },
+    });
+
+    if (!evidencia) {
+      throw new NotFoundException('Evidencia no encontrada');
+    }
+
+    return this.prisma.evidenciaAsistencia.delete({
+      where: { id: evidenciaId },
+    });
+  }
+
+  /**
+   * Resumen de asistencias UE por sesión
+   */
+  async resumenAsistenciasUEPorSesion(sesionId: string) {
+    const sesion = await this.prisma.sesion.findUnique({
+      where: { id: sesionId },
+      include: {
+        taller: {
+          select: {
+            tipo: true,
+          },
+        },
+      },
+    });
+    if (!sesion) throw new NotFoundException('Sesión no encontrada');
+
+    if (sesion.taller.tipo !== 'UNIDAD_EDUCATIVA') {
+      throw new BadRequestException('Este método solo es para talleres de tipo UNIDAD_EDUCATIVA');
+    }
+
+    const [presentes, ausentes, justificados, total] = await Promise.all([
+      this.prisma.asistenciaUE.count({ where: { sesionId, estado: 'PRESENTE' } }),
+      this.prisma.asistenciaUE.count({ where: { sesionId, estado: 'AUSENTE' } }),
+      this.prisma.asistenciaUE.count({ where: { sesionId, estado: 'JUSTIFICADO' } }),
+      this.prisma.asistenciaUE.count({ where: { sesionId } }),
+    ]);
+
+    return { sesionId, presentes, ausentes, justificados, total };
   }
 }

@@ -1,15 +1,19 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Query, Res, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReportesService } from './reportes.service';
+import { PdfService } from './pdf.service';
 import { FiltrosReporteDto } from './dto/filtros-reporte.dto';
 import { Roles } from '../auth/roles.decorator';
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 
 @ApiTags('Reportes')
 @ApiBearerAuth()
 @Controller('reportes')
 export class ReportesController {
-  constructor(private readonly reportesService: ReportesService) {}
+  constructor(
+    private readonly reportesService: ReportesService,
+    private readonly pdfService: PdfService,
+  ) {}
 
   @Roles('ADMIN', 'TRAINER')
   @Get('dashboard')
@@ -178,5 +182,69 @@ export class ReportesController {
     }
 
     return filas.join('\n');
+  }
+
+  @Roles('ADMIN', 'TRAINER')
+  @Get('exportar/pdf')
+  @ApiOperation({ summary: 'Exportar reporte a PDF' })
+  @ApiResponse({ status: 200, description: 'Archivo PDF' })
+  async exportarPDF(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    // Obtener parámetros directamente de la query string para evitar validación
+    const query = req.query;
+    const tipo = query.tipo as string;
+    
+    if (!tipo) {
+      return res.status(400).json({ message: 'El parámetro "tipo" es requerido' });
+    }
+
+    const filtros: FiltrosReporteDto = {
+      fechaInicio: query.fechaInicio as string | undefined,
+      fechaFin: query.fechaFin as string | undefined,
+      modalidad: query.modalidad as string | undefined,
+      tallerId: query.tallerId as string | undefined,
+      participanteId: query.participanteId as string | undefined,
+    };
+    
+    try {
+      let pdfBuffer: Buffer;
+
+      switch (tipo) {
+        case 'dashboard': {
+          const dashboardData = await this.reportesService.dashboardEjecutivo(filtros);
+          pdfBuffer = await this.pdfService.generarDashboardPDF(dashboardData, filtros);
+          break;
+        }
+        case 'inscripciones': {
+          const datos = await this.reportesService.reporteInscripciones(filtros);
+          pdfBuffer = await this.pdfService.generarReporteInscripcionesPDF(datos, filtros);
+          break;
+        }
+        case 'asistencia': {
+          const datos = await this.reportesService.reporteAsistencia(filtros);
+          pdfBuffer = await this.pdfService.generarReporteAsistenciaPDF(datos, filtros);
+          break;
+        }
+        case 'satisfaccion': {
+          const datos = await this.reportesService.reporteSatisfaccion(filtros);
+          pdfBuffer = await this.pdfService.generarReporteSatisfaccionPDF(datos, filtros);
+          break;
+        }
+        default:
+          return res.status(400).json({ message: 'Tipo de reporte no válido' });
+      }
+
+      const filename = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      return res.status(500).json({ message: 'Error al generar el PDF', error: errorMessage });
+    }
   }
 }

@@ -15,8 +15,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -34,8 +34,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     })[]>;
@@ -50,8 +50,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -66,8 +66,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -82,8 +82,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -94,8 +94,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -110,8 +110,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -126,8 +126,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;
@@ -142,8 +142,8 @@ export declare class NotificacionesService {
         estado: string | null;
         creadoEn: Date;
         usuarioId: string;
-        canal: string | null;
         tipo: string | null;
+        canal: string | null;
         titulo: string | null;
         mensaje: string | null;
     }>;

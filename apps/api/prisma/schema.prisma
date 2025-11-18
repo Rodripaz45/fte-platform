@@ -50,6 +50,7 @@ model Participante {
   asistencias   Asistencia[]
   cvs           Cv[]
   inscripciones Inscripcion[]
+  certificados  Certificado[]
   usuario       Usuario             @relation(fields: [usuarioId], references: [id])
   perfiles      PerfilCompetencia[]
   feedbacks     Retroalimentacion[]
@@ -58,40 +59,48 @@ model Participante {
 }
 
 model Taller {
-  id            String              @id @default(uuid())
-  tema          String
-  modalidad     String
-  cupos         Int?
-  fechaInicio   DateTime?           @map("fecha_inicio")
-  fechaFin      DateTime?           @map("fecha_fin")
-  sede          String?
-  estado        String?
-  trainerId     String              @map("trainer_id")
-  creadoEn      DateTime            @default(now()) @map("creado_en")
-  actualizadoEn DateTime            @updatedAt @map("actualizado_en")
-  inscripciones Inscripcion[]
-  feedbacks     Retroalimentacion[]
-  sesiones      Sesion[]
-  trainer       Usuario             @relation("TallerTrainer", fields: [trainerId], references: [id])
+  id                 String                 @id @default(uuid())
+  tema               String
+  modalidad          String
+  cupos              Int?
+  fechaInicio        DateTime?              @map("fecha_inicio")
+  fechaFin           DateTime?              @map("fecha_fin")
+  sede               String?
+  estado             String?
+  tipo               String? // 'NORMAL' | 'UNIDAD_EDUCATIVA'
+  trainerId          String                 @map("trainer_id")
+  unidadEducativaId  String?                @map("unidad_educativa_id")
+  creadoEn           DateTime               @default(now()) @map("creado_en")
+  actualizadoEn      DateTime               @updatedAt @map("actualizado_en")
+  inscripciones      Inscripcion[]
+  feedbacks          Retroalimentacion[]
+  sesiones           Sesion[]
+  certificados       Certificado[]
+  trainer            Usuario                @relation("TallerTrainer", fields: [trainerId], references: [id])
+  unidadEducativa    UnidadEducativa?       @relation(fields: [unidadEducativaId], references: [id])
+  listaParticipantes ListaParticipantesUE[]
 
   @@index([trainerId])
+  @@index([unidadEducativaId])
   @@map("talleres")
 }
 
 model Sesion {
-  id                String       @id @default(uuid())
-  tallerId          String       @map("taller_id")
-  fecha             DateTime
-  horaInicio        DateTime?    @map("hora_inicio")
-  horaFin           DateTime?    @map("hora_fin")
-  responsableId     String?      @map("responsable_id")
-  codigoQR          String?      @map("codigo_qr")
-  codigoQRExpiracion DateTime?   @map("codigo_qr_expiracion")
-  creadoEn          DateTime     @default(now()) @map("creado_en")
-  actualizadoEn     DateTime     @updatedAt @map("actualizado_en")
-  asistencias       Asistencia[]
-  responsable       Usuario?     @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
-  taller            Taller       @relation(fields: [tallerId], references: [id])
+  id                 String         @id @default(uuid())
+  tallerId           String         @map("taller_id")
+  fecha              DateTime
+  horaInicio         DateTime?      @map("hora_inicio")
+  horaFin            DateTime?      @map("hora_fin")
+  responsableId      String?        @map("responsable_id")
+  codigoQR           String?        @map("codigo_qr")
+  codigoQRExpiracion DateTime?      @map("codigo_qr_expiracion")
+  creadoEn           DateTime       @default(now()) @map("creado_en")
+  actualizadoEn      DateTime       @updatedAt @map("actualizado_en")
+  asistencias        Asistencia[]
+  asistenciasUE      AsistenciaUE[]
+  evidencias         EvidenciaAsistencia[]
+  responsable        Usuario?       @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
+  taller             Taller         @relation(fields: [tallerId], references: [id])
 
   @@index([tallerId])
   @@index([codigoQR])
@@ -117,16 +126,15 @@ model Inscripcion {
 }
 
 model Asistencia {
-  id             String                @id @default(uuid())
-  sesionId       String                @map("sesion_id")
-  participanteId String                @map("participante_id")
+  id             String       @id @default(uuid())
+  sesionId       String       @map("sesion_id")
+  participanteId String       @map("participante_id")
   estado         String?
-  tomadoEn       DateTime?             @map("tomado_en")
-  creadoEn       DateTime              @default(now()) @map("creado_en")
-  actualizadoEn  DateTime              @updatedAt @map("actualizado_en")
-  participante   Participante          @relation(fields: [participanteId], references: [id])
-  sesion         Sesion                @relation(fields: [sesionId], references: [id])
-  evidencias     EvidenciaAsistencia[]
+  tomadoEn       DateTime?    @map("tomado_en")
+  creadoEn       DateTime     @default(now()) @map("creado_en")
+  actualizadoEn  DateTime     @updatedAt @map("actualizado_en")
+  participante   Participante @relation(fields: [participanteId], references: [id])
+  sesion         Sesion       @relation(fields: [sesionId], references: [id])
 
   @@unique([sesionId, participanteId])
   @@index([sesionId])
@@ -135,14 +143,14 @@ model Asistencia {
 }
 
 model EvidenciaAsistencia {
-  id           String     @id @default(uuid())
-  asistenciaId String     @map("asistencia_id")
+  id           String   @id @default(uuid())
+  sesionId     String   @map("sesion_id")
   tipo         String?
   url          String?
-  creadoEn     DateTime   @default(now()) @map("creado_en")
-  asistencia   Asistencia @relation(fields: [asistenciaId], references: [id])
+  creadoEn     DateTime @default(now()) @map("creado_en")
+  sesion       Sesion   @relation(fields: [sesionId], references: [id])
 
-  @@index([asistenciaId])
+  @@index([sesionId])
   @@map("evidencias_asistencia")
 }
 
@@ -214,4 +222,82 @@ model PerfilCompetencia {
   @@index([participanteId])
   @@index([competenciaId])
   @@map("perfiles_competencias")
+}
+
+model UnidadEducativa {
+  id                  String                 @id @default(uuid())
+  nombre              String
+  codigo              String?                @unique
+  direccion           String?
+  contacto            String?
+  email               String?
+  telefono            String?
+  creadoEn            DateTime               @default(now()) @map("creado_en")
+  actualizadoEn       DateTime               @updatedAt @map("actualizado_en")
+  talleres            Taller[]
+  listasParticipantes ListaParticipantesUE[]
+
+  @@map("unidades_educativas")
+}
+
+model ListaParticipantesUE {
+  id                String          @id @default(uuid())
+  unidadEducativaId String          @map("unidad_educativa_id")
+  tallerId          String          @map("taller_id")
+  nombre            String
+  documento         String?
+  email             String?
+  telefono          String?
+  genero            String?
+  fechaNac          DateTime?       @map("fecha_nac")
+  estado            String? // 'PENDIENTE' | 'ASISTIO' | 'NO_ASISTIO'
+  observaciones     String?         @db.Text
+  creadoEn          DateTime        @default(now()) @map("creado_en")
+  actualizadoEn     DateTime        @updatedAt @map("actualizado_en")
+  unidadEducativa   UnidadEducativa @relation(fields: [unidadEducativaId], references: [id])
+  taller            Taller          @relation(fields: [tallerId], references: [id])
+  asistenciasUE     AsistenciaUE[]
+
+  @@index([tallerId])
+  @@index([unidadEducativaId])
+  @@index([documento])
+  @@map("lista_participantes_ue")
+}
+
+model AsistenciaUE {
+  id                    String               @id @default(uuid())
+  sesionId              String               @map("sesion_id")
+  listaParticipanteUEId String               @map("lista_participante_ue_id")
+  estado                String? // 'PRESENTE' | 'AUSENTE' | 'JUSTIFICADO'
+  tomadoEn              DateTime?            @map("tomado_en")
+  observaciones         String?              @db.Text
+  creadoEn              DateTime             @default(now()) @map("creado_en")
+  actualizadoEn         DateTime             @updatedAt @map("actualizado_en")
+  sesion                Sesion               @relation(fields: [sesionId], references: [id])
+  listaParticipante     ListaParticipantesUE @relation(fields: [listaParticipanteUEId], references: [id])
+
+  @@unique([sesionId, listaParticipanteUEId])
+  @@index([sesionId])
+  @@index([listaParticipanteUEId])
+  @@map("asistencias_ue")
+}
+
+model Certificado {
+  id             String       @id @default(uuid())
+  tallerId       String       @map("taller_id")
+  participanteId String       @map("participante_id")
+  codigo         String       @unique // Código único de verificación
+  urlPDF         String?      @map("url_pdf") // URL del PDF en Firebase Storage
+  emitidoEn      DateTime     @default(now()) @map("emitido_en")
+  emitidoPor     String?      @map("emitido_por") // Usuario que lo emitió (null = automático)
+  enviadoPorEmail Boolean     @default(false) @map("enviado_por_email")
+  fechaEnvio     DateTime?    @map("fecha_envio")
+  participante   Participante @relation(fields: [participanteId], references: [id])
+  taller         Taller       @relation(fields: [tallerId], references: [id])
+
+  @@unique([tallerId, participanteId]) // Un certificado por participante por taller
+  @@index([tallerId])
+  @@index([participanteId])
+  @@index([codigo])
+  @@map("certificados")
 }

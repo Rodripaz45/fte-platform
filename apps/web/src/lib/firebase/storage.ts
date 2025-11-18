@@ -101,3 +101,42 @@ export async function uploadCV(
   });
 }
 
+/**
+ * Sube una evidencia de sesión (imagen) a Firebase Storage
+ * @param file Archivo de imagen (JPG, PNG, etc.)
+ * @param sesionId ID de la sesión
+ * @param onProgress Callback para el progreso (opcional)
+ * @returns URL de descarga del archivo
+ */
+export async function uploadEvidenciaAsistencia(
+  file: File,
+  sesionId: string,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  // Validar que el archivo sea una imagen
+  if (!file.type.match(/^image\//)) {
+    throw new Error('El archivo debe ser una imagen (JPG, PNG, etc.)');
+  }
+
+  // Validar tamaño del archivo (máximo 5MB)
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    throw new Error('El archivo no debe exceder 5MB');
+  }
+
+  // Obtener la extensión del archivo original
+  const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  
+  // Generar nombre único basado en timestamp manteniendo la extensión original
+  const timestamp = Date.now();
+  const fileName = `evidencia-${timestamp}.${fileExtension}`;
+  const path = `evidencias-sesion/${sesionId}/${fileName}`;
+
+  // Subir el archivo
+  return uploadFile({
+    file,
+    path,
+    onProgress,
+  });
+}
+

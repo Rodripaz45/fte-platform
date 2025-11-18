@@ -37,7 +37,9 @@ export declare class InscripcionesController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -81,7 +83,9 @@ export declare class InscripcionesController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -125,7 +129,9 @@ export declare class InscripcionesController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -169,7 +175,9 @@ export declare class InscripcionesController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -203,7 +211,9 @@ export declare class InscripcionesController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;

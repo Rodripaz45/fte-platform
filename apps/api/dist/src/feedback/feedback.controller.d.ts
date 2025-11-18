@@ -36,7 +36,9 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -82,7 +84,9 @@ export declare class FeedbackController {
                 fechaInicio: Date | null;
                 fechaFin: Date | null;
                 sede: string | null;
+                tipo: string | null;
                 trainerId: string;
+                unidadEducativaId: string | null;
             };
         } & {
             id: string;
@@ -134,7 +138,9 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -176,7 +182,9 @@ export declare class FeedbackController {
             fechaInicio: Date | null;
             fechaFin: Date | null;
             sede: string | null;
+            tipo: string | null;
             trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;

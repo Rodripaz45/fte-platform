@@ -14,6 +14,9 @@ import { SesionesModule } from './sesiones/sesiones.module';
 import { IaModule } from './ia/ia.module';
 import { CvsModule } from './cvs/cvs.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
+import { UnidadesEducativasModule } from './unidades-educativas/unidades-educativas.module';
+import { ImportacionesModule } from './importaciones/importaciones.module';
+import { CertificadosModule } from './certificados/certificados.module';
 
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
@@ -33,6 +36,9 @@ import { RolesGuard } from './auth/roles.guard';
     IaModule,
     CvsModule,
     NotificacionesModule,
+    UnidadesEducativasModule,
+    ImportacionesModule,
+    CertificadosModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

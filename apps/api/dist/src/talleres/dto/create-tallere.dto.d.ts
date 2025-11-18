@@ -7,4 +7,7 @@ export declare class CreateTallereDto {
     sede?: string;
     estado?: string;
     trainerId: string;
+    tipo?: string;
+    unidadEducativaId?: string;
+    unidadEducativaNombre?: string;
 }

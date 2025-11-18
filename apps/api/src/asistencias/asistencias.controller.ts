@@ -4,6 +4,8 @@ import { TomarAsistenciaDto } from './dto/tomar-asistencia.dto';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
 import { RegistrarAsistenciaQRDto } from './dto/registrar-asistencia-qr.dto';
+import { TomarAsistenciaUEDto } from './dto/tomar-asistencia-ue.dto';
+import { CreateEvidenciaDto } from './dto/create-evidencia.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 import type { Request as ExpressRequest } from 'express';
@@ -80,5 +82,48 @@ export class AsistenciasController {
     }
 
     return this.asistenciasService.registrarAsistenciaPorQR(dto, participante.id);
+  }
+
+  @Roles('TRAINER', 'ADMIN')
+  @Post('tomar-ue')
+  @ApiOperation({ summary: 'Tomar asistencia para participantes de Unidad Educativa' })
+  tomarAsistenciaUE(@Body() dto: TomarAsistenciaUEDto) {
+    return this.asistenciasService.tomarAsistenciaUE(dto);
+  }
+
+  @Roles('TRAINER', 'ADMIN')
+  @Get('ue/:sesionId')
+  @ApiOperation({ summary: 'Obtener asistencias UE de una sesión' })
+  findAsistenciasUE(@Param('sesionId') sesionId: string) {
+    return this.asistenciasService.findAsistenciasUE(sesionId);
+  }
+
+  @Roles('TRAINER', 'ADMIN')
+  @Get('ue/resumen/:sesionId')
+  @ApiOperation({ summary: 'Resumen de asistencias UE por sesión' })
+  resumenAsistenciasUE(@Param('sesionId') sesionId: string) {
+    return this.asistenciasService.resumenAsistenciasUEPorSesion(sesionId);
+  }
+
+  @Roles('TRAINER', 'ADMIN', 'PARTICIPANTE')
+  @Post('evidencias')
+  @ApiOperation({ summary: 'Crear evidencia de sesión - captura de la sesión completa (URL debe venir de Firebase Storage)' })
+  @ApiResponse({ status: 201, description: 'Evidencia creada exitosamente' })
+  crearEvidencia(@Body() dto: CreateEvidenciaDto) {
+    return this.asistenciasService.crearEvidencia(dto);
+  }
+
+  @Roles('TRAINER', 'ADMIN', 'PARTICIPANTE')
+  @Get('evidencias/:sesionId')
+  @ApiOperation({ summary: 'Obtener evidencias de una sesión' })
+  obtenerEvidencias(@Param('sesionId') sesionId: string) {
+    return this.asistenciasService.obtenerEvidencias(sesionId);
+  }
+
+  @Roles('TRAINER', 'ADMIN')
+  @Delete('evidencias/:id')
+  @ApiOperation({ summary: 'Eliminar evidencia' })
+  eliminarEvidencia(@Param('id') id: string) {
+    return this.asistenciasService.eliminarEvidencia(id);
   }
 }

@@ -10,6 +10,7 @@ exports.ReportesModule = void 0;
 const common_1 = require("@nestjs/common");
 const reportes_service_1 = require("./reportes.service");
 const reportes_controller_1 = require("./reportes.controller");
+const pdf_service_1 = require("./pdf.service");
 const prisma_module_1 = require("../../prisma/prisma.module");
 let ReportesModule = class ReportesModule {
 };
@@ -18,7 +19,7 @@ exports.ReportesModule = ReportesModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         controllers: [reportes_controller_1.ReportesController],
-        providers: [reportes_service_1.ReportesService],
+        providers: [reportes_service_1.ReportesService, pdf_service_1.PdfService],
         exports: [reportes_service_1.ReportesService],
     })
 ], ReportesModule);

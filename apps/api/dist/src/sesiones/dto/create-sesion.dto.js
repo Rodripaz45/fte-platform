@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateSesionDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 class CreateSesionDto {
     tallerId;
     fecha;
@@ -28,19 +29,23 @@ __decorate([
 ], CreateSesionDto.prototype, "tallerId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Fecha de la sesión (ISO)' }),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateSesionDto.prototype, "fecha", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Hora de inicio (ISO)' }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateSesionDto.prototype, "horaInicio", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Hora de fin (ISO)' }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateSesionDto.prototype, "horaFin", void 0);
 __decorate([

@@ -28,9 +28,9 @@ export default function TalleresDisponiblesView() {
     try {
       setIsLoading(true);
       const data = await talleresApi.getAll();
-      // Filtrar solo talleres que no estén finalizados o cancelados
+      // Solo mostrar talleres PUBLICADOS (solo estos pueden recibir inscripciones)
       const disponibles = data.filter(
-        (t) => t.estado !== 'FINALIZADO' && t.estado !== 'CANCELADO'
+        (t) => t.estado === 'PUBLICADO'
       );
       setTalleres(disponibles);
     } catch (err) {
@@ -107,10 +107,14 @@ export default function TalleresDisponiblesView() {
 
   const getEstadoBadgeVariant = (estado?: string) => {
     switch (estado) {
-      case 'PROGRAMADO':
+      case 'BORRADOR':
+        return 'outline';
+      case 'PUBLICADO':
         return 'default';
       case 'EN_CURSO':
         return 'default';
+      case 'CERRADO':
+        return 'secondary';
       case 'FINALIZADO':
         return 'secondary';
       case 'CANCELADO':

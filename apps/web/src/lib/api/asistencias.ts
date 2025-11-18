@@ -1,6 +1,14 @@
 // Servicio API para Asistencias
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
+export interface EvidenciaAsistencia {
+  id: string;
+  asistenciaId: string;
+  tipo?: string;
+  url: string;
+  creadoEn: string;
+}
+
 export interface Asistencia {
   id: string;
   sesionId: string;
@@ -22,6 +30,7 @@ export interface Asistencia {
       email: string;
     };
   };
+  evidencias?: EvidenciaAsistencia[];
   creadoEn?: string;
   actualizadoEn?: string;
 }
@@ -222,5 +231,151 @@ export const asistenciasApi = {
 
     return response.json();
   },
+
+  /**
+   * Tomar asistencia para participantes de Unidad Educativa
+   */
+  async tomarUE(dto: TomarAsistenciaUEDto): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/tomar-ue`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(dto),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al tomar asistencia UE' }));
+      throw new Error(error.message || 'Error al tomar asistencia UE');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Obtener asistencias UE de una sesión
+   */
+  async getAsistenciasUE(sesionId: string): Promise<AsistenciaUE[]> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/ue/${sesionId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener asistencias UE' }));
+      throw new Error(error.message || 'Error al obtener asistencias UE');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Obtener resumen de asistencias UE por sesión
+   */
+  async getResumenUE(sesionId: string): Promise<AsistenciaUEResumen> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/ue/resumen/${sesionId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener resumen UE' }));
+      throw new Error(error.message || 'Error al obtener resumen UE');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Crear evidencia de asistencia (URL debe venir de Firebase Storage)
+   */
+  async crearEvidencia(dto: CreateEvidenciaDto): Promise<EvidenciaAsistencia> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/evidencias`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(dto),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al crear evidencia' }));
+      throw new Error(error.message || 'Error al crear evidencia');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Obtener evidencias de una sesión
+   */
+  async obtenerEvidencias(sesionId: string): Promise<EvidenciaAsistencia[]> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/evidencias/${sesionId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener evidencias' }));
+      throw new Error(error.message || 'Error al obtener evidencias');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Eliminar evidencia
+   */
+  async eliminarEvidencia(evidenciaId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/asistencias/evidencias/${evidenciaId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al eliminar evidencia' }));
+      throw new Error(error.message || 'Error al eliminar evidencia');
+    }
+  },
 };
+
+// Tipos para asistencias UE
+export interface AsistenciaUE {
+  id: string;
+  sesionId: string;
+  listaParticipanteUEId: string;
+  estado?: 'PRESENTE' | 'AUSENTE' | 'JUSTIFICADO';
+  observaciones?: string;
+  tomadoEn?: string;
+  listaParticipante?: {
+    id: string;
+    nombre: string;
+    documento?: string;
+    email?: string;
+    telefono?: string;
+  };
+  creadoEn?: string;
+  actualizadoEn?: string;
+}
+
+export interface ItemAsistenciaUEDto {
+  listaParticipanteUEId: string;
+  estado?: 'PRESENTE' | 'AUSENTE' | 'JUSTIFICADO';
+  observaciones?: string;
+}
+
+export interface TomarAsistenciaUEDto {
+  sesionId: string;
+  items: ItemAsistenciaUEDto[];
+}
+
+export interface AsistenciaUEResumen {
+  sesionId: string;
+  total: number;
+  presentes: number;
+  ausentes: number;
+  justificados: number;
+}
+
+export interface CreateEvidenciaDto {
+  sesionId: string;
+  tipo?: string;
+  url: string;
+}
 

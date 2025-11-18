@@ -7,6 +7,12 @@ export interface Trainer {
   email: string;
 }
 
+export interface UnidadEducativa {
+  id: string;
+  nombre: string;
+  codigo?: string;
+}
+
 export interface Taller {
   id: string;
   tema: string;
@@ -16,8 +22,11 @@ export interface Taller {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  tipo?: string; // 'NORMAL' | 'UNIDAD_EDUCATIVA'
   trainerId: string;
   trainer?: Trainer;
+  unidadEducativaId?: string;
+  unidadEducativa?: UnidadEducativa;
   creadoEn?: string;
   actualizadoEn?: string;
   // Campos adicionales para información de cupos
@@ -34,7 +43,10 @@ export interface CreateTallerDto {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  tipo?: string; // 'NORMAL' | 'UNIDAD_EDUCATIVA'
   trainerId: string;
+  unidadEducativaId?: string;
+  unidadEducativaNombre?: string;
 }
 
 export interface UpdateTallerDto {
@@ -45,7 +57,10 @@ export interface UpdateTallerDto {
   fechaFin?: string;
   sede?: string;
   estado?: string;
+  tipo?: string;
   trainerId?: string;
+  unidadEducativaId?: string;
+  unidadEducativaNombre?: string;
 }
 
 const getAuthHeaders = () => {
@@ -102,8 +117,39 @@ export const talleresApi = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Error al crear el taller' }));
-      throw new Error(error.message || 'Error al crear el taller');
+      let error: any;
+      const contentType = response.headers.get('content-type');
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          error = await response.json();
+        } else {
+          const text = await response.text();
+          error = { message: text || `Error ${response.status}: ${response.statusText}` };
+        }
+      } catch (e) {
+        error = { message: `Error ${response.status}: ${response.statusText}` };
+      }
+      // Mostrar el mensaje completo del error, incluyendo detalles de validación
+      console.error('Error completo del backend:', error);
+      console.error('Status:', response.status);
+      console.error('StatusText:', response.statusText);
+      
+      // Extraer mensaje de error de diferentes formatos posibles
+      let errorMessage = 'Error al crear el taller';
+      if (error) {
+        if (Array.isArray(error.message)) {
+          errorMessage = error.message.join(', ');
+        } else if (typeof error.message === 'string') {
+          errorMessage = error.message;
+        } else if (error.error) {
+          errorMessage = typeof error.error === 'string' ? error.error : JSON.stringify(error.error);
+        } else if (Array.isArray(error)) {
+          errorMessage = error.map((e: any) => e.message || JSON.stringify(e)).join(', ');
+        } else {
+          errorMessage = JSON.stringify(error);
+        }
+      }
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -140,5 +186,56 @@ export const talleresApi = {
       const error = await response.json().catch(() => ({ message: 'Error al eliminar el taller' }));
       throw new Error(error.message || 'Error al eliminar el taller');
     }
+  },
+
+  /**
+   * Publicar un taller (cambia estado a PUBLICADO)
+   */
+  async publicar(id: string): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${id}/publicar`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al publicar el taller' }));
+      throw new Error(error.message || 'Error al publicar el taller');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Cerrar un taller (cambia estado a CERRADO)
+   */
+  async cerrar(id: string): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${id}/cerrar`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al cerrar el taller' }));
+      throw new Error(error.message || 'Error al cerrar el taller');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Finalizar un taller (cambia estado a FINALIZADO y genera certificados automáticamente)
+   */
+  async finalizar(id: string): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${id}/finalizar`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al finalizar el taller' }));
+      throw new Error(error.message || 'Error al finalizar el taller');
+    }
+
+    return response.json();
   },
 };

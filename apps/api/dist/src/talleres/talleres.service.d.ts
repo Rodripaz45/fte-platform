@@ -5,8 +5,21 @@ import { NotificacionesService } from '../notificaciones/notificaciones.service'
 export declare class TalleresService {
     private readonly prisma;
     private readonly notificacionesService;
+    private readonly logger;
+    private certificadosService;
     constructor(prisma: PrismaService, notificacionesService: NotificacionesService);
     create(dto: CreateTallereDto): Promise<{
+        unidadEducativa: {
+            id: string;
+            email: string | null;
+            nombre: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            telefono: string | null;
+            codigo: string | null;
+            direccion: string | null;
+            contacto: string | null;
+        } | null;
         trainer: {
             id: string;
             email: string;
@@ -23,12 +36,19 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     }>;
     findAll(): Promise<({
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            nombre: string;
+            codigo: string | null;
+        } | null;
         trainer: {
             id: string;
             email: string;
@@ -44,11 +64,18 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            nombre: string;
+            codigo: string | null;
+        } | null;
         trainer: {
             id: string;
             email: string;
@@ -64,12 +91,19 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     })[]>;
     findAllByTrainerId(trainerId: string): Promise<({
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            nombre: string;
+            codigo: string | null;
+        } | null;
         trainer: {
             id: string;
             email: string;
@@ -85,11 +119,18 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            nombre: string;
+            codigo: string | null;
+        } | null;
         trainer: {
             id: string;
             email: string;
@@ -105,12 +146,23 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     })[]>;
     findOne(id: string): Promise<{
         cuposDisponibles: null;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            email: string | null;
+            nombre: string;
+            telefono: string | null;
+            codigo: string | null;
+            direccion: string | null;
+            contacto: string | null;
+        } | null;
         inscripciones: {
             id: string;
             estado: string | null;
@@ -134,6 +186,32 @@ export declare class TalleresService {
             email: string;
             nombre: string;
         };
+        listaParticipantes: ({
+            asistenciasUE: {
+                id: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                sesionId: string;
+                tomadoEn: Date | null;
+                observaciones: string | null;
+                listaParticipanteUEId: string;
+            }[];
+        } & {
+            id: string;
+            email: string | null;
+            nombre: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+            unidadEducativaId: string;
+            tallerId: string;
+            observaciones: string | null;
+        })[];
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -144,11 +222,22 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
         tieneCuposLimitados: boolean;
+        unidadEducativa: {
+            id: string;
+            email: string | null;
+            nombre: string;
+            telefono: string | null;
+            codigo: string | null;
+            direccion: string | null;
+            contacto: string | null;
+        } | null;
         inscripciones: {
             id: string;
             estado: string | null;
@@ -172,6 +261,32 @@ export declare class TalleresService {
             email: string;
             nombre: string;
         };
+        listaParticipantes: ({
+            asistenciasUE: {
+                id: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                sesionId: string;
+                tomadoEn: Date | null;
+                observaciones: string | null;
+                listaParticipanteUEId: string;
+            }[];
+        } & {
+            id: string;
+            email: string | null;
+            nombre: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            documento: string | null;
+            telefono: string | null;
+            genero: string | null;
+            fechaNac: Date | null;
+            unidadEducativaId: string;
+            tallerId: string;
+            observaciones: string | null;
+        })[];
         id: string;
         estado: string | null;
         creadoEn: Date;
@@ -182,7 +297,9 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     }>;
     update(id: string, dto: UpdateTallereDto): Promise<{
         trainer: {
@@ -201,7 +318,9 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -214,6 +333,72 @@ export declare class TalleresService {
         fechaInicio: Date | null;
         fechaFin: Date | null;
         sede: string | null;
+        tipo: string | null;
         trainerId: string;
+        unidadEducativaId: string | null;
+    }>;
+    publicar(id: string): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        trainerId: string;
+        unidadEducativaId: string | null;
+    }>;
+    cerrar(id: string): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        trainerId: string;
+        unidadEducativaId: string | null;
+    }>;
+    setCertificadosService(service: any): void;
+    finalizar(id: string): Promise<{
+        trainer: {
+            id: string;
+            email: string;
+            nombre: string;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        trainerId: string;
+        unidadEducativaId: string | null;
     }>;
 }

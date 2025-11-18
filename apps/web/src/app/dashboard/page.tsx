@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell, Calendar } from "lucide-react";
+import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell, Calendar, Award } from "lucide-react";
 import TalleresView from "@/components/dashboard/TalleresView";
 import BusquedaPuestosView from "@/components/dashboard/BusquedaPuestosView";
 import TallerDetailView from "@/components/dashboard/TallerDetailView";
@@ -21,6 +21,7 @@ import DashboardEjecutivo from "@/components/dashboard/DashboardEjecutivo";
 import TrainersView from "@/components/dashboard/TrainersView";
 import NotificacionesView from "@/components/dashboard/NotificacionesView";
 import NotificacionesBadge from "@/components/dashboard/NotificacionesBadge";
+import CertificadosView from "@/components/dashboard/CertificadosView";
 import { type Taller } from "@/lib/api/talleres";
 
 export default function DashboardPage() {
@@ -141,6 +142,10 @@ export default function DashboardPage() {
                 <Search className="w-4 h-4" />
                 Búsqueda de Puestos
               </TabsTrigger>
+              <TabsTrigger value="certificados" className="gap-2">
+                <Award className="w-4 h-4" />
+                Certificados
+              </TabsTrigger>
               <TabsTrigger value="notificaciones" className="gap-2">
                 <Bell className="w-4 h-4" />
                 Notificaciones
@@ -161,6 +166,10 @@ export default function DashboardPage() {
 
             <TabsContent value="job-search" className="space-y-4">
               <BusquedaPuestosView />
+            </TabsContent>
+
+            <TabsContent value="certificados" className="space-y-4">
+              <CertificadosView />
             </TabsContent>
 
             <TabsContent value="notificaciones" className="space-y-4">
@@ -240,6 +249,10 @@ export default function DashboardPage() {
 
             <TabsContent value="sesiones" className="space-y-4">
               <MisSesionesView />
+            </TabsContent>
+
+            <TabsContent value="certificados" className="space-y-4">
+              <CertificadosView />
             </TabsContent>
 
             <TabsContent value="feedback" className="space-y-4">

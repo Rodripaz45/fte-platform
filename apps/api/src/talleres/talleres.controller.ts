@@ -3,7 +3,7 @@ import { TalleresService } from './talleres.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
 import { Roles } from '../auth/roles.decorator'; // ← usa ruta relativa si no tienes path alias
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 // import type { Role } from '../../auth/role.enum'; // (opcional, no lo necesitas aquí)
 
@@ -49,5 +49,25 @@ export class TalleresController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.talleresService.remove(id);
+  }
+
+  @Roles('ADMIN', 'TRAINER')
+  @Post(':id/publicar')
+  publicar(@Param('id') id: string) {
+    return this.talleresService.publicar(id);
+  }
+
+  @Roles('ADMIN', 'TRAINER')
+  @Post(':id/cerrar')
+  cerrar(@Param('id') id: string) {
+    return this.talleresService.cerrar(id);
+  }
+
+  @Roles('ADMIN', 'TRAINER')
+  @Post(':id/finalizar')
+  @ApiOperation({ summary: 'Finalizar taller y generar certificados automáticamente' })
+  @ApiResponse({ status: 200, description: 'Taller finalizado y certificados generados' })
+  finalizar(@Param('id') id: string) {
+    return this.talleresService.finalizar(id);
   }
 }

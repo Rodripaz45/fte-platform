@@ -16,12 +16,15 @@ exports.ReportesController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const reportes_service_1 = require("./reportes.service");
+const pdf_service_1 = require("./pdf.service");
 const filtros_reporte_dto_1 = require("./dto/filtros-reporte.dto");
 const roles_decorator_1 = require("../auth/roles.decorator");
 let ReportesController = class ReportesController {
     reportesService;
-    constructor(reportesService) {
+    pdfService;
+    constructor(reportesService, pdfService) {
         this.reportesService = reportesService;
+        this.pdfService = pdfService;
     }
     async dashboardEjecutivo(filtros) {
         return this.reportesService.dashboardEjecutivo(filtros);
@@ -129,6 +132,56 @@ let ReportesController = class ReportesController {
         }
         return filas.join('\n');
     }
+    async exportarPDF(req, res) {
+        const query = req.query;
+        const tipo = query.tipo;
+        if (!tipo) {
+            return res.status(400).json({ message: 'El parámetro "tipo" es requerido' });
+        }
+        const filtros = {
+            fechaInicio: query.fechaInicio,
+            fechaFin: query.fechaFin,
+            modalidad: query.modalidad,
+            tallerId: query.tallerId,
+            participanteId: query.participanteId,
+        };
+        try {
+            let pdfBuffer;
+            switch (tipo) {
+                case 'dashboard': {
+                    const dashboardData = await this.reportesService.dashboardEjecutivo(filtros);
+                    pdfBuffer = await this.pdfService.generarDashboardPDF(dashboardData, filtros);
+                    break;
+                }
+                case 'inscripciones': {
+                    const datos = await this.reportesService.reporteInscripciones(filtros);
+                    pdfBuffer = await this.pdfService.generarReporteInscripcionesPDF(datos, filtros);
+                    break;
+                }
+                case 'asistencia': {
+                    const datos = await this.reportesService.reporteAsistencia(filtros);
+                    pdfBuffer = await this.pdfService.generarReporteAsistenciaPDF(datos, filtros);
+                    break;
+                }
+                case 'satisfaccion': {
+                    const datos = await this.reportesService.reporteSatisfaccion(filtros);
+                    pdfBuffer = await this.pdfService.generarReporteSatisfaccionPDF(datos, filtros);
+                    break;
+                }
+                default:
+                    return res.status(400).json({ message: 'Tipo de reporte no válido' });
+            }
+            const filename = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`;
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.send(pdfBuffer);
+        }
+        catch (error) {
+            console.error('Error generando PDF:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+            return res.status(500).json({ message: 'Error al generar el PDF', error: errorMessage });
+        }
+    }
 };
 exports.ReportesController = ReportesController;
 __decorate([
@@ -223,10 +276,22 @@ __decorate([
     __metadata("design:paramtypes", [filtros_reporte_dto_1.FiltrosReporteDto, String, Object]),
     __metadata("design:returntype", Promise)
 ], ReportesController.prototype, "exportarCSV", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Get)('exportar/pdf'),
+    (0, swagger_1.ApiOperation)({ summary: 'Exportar reporte a PDF' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Archivo PDF' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ReportesController.prototype, "exportarPDF", null);
 exports.ReportesController = ReportesController = __decorate([
     (0, swagger_1.ApiTags)('Reportes'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('reportes'),
-    __metadata("design:paramtypes", [reportes_service_1.ReportesService])
+    __metadata("design:paramtypes", [reportes_service_1.ReportesService,
+        pdf_service_1.PdfService])
 ], ReportesController);
 //# sourceMappingURL=reportes.controller.js.map

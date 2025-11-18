@@ -18,7 +18,14 @@ async function bootstrap() {
 
   // Validación global
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+    new ValidationPipe({ 
+      whitelist: true, 
+      forbidNonWhitelisted: true,
+      transform: true, // Necesario para transformar objetos anidados
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
   );
 
   // Swagger

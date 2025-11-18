@@ -43,6 +43,15 @@ let TalleresController = class TalleresController {
     remove(id) {
         return this.talleresService.remove(id);
     }
+    publicar(id) {
+        return this.talleresService.publicar(id);
+    }
+    cerrar(id) {
+        return this.talleresService.cerrar(id);
+    }
+    finalizar(id) {
+        return this.talleresService.finalizar(id);
+    }
 };
 exports.TalleresController = TalleresController;
 __decorate([
@@ -84,6 +93,32 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], TalleresController.prototype, "remove", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)(':id/publicar'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TalleresController.prototype, "publicar", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)(':id/cerrar'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TalleresController.prototype, "cerrar", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)(':id/finalizar'),
+    (0, swagger_1.ApiOperation)({ summary: 'Finalizar taller y generar certificados automáticamente' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Taller finalizado y certificados generados' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TalleresController.prototype, "finalizar", null);
 exports.TalleresController = TalleresController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('talleres'),
