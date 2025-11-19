@@ -22,10 +22,13 @@ const validar_qr_dto_1 = require("./dto/validar-qr.dto");
 const swagger_1 = require("@nestjs/swagger");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const public_decorator_1 = require("../auth/public.decorator");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let SesionesController = class SesionesController {
     sesionesService;
-    constructor(sesionesService) {
+    prisma;
+    constructor(sesionesService, prisma) {
         this.sesionesService = sesionesService;
+        this.prisma = prisma;
     }
     create(dto) {
         return this.sesionesService.create(dto);
@@ -36,6 +39,17 @@ let SesionesController = class SesionesController {
             page: page ? Number(page) : undefined,
             pageSize: pageSize ? Number(pageSize) : undefined,
         });
+    }
+    async getMisSesiones(req) {
+        const { sub: userId } = req.user;
+        const usuario = await this.prisma.usuario.findUnique({
+            where: { id: userId },
+            include: { participante: true },
+        });
+        if (!usuario?.participante) {
+            return [];
+        }
+        return this.sesionesService.findByParticipante(usuario.participante.id);
     }
     findOne(id) {
         return this.sesionesService.findOne(id);
@@ -80,6 +94,16 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "findAll", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('PARTICIPANTE'),
+    (0, common_1.Get)('mis-sesiones'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener las sesiones del participante autenticado' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de sesiones del participante' }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SesionesController.prototype, "getMisSesiones", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -159,6 +183,7 @@ __decorate([
 exports.SesionesController = SesionesController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('sesiones'),
-    __metadata("design:paramtypes", [sesiones_service_1.SesionesService])
+    __metadata("design:paramtypes", [sesiones_service_1.SesionesService,
+        prisma_service_1.PrismaService])
 ], SesionesController);
 //# sourceMappingURL=sesiones.controller.js.map

@@ -104,6 +104,23 @@ export const sesionesApi = {
   },
 
   /**
+   * Obtener las sesiones del participante autenticado
+   */
+  async getMySesiones(): Promise<Sesion[]> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/mis-sesiones`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener tus sesiones' }));
+      throw new Error(error.message || 'Error al obtener tus sesiones');
+    }
+
+    return response.json();
+  },
+
+  /**
    * Obtener una sesión por ID
    */
   async getById(id: string): Promise<Sesion> {

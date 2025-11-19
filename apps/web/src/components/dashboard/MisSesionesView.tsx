@@ -51,7 +51,7 @@ export default function MisSesionesView() {
       <div>
         <h2 className="text-2xl font-bold">Mis Sesiones</h2>
         <p className="text-muted-foreground">
-          Sesiones de los talleres en los que estás inscrito, para saber a cuáles debes asistir.
+          Todas las sesiones de los talleres en los que estás inscrito.
         </p>
       </div>
 

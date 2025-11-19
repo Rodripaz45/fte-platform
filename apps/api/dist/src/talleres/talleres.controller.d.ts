@@ -15,8 +15,8 @@ export declare class TalleresController {
     create(createTallereDto: CreateTallereDto): Promise<{
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
             telefono: string | null;
@@ -26,8 +26,8 @@ export declare class TalleresController {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -55,8 +55,8 @@ export declare class TalleresController {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -82,8 +82,8 @@ export declare class TalleresController {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -105,8 +105,8 @@ export declare class TalleresController {
         tieneCuposLimitados: boolean;
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             telefono: string | null;
             codigo: string | null;
             direccion: string | null;
@@ -132,8 +132,8 @@ export declare class TalleresController {
         }[];
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         listaParticipantes: ({
             asistenciasUE: {
@@ -141,15 +141,15 @@ export declare class TalleresController {
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                sesionId: string;
                 tomadoEn: Date | null;
+                sesionId: string;
                 observaciones: string | null;
                 listaParticipanteUEId: string;
             }[];
         } & {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
@@ -180,8 +180,8 @@ export declare class TalleresController {
         tieneCuposLimitados: boolean;
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             telefono: string | null;
             codigo: string | null;
             direccion: string | null;
@@ -207,8 +207,8 @@ export declare class TalleresController {
         }[];
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         listaParticipantes: ({
             asistenciasUE: {
@@ -216,15 +216,15 @@ export declare class TalleresController {
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                sesionId: string;
                 tomadoEn: Date | null;
+                sesionId: string;
                 observaciones: string | null;
                 listaParticipanteUEId: string;
             }[];
         } & {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
@@ -253,8 +253,8 @@ export declare class TalleresController {
     update(id: string, updateTallereDto: UpdateTallereDto): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -289,8 +289,8 @@ export declare class TalleresController {
     publicar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -310,8 +310,8 @@ export declare class TalleresController {
     cerrar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -331,8 +331,8 @@ export declare class TalleresController {
     finalizar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;

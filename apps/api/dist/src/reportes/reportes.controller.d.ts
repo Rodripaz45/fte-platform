@@ -77,8 +77,8 @@ export declare class ReportesController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
             };
         } & {
             id: string;

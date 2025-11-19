@@ -177,10 +177,20 @@ let ReportesService = class ReportesService {
         const promedioAsistencia = asistencia.length > 0
             ? asistencia.reduce((acc, item) => acc + item.tasaAsistencia, 0) / asistencia.length
             : 0;
-        const promedioSatisfaccion = satisfaccion.length > 0
-            ? satisfaccion.reduce((acc, item) => acc + item.promedioSatisfaccion, 0) /
-                satisfaccion.length
+        const talleresConFeedback = satisfaccion.filter(item => item.totalFeedbacks > 0);
+        console.log('🔍 Debug Satisfacción:');
+        console.log('  Total talleres:', satisfaccion.length);
+        console.log('  Talleres con feedback:', talleresConFeedback.length);
+        console.log('  Datos:', talleresConFeedback.map(t => ({
+            tema: t.tema,
+            feedbacks: t.totalFeedbacks,
+            promedio: t.promedioSatisfaccion
+        })));
+        const promedioSatisfaccion = talleresConFeedback.length > 0
+            ? talleresConFeedback.reduce((acc, item) => acc + item.promedioSatisfaccion, 0) /
+                talleresConFeedback.length
             : 0;
+        console.log('  Promedio final:', promedioSatisfaccion);
         return {
             resumen: {
                 promedioAsistencia: Math.round(promedioAsistencia * 100) / 100,

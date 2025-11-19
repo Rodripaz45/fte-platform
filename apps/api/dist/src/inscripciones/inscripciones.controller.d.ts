@@ -9,8 +9,8 @@ export declare class InscripcionesController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -55,8 +55,8 @@ export declare class InscripcionesController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -101,8 +101,8 @@ export declare class InscripcionesController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -147,8 +147,8 @@ export declare class InscripcionesController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;

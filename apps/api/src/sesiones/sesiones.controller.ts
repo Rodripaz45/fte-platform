@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req } from '@nestjs/common';
 import { SesionesService } from './sesiones.service';
 import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
@@ -7,11 +7,16 @@ import { ValidarQRDto } from './dto/validar-qr.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 import { Public } from 'src/auth/public.decorator';
+import type { Request as ExpressRequest } from 'express';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @ApiBearerAuth()
 @Controller('sesiones')
 export class SesionesController {
-  constructor(private readonly sesionesService: SesionesService) {}
+  constructor(
+    private readonly sesionesService: SesionesService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Roles('ADMIN', 'TRAINER')
   @Post()
@@ -30,6 +35,29 @@ export class SesionesController {
       page: page ? Number(page) : undefined,
       pageSize: pageSize ? Number(pageSize) : undefined,
     });
+  }
+
+  @Roles('PARTICIPANTE')
+  @Get('mis-sesiones')
+  @ApiOperation({ summary: 'Obtener las sesiones del participante autenticado' })
+  @ApiResponse({ status: 200, description: 'Lista de sesiones del participante' })
+  async getMisSesiones(@Req() req: ExpressRequest) {
+    type AuthenticatedRequest = ExpressRequest & {
+      user: { sub: string; email: string; roles: string[] };
+    };
+    const { sub: userId } = (req as AuthenticatedRequest).user;
+
+    // Obtener el participante asociado al usuario
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: userId },
+      include: { participante: true },
+    });
+
+    if (!usuario?.participante) {
+      return [];
+    }
+
+    return this.sesionesService.findByParticipante(usuario.participante.id);
   }
 
   @Get(':id')

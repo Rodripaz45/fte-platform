@@ -6,8 +6,8 @@ export declare class UnidadesEducativasController {
     constructor(unidadesEducativasService: UnidadesEducativasService);
     create(createDto: CreateUnidadEducativaDto): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -22,8 +22,8 @@ export declare class UnidadesEducativasController {
         };
     } & {
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -35,8 +35,8 @@ export declare class UnidadesEducativasController {
         talleres: ({
             trainer: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
             };
         } & {
             id: string;
@@ -58,8 +58,8 @@ export declare class UnidadesEducativasController {
         };
     } & {
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -69,8 +69,8 @@ export declare class UnidadesEducativasController {
     }>;
     update(id: string, updateDto: UpdateUnidadEducativaDto): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -80,8 +80,8 @@ export declare class UnidadesEducativasController {
     }>;
     remove(id: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;

@@ -15,8 +15,8 @@ export declare class ImportacionesService {
     private generarDedupeHash;
     obtenerListaParticipantes(tallerId: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
@@ -30,8 +30,8 @@ export declare class ImportacionesService {
     }[]>;
     eliminarParticipante(id: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;

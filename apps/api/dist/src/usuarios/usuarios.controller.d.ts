@@ -24,8 +24,8 @@ export declare class UsuariosController {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
@@ -53,8 +53,8 @@ export declare class UsuariosController {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
@@ -66,8 +66,8 @@ export declare class UsuariosController {
             nombre: string;
         }[];
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
@@ -95,8 +95,8 @@ export declare class UsuariosController {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;
@@ -124,8 +124,8 @@ export declare class UsuariosController {
         })[];
     } & {
         id: string;
-        email: string;
         nombre: string;
+        email: string;
         passwordHash: string;
         estado: string | null;
         creadoEn: Date;

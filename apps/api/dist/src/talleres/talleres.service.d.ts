@@ -11,8 +11,8 @@ export declare class TalleresService {
     create(dto: CreateTallereDto): Promise<{
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
             telefono: string | null;
@@ -22,8 +22,8 @@ export declare class TalleresService {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -51,8 +51,8 @@ export declare class TalleresService {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -78,8 +78,8 @@ export declare class TalleresService {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -106,8 +106,8 @@ export declare class TalleresService {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -133,8 +133,8 @@ export declare class TalleresService {
         } | null;
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         id: string;
         estado: string | null;
@@ -156,8 +156,8 @@ export declare class TalleresService {
         tieneCuposLimitados: boolean;
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             telefono: string | null;
             codigo: string | null;
             direccion: string | null;
@@ -183,8 +183,8 @@ export declare class TalleresService {
         }[];
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         listaParticipantes: ({
             asistenciasUE: {
@@ -192,15 +192,15 @@ export declare class TalleresService {
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                sesionId: string;
                 tomadoEn: Date | null;
+                sesionId: string;
                 observaciones: string | null;
                 listaParticipanteUEId: string;
             }[];
         } & {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
@@ -231,8 +231,8 @@ export declare class TalleresService {
         tieneCuposLimitados: boolean;
         unidadEducativa: {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             telefono: string | null;
             codigo: string | null;
             direccion: string | null;
@@ -258,8 +258,8 @@ export declare class TalleresService {
         }[];
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
         listaParticipantes: ({
             asistenciasUE: {
@@ -267,15 +267,15 @@ export declare class TalleresService {
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
-                sesionId: string;
                 tomadoEn: Date | null;
+                sesionId: string;
                 observaciones: string | null;
                 listaParticipanteUEId: string;
             }[];
         } & {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
@@ -304,8 +304,8 @@ export declare class TalleresService {
     update(id: string, dto: UpdateTallereDto): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -340,8 +340,8 @@ export declare class TalleresService {
     publicar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -361,8 +361,8 @@ export declare class TalleresService {
     cerrar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -383,8 +383,8 @@ export declare class TalleresService {
     finalizar(id: string): Promise<{
         trainer: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;

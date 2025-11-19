@@ -151,6 +151,37 @@ let SesionesService = class SesionesService {
             throw new common_1.NotFoundException('Sesión no encontrada');
         return sesion;
     }
+    async findByParticipante(participanteId) {
+        const inscripciones = await this.prisma.inscripcion.findMany({
+            where: {
+                participanteId,
+                estado: {
+                    in: ['INSCRITO', 'FINALIZADO']
+                }
+            },
+            select: { tallerId: true },
+        });
+        if (inscripciones.length === 0) {
+            return [];
+        }
+        const tallerIds = inscripciones.map(ins => ins.tallerId);
+        const sesiones = await this.prisma.sesion.findMany({
+            where: {
+                tallerId: {
+                    in: tallerIds,
+                },
+            },
+            include: {
+                taller: true,
+                responsable: true,
+            },
+            orderBy: [
+                { fecha: 'desc' },
+                { horaInicio: 'asc' },
+            ],
+        });
+        return sesiones;
+    }
     async update(id, dto) {
         await this.findOne(id);
         this.validarHoras(dto.horaInicio, dto.horaFin);

@@ -30,13 +30,6 @@ export declare class CertificadosController {
         errores: number;
     }>;
     getAllCertificados(): Promise<({
-        taller: {
-            id: string;
-            tema: string;
-            modalidad: string;
-            fechaInicio: Date | null;
-            fechaFin: Date | null;
-        };
         participante: {
             usuario: {
                 id: string;
@@ -52,6 +45,13 @@ export declare class CertificadosController {
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            tema: string;
+            modalidad: string;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
         };
     } & {
         id: string;
@@ -65,30 +65,15 @@ export declare class CertificadosController {
         fechaEnvio: Date | null;
     })[]>;
     getCertificado(id: string): Promise<{
-        taller: {
-            id: string;
-            tema: string;
-            modalidad: string;
-            cupos: number | null;
-            fechaInicio: Date | null;
-            fechaFin: Date | null;
-            sede: string | null;
-            estado: string | null;
-            tipo: string | null;
-            trainerId: string;
-            unidadEducativaId: string | null;
-            creadoEn: Date;
-            actualizadoEn: Date;
-        };
         participante: {
             usuario: {
                 id: string;
-                estado: string | null;
-                creadoEn: Date;
-                actualizadoEn: Date;
                 nombre: string;
                 email: string;
                 passwordHash: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
             };
         } & {
             id: string;
@@ -99,6 +84,21 @@ export declare class CertificadosController {
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+            tipo: string | null;
+            trainerId: string;
+            unidadEducativaId: string | null;
         };
     } & {
         id: string;
@@ -112,23 +112,15 @@ export declare class CertificadosController {
         fechaEnvio: Date | null;
     }>;
     verificarCertificado(codigo: string): Promise<{
-        taller: {
-            id: string;
-            tema: string;
-            modalidad: string;
-            fechaInicio: Date | null;
-            fechaFin: Date | null;
-            estado: string | null;
-        };
         participante: {
             usuario: {
                 id: string;
-                estado: string | null;
-                creadoEn: Date;
-                actualizadoEn: Date;
                 nombre: string;
                 email: string;
                 passwordHash: string;
+                estado: string | null;
+                creadoEn: Date;
+                actualizadoEn: Date;
             };
         } & {
             id: string;
@@ -139,6 +131,14 @@ export declare class CertificadosController {
             telefono: string | null;
             genero: string | null;
             fechaNac: Date | null;
+        };
+        taller: {
+            id: string;
+            estado: string | null;
+            tema: string;
+            modalidad: string;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
         };
     } & {
         id: string;

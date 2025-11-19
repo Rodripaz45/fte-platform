@@ -14,8 +14,8 @@ export declare class ImportacionesController {
     }>;
     obtenerLista(tallerId: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
@@ -29,8 +29,8 @@ export declare class ImportacionesController {
     }[]>;
     eliminarParticipante(id: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;

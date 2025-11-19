@@ -76,8 +76,8 @@ export declare class ReportesService {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
             };
         } & {
             id: string;

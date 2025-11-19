@@ -195,6 +195,49 @@ export class SesionesService {
     return sesion;
   }
 
+  /**
+   * Obtiene las sesiones de los talleres en los que el participante está inscrito
+   */
+  async findByParticipante(participanteId: string) {
+    // Obtener las inscripciones activas del participante
+    const inscripciones = await this.prisma.inscripcion.findMany({
+      where: { 
+        participanteId,
+        estado: {
+          in: ['INSCRITO', 'FINALIZADO']
+        }
+      },
+      select: { tallerId: true },
+    });
+
+    // Si no tiene inscripciones, retornar array vacío
+    if (inscripciones.length === 0) {
+      return [];
+    }
+
+    // Obtener IDs de talleres
+    const tallerIds = inscripciones.map(ins => ins.tallerId);
+
+    // Obtener todas las sesiones de esos talleres
+    const sesiones = await this.prisma.sesion.findMany({
+      where: {
+        tallerId: {
+          in: tallerIds,
+        },
+      },
+      include: {
+        taller: true,
+        responsable: true,
+      },
+      orderBy: [
+        { fecha: 'desc' },
+        { horaInicio: 'asc' },
+      ],
+    });
+
+    return sesiones;
+  }
+
   async update(id: string, dto: UpdateSesionDto) {
     // Asegura que existe
     await this.findOne(id);

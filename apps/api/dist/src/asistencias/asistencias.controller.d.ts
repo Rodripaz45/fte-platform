@@ -18,16 +18,16 @@ export declare class AsistenciasController {
             creadoEn: Date;
             actualizadoEn: Date;
             participanteId: string;
-            sesionId: string;
             tomadoEn: Date | null;
+            sesionId: string;
         }[];
     }>;
     create(dto: CreateAsistenciaDto): Promise<{
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -49,15 +49,15 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     }>;
     findAll(sesionId?: string): Promise<({
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -91,8 +91,8 @@ export declare class AsistenciasController {
             };
             responsable: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -102,13 +102,13 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
-            tallerId: string;
-            responsableId: string | null;
         };
     } & {
         id: string;
@@ -116,8 +116,8 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     })[]>;
     resumen(sesionId: string): Promise<{
         sesionId: string;
@@ -130,8 +130,8 @@ export declare class AsistenciasController {
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -165,8 +165,8 @@ export declare class AsistenciasController {
             };
             responsable: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -176,13 +176,13 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
-            tallerId: string;
-            responsableId: string | null;
         };
     } & {
         id: string;
@@ -190,8 +190,8 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     }>;
     update(id: string, dto: UpdateAsistenciaDto): Promise<{
         id: string;
@@ -199,8 +199,8 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -208,15 +208,15 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     }>;
     registrarAsistenciaPorQR(dto: RegistrarAsistenciaQRDto, req: ExpressRequest): Promise<{
         participante: {
             usuario: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -252,13 +252,13 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
-            tallerId: string;
-            responsableId: string | null;
         };
     } & {
         id: string;
@@ -266,8 +266,8 @@ export declare class AsistenciasController {
         creadoEn: Date;
         actualizadoEn: Date;
         participanteId: string;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
     }>;
     tomarAsistenciaUE(dto: TomarAsistenciaUEDto): Promise<{
         sesionId: string;
@@ -275,8 +275,8 @@ export declare class AsistenciasController {
         items: ({
             listaParticipante: {
                 id: string;
-                email: string | null;
                 nombre: string;
+                email: string | null;
                 estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
@@ -293,8 +293,8 @@ export declare class AsistenciasController {
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
-            sesionId: string;
             tomadoEn: Date | null;
+            sesionId: string;
             observaciones: string | null;
             listaParticipanteUEId: string;
         })[];
@@ -307,8 +307,8 @@ export declare class AsistenciasController {
             };
         } & {
             id: string;
-            email: string | null;
             nombre: string;
+            email: string | null;
             estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
@@ -325,8 +325,8 @@ export declare class AsistenciasController {
         estado: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
-        sesionId: string;
         tomadoEn: Date | null;
+        sesionId: string;
         observaciones: string | null;
         listaParticipanteUEId: string;
     })[]>;
@@ -358,13 +358,13 @@ export declare class AsistenciasController {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
-            tallerId: string;
-            responsableId: string | null;
         };
     } & {
         id: string;

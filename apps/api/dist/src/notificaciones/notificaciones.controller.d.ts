@@ -8,8 +8,8 @@ export declare class NotificacionesController {
     getMisNotificaciones(req: ExpressRequest, soloNoLeidas?: string, limit?: string): Promise<({
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -28,8 +28,8 @@ export declare class NotificacionesController {
     findOne(id: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -44,8 +44,8 @@ export declare class NotificacionesController {
     marcarComoLeida(id: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -60,8 +60,8 @@ export declare class NotificacionesController {
     update(id: string, dto: UpdateNotificacionDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -86,8 +86,8 @@ export declare class NotificacionesController {
     create(dto: CreateNotificacionDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;

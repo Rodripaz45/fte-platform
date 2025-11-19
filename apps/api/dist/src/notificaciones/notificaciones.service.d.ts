@@ -7,8 +7,8 @@ export declare class NotificacionesService {
     create(dto: CreateNotificacionDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -26,8 +26,8 @@ export declare class NotificacionesService {
     }): Promise<({
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -42,8 +42,8 @@ export declare class NotificacionesService {
     findOne(id: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -58,8 +58,8 @@ export declare class NotificacionesService {
     update(id: string, dto: UpdateNotificacionDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -74,8 +74,8 @@ export declare class NotificacionesService {
     marcarComoLeida(id: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -102,8 +102,8 @@ export declare class NotificacionesService {
     crearRecordatorioSesion(usuarioId: string, sesionId: string, fechaSesion: Date, temaTaller: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -118,8 +118,8 @@ export declare class NotificacionesService {
     crearConfirmacionInscripcion(usuarioId: string, temaTaller: string, fechaInicio?: Date): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;
@@ -134,8 +134,8 @@ export declare class NotificacionesService {
     crearNotificacionNuevoTaller(usuarioId: string, temaTaller: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
         };
     } & {
         id: string;

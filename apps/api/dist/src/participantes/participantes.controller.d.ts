@@ -8,8 +8,8 @@ export declare class ParticipantesController {
     create(dto: CreateParticipanteDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -28,8 +28,8 @@ export declare class ParticipantesController {
     createMyProfile(req: ExpressRequest, dto: Omit<CreateParticipanteDto, 'usuarioId'>): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -48,8 +48,8 @@ export declare class ParticipantesController {
     findAll(): import("@prisma/client").Prisma.PrismaPromise<({
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -68,8 +68,8 @@ export declare class ParticipantesController {
     findOne(id: string): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -98,8 +98,8 @@ export declare class ParticipantesController {
     update(id: string, dto: UpdateParticipanteDto): Promise<{
         usuario: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;

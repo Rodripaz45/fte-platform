@@ -6,8 +6,8 @@ export declare class UnidadesEducativasService {
     constructor(prisma: PrismaService);
     create(dto: CreateUnidadEducativaDto): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -22,8 +22,8 @@ export declare class UnidadesEducativasService {
         };
     } & {
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -35,8 +35,8 @@ export declare class UnidadesEducativasService {
         talleres: ({
             trainer: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
             };
         } & {
             id: string;
@@ -58,8 +58,8 @@ export declare class UnidadesEducativasService {
         };
     } & {
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -69,8 +69,8 @@ export declare class UnidadesEducativasService {
     }>;
     update(id: string, dto: UpdateUnidadEducativaDto): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;
@@ -80,8 +80,8 @@ export declare class UnidadesEducativasService {
     }>;
     remove(id: string): Promise<{
         id: string;
-        email: string | null;
         nombre: string;
+        email: string | null;
         creadoEn: Date;
         actualizadoEn: Date;
         telefono: string | null;

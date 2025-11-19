@@ -15,13 +15,13 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
-        tallerId: string;
-        responsableId: string | null;
     }>;
     findAll(params?: {
         tallerId?: string;
@@ -49,8 +49,8 @@ export declare class SesionesService {
             };
             responsable: {
                 id: string;
-                email: string;
                 nombre: string;
+                email: string;
                 passwordHash: string;
                 estado: string | null;
                 creadoEn: Date;
@@ -60,13 +60,13 @@ export declare class SesionesService {
             id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
+            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
-            tallerId: string;
-            responsableId: string | null;
         })[];
     }>;
     findOne(id: string): Promise<{
@@ -89,8 +89,8 @@ export declare class SesionesService {
             participante: {
                 usuario: {
                     id: string;
-                    email: string;
                     nombre: string;
+                    email: string;
                     passwordHash: string;
                     estado: string | null;
                     creadoEn: Date;
@@ -112,13 +112,13 @@ export declare class SesionesService {
             creadoEn: Date;
             actualizadoEn: Date;
             participanteId: string;
-            sesionId: string;
             tomadoEn: Date | null;
+            sesionId: string;
         })[];
         responsable: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -128,14 +128,51 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
-        tallerId: string;
-        responsableId: string | null;
     }>;
+    findByParticipante(participanteId: string): Promise<({
+        taller: {
+            id: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+            tipo: string | null;
+            trainerId: string;
+            unidadEducativaId: string | null;
+        };
+        responsable: {
+            id: string;
+            nombre: string;
+            email: string;
+            passwordHash: string;
+            estado: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+        } | null;
+    } & {
+        id: string;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        fecha: Date;
+        horaInicio: Date | null;
+        horaFin: Date | null;
+        responsableId: string | null;
+        codigoQR: string | null;
+        codigoQRExpiracion: Date | null;
+    })[]>;
     update(id: string, dto: UpdateSesionDto): Promise<{
         taller: {
             id: string;
@@ -154,8 +191,8 @@ export declare class SesionesService {
         };
         responsable: {
             id: string;
-            email: string;
             nombre: string;
+            email: string;
             passwordHash: string;
             estado: string | null;
             creadoEn: Date;
@@ -165,25 +202,25 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
-        tallerId: string;
-        responsableId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
-        tallerId: string;
-        responsableId: string | null;
     }>;
     generarQR(dto: GenerarQRDto): Promise<{
         sesionId: string;
@@ -219,12 +256,12 @@ export declare class SesionesService {
         id: string;
         creadoEn: Date;
         actualizadoEn: Date;
+        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
+        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
-        tallerId: string;
-        responsableId: string | null;
     }>;
 }
