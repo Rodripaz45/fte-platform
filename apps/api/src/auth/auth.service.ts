@@ -33,8 +33,8 @@ export class AuthService {
       data: { nombre, email, passwordHash, estado: 'ACTIVO' },
     });
 
-    // Asigna rol (por defecto ASSISTANT)
-    const rolNombre = rol ?? 'ASSISTANT';
+    // Asigna rol (por defecto PARTICIPANTE si no se especifica)
+    const rolNombre = rol ?? 'PARTICIPANTE';
     const role = await this.prisma.rol.upsert({
       where: { nombre: rolNombre },
       update: {},
@@ -46,6 +46,15 @@ export class AuthService {
       update: {},
       create: { usuarioId: usuario.id, rolId: role.id },
     });
+
+    // Si el rol es PARTICIPANTE, crear el registro de participante
+    if (rolNombre === 'PARTICIPANTE') {
+      await this.prisma.participante.create({
+        data: {
+          usuarioId: usuario.id,
+        },
+      });
+    }
 
     const token = await this.signToken(usuario.id, usuario.email, [rolNombre]);
     return { access_token: token };

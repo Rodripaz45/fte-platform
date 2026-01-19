@@ -19,6 +19,7 @@ const create_sesion_dto_1 = require("./dto/create-sesion.dto");
 const update_sesion_dto_1 = require("./dto/update-sesion.dto");
 const generar_qr_dto_1 = require("./dto/generar-qr.dto");
 const validar_qr_dto_1 = require("./dto/validar-qr.dto");
+const create_sesiones_recurrentes_dto_1 = require("./dto/create-sesiones-recurrentes.dto");
 const swagger_1 = require("@nestjs/swagger");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const public_decorator_1 = require("../auth/public.decorator");
@@ -32,6 +33,9 @@ let SesionesController = class SesionesController {
     }
     create(dto) {
         return this.sesionesService.create(dto);
+    }
+    createRecurrente(dto) {
+        return this.sesionesService.createRecurrente(dto);
     }
     findAll(tallerId, page, pageSize) {
         return this.sesionesService.findAll({
@@ -85,6 +89,15 @@ __decorate([
     __metadata("design:paramtypes", [create_sesion_dto_1.CreateSesionDto]),
     __metadata("design:returntype", void 0)
 ], SesionesController.prototype, "create", null);
+__decorate([
+    (0, roles_decorator_1.Roles)('ADMIN', 'TRAINER'),
+    (0, common_1.Post)('recurrencia'),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear sesiones recurrentes en un rango de fechas y días' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_sesiones_recurrentes_dto_1.CreateSesionesRecurrentesDto]),
+    __metadata("design:returntype", void 0)
+], SesionesController.prototype, "createRecurrente", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('tallerId')),

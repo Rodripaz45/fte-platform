@@ -17,6 +17,9 @@ import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { UnidadesEducativasModule } from './unidades-educativas/unidades-educativas.module';
 import { ImportacionesModule } from './importaciones/importaciones.module';
 import { CertificadosModule } from './certificados/certificados.module';
+import { RecursosModule } from './recursos/recursos.module';
+import { DisponibilidadModule } from './disponibilidad/disponibilidad.module';
+import { CalendarioModule } from './calendario/calendario.module';
 
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
@@ -39,6 +42,9 @@ import { RolesGuard } from './auth/roles.guard';
     UnidadesEducativasModule,
     ImportacionesModule,
     CertificadosModule,
+    RecursosModule,
+    DisponibilidadModule,
+    CalendarioModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

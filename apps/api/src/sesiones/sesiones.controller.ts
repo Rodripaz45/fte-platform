@@ -4,6 +4,7 @@ import { CreateSesionDto } from './dto/create-sesion.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
 import { GenerarQRDto } from './dto/generar-qr.dto';
 import { ValidarQRDto } from './dto/validar-qr.dto';
+import { CreateSesionesRecurrentesDto } from './dto/create-sesiones-recurrentes.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 import { Public } from 'src/auth/public.decorator';
@@ -22,6 +23,13 @@ export class SesionesController {
   @Post()
   create(@Body() dto: CreateSesionDto) {
     return this.sesionesService.create(dto);
+  }
+
+  @Roles('ADMIN', 'TRAINER')
+  @Post('recurrencia')
+  @ApiOperation({ summary: 'Crear sesiones recurrentes en un rango de fechas y días' })
+  createRecurrente(@Body() dto: CreateSesionesRecurrentesDto) {
+    return this.sesionesService.createRecurrente(dto);
   }
 
   @Get()

@@ -76,6 +76,71 @@ let SesionesService = class SesionesService {
             if (!responsable)
                 throw new common_1.NotFoundException('Usuario responsable no encontrado');
         }
+        let reservaSalaId = null;
+        if (dto.salaId) {
+            const sala = await this.prisma.sala.findUnique({
+                where: { id: dto.salaId },
+            });
+            if (!sala) {
+                throw new common_1.NotFoundException('Sala no encontrada');
+            }
+            if (!sala.activa) {
+                throw new common_1.BadRequestException('La sala no está activa');
+            }
+            let fechaInicio;
+            let fechaFin;
+            if (dto.horaInicio && dto.horaFin) {
+                fechaInicio = new Date(dto.horaInicio);
+                fechaFin = new Date(dto.horaFin);
+            }
+            else if (dto.horaInicio) {
+                fechaInicio = new Date(dto.horaInicio);
+                fechaFin = new Date(fechaInicio.getTime() + 2 * 60 * 60 * 1000);
+            }
+            else {
+                fechaInicio = new Date(dto.fecha);
+                fechaFin = new Date(fechaInicio.getTime() + 2 * 60 * 60 * 1000);
+            }
+            const conflictos = await this.prisma.reservaSala.findMany({
+                where: {
+                    salaId: dto.salaId,
+                    estado: { in: ['RESERVADA', 'CONFIRMADA'] },
+                    OR: [
+                        {
+                            fechaInicio: { lte: fechaInicio },
+                            fechaFin: { gte: fechaInicio },
+                        },
+                        {
+                            fechaInicio: { lte: fechaFin },
+                            fechaFin: { gte: fechaFin },
+                        },
+                        {
+                            fechaInicio: { gte: fechaInicio },
+                            fechaFin: { lte: fechaFin },
+                        },
+                    ],
+                },
+            });
+            if (conflictos.length > 0) {
+                throw new common_1.BadRequestException({
+                    message: 'La sala no está disponible en ese horario',
+                    conflictos: conflictos.map((c) => ({
+                        fechaInicio: c.fechaInicio,
+                        fechaFin: c.fechaFin,
+                        motivo: c.motivo,
+                    })),
+                });
+            }
+            const reserva = await this.prisma.reservaSala.create({
+                data: {
+                    salaId: dto.salaId,
+                    fechaInicio: fechaInicio,
+                    fechaFin: fechaFin,
+                    estado: 'RESERVADA',
+                },
+            });
+            reservaSalaId = reserva.id;
+        }
         const fechaSesion = new Date(dto.fecha);
         const sesion = await this.prisma.sesion.create({
             data: {
@@ -84,8 +149,15 @@ let SesionesService = class SesionesService {
                 horaInicio: dto.horaInicio ? new Date(dto.horaInicio) : null,
                 horaFin: dto.horaFin ? new Date(dto.horaFin) : null,
                 responsableId: dto.responsableId ?? null,
+                salaId: dto.salaId ?? null,
             },
         });
+        if (reservaSalaId) {
+            await this.prisma.reservaSala.update({
+                where: { id: reservaSalaId },
+                data: { sesionId: sesion.id },
+            });
+        }
         try {
             const inscripcionesActivas = taller.inscripciones.filter(ins => ins.estado === 'INSCRITO' || ins.estado === 'FINALIZADO');
             console.log(`[SesionesService] Creando notificaciones para ${inscripcionesActivas.length} participantes inscritos en el taller "${taller.tema}"`);
@@ -112,6 +184,63 @@ let SesionesService = class SesionesService {
         }
         return sesion;
     }
+    async createRecurrente(dto) {
+        const fechaInicio = new Date(dto.fechaInicio);
+        const fechaFin = new Date(dto.fechaFin);
+        if (fechaFin < fechaInicio) {
+            throw new common_1.BadRequestException('La fecha fin debe ser mayor o igual a la fecha inicio');
+        }
+        const diasMap = {
+            LUNES: 1,
+            MARTES: 2,
+            MIERCOLES: 3,
+            JUEVES: 4,
+            VIERNES: 5,
+            SABADO: 6,
+            DOMINGO: 0,
+        };
+        const diasSeleccionados = dto.diasSemana
+            .map((d) => d.toUpperCase())
+            .filter((d) => diasMap[d] !== undefined);
+        if (diasSeleccionados.length === 0) {
+            throw new common_1.BadRequestException('Debes seleccionar al menos un día de la semana válido');
+        }
+        const combineDateAndTime = (base, time) => {
+            if (!time)
+                return undefined;
+            const t = new Date(time);
+            const result = new Date(base);
+            result.setHours(t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds());
+            return result;
+        };
+        const fechasObjetivo = [];
+        for (let cursor = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate()); cursor <= fechaFin; cursor.setDate(cursor.getDate() + 1)) {
+            const day = cursor.getDay();
+            if (diasSeleccionados.some((d) => diasMap[d] === day)) {
+                fechasObjetivo.push(new Date(cursor));
+            }
+        }
+        if (fechasObjetivo.length === 0) {
+            throw new common_1.BadRequestException('No hay días dentro del rango que coincidan con los seleccionados');
+        }
+        const creadas = [];
+        for (const fecha of fechasObjetivo) {
+            const createDto = {
+                tallerId: dto.tallerId,
+                fecha,
+                horaInicio: combineDateAndTime(fecha, dto.horaInicio),
+                horaFin: combineDateAndTime(fecha, dto.horaFin),
+                responsableId: dto.responsableId,
+                salaId: dto.salaId,
+            };
+            const sesion = await this.create(createDto);
+            creadas.push(sesion);
+        }
+        return {
+            total: creadas.length,
+            sesiones: creadas,
+        };
+    }
     async findAll(params) {
         const where = params?.tallerId ? { tallerId: params.tallerId } : undefined;
         const page = Math.max(1, Number(params?.page || 1));
@@ -125,6 +254,7 @@ let SesionesService = class SesionesService {
                 include: {
                     taller: true,
                     responsable: true,
+                    sala: true,
                 },
             }),
             this.prisma.sesion.count({ where }),
@@ -142,6 +272,7 @@ let SesionesService = class SesionesService {
             include: {
                 taller: true,
                 responsable: true,
+                sala: true,
                 asistencias: {
                     include: { participante: { include: { usuario: true } } },
                 },
@@ -183,7 +314,7 @@ let SesionesService = class SesionesService {
         return sesiones;
     }
     async update(id, dto) {
-        await this.findOne(id);
+        const sesion = await this.findOne(id);
         this.validarHoras(dto.horaInicio, dto.horaFin);
         if (dto.responsableId) {
             const existe = await this.prisma.usuario.findUnique({
@@ -192,6 +323,73 @@ let SesionesService = class SesionesService {
             });
             if (!existe)
                 throw new common_1.NotFoundException('Usuario responsable no encontrado');
+        }
+        if (dto.salaId !== undefined || dto.fecha || dto.horaInicio || dto.horaFin) {
+            const nuevaSalaId = dto.salaId !== undefined ? dto.salaId : sesion.salaId;
+            const nuevaFecha = dto.fecha ? new Date(dto.fecha) : sesion.fecha;
+            const nuevoHoraInicio = dto.horaInicio
+                ? new Date(dto.horaInicio)
+                : sesion.horaInicio || nuevaFecha;
+            const nuevoHoraFin = dto.horaFin
+                ? new Date(dto.horaFin)
+                : sesion.horaFin || nuevaFecha;
+            if (nuevaSalaId) {
+                const conflictos = await this.prisma.reservaSala.findMany({
+                    where: {
+                        salaId: nuevaSalaId,
+                        estado: { in: ['RESERVADA', 'CONFIRMADA'] },
+                        sesionId: { not: id },
+                        OR: [
+                            {
+                                fechaInicio: { lte: nuevoHoraInicio },
+                                fechaFin: { gte: nuevoHoraInicio },
+                            },
+                            {
+                                fechaInicio: { lte: nuevoHoraFin },
+                                fechaFin: { gte: nuevoHoraFin },
+                            },
+                            {
+                                fechaInicio: { gte: nuevoHoraInicio },
+                                fechaFin: { lte: nuevoHoraFin },
+                            },
+                        ],
+                    },
+                });
+                if (conflictos.length > 0) {
+                    throw new common_1.BadRequestException({
+                        message: 'La sala no está disponible en ese horario',
+                        conflictos: conflictos.map((c) => ({
+                            fechaInicio: c.fechaInicio,
+                            fechaFin: c.fechaFin,
+                            motivo: c.motivo,
+                        })),
+                    });
+                }
+                const reservaExistente = await this.prisma.reservaSala.findFirst({
+                    where: { sesionId: id },
+                });
+                if (reservaExistente) {
+                    await this.prisma.reservaSala.update({
+                        where: { id: reservaExistente.id },
+                        data: {
+                            salaId: nuevaSalaId,
+                            fechaInicio: nuevoHoraInicio,
+                            fechaFin: nuevoHoraFin,
+                        },
+                    });
+                }
+                else if (nuevaSalaId) {
+                    await this.prisma.reservaSala.create({
+                        data: {
+                            salaId: nuevaSalaId,
+                            sesionId: id,
+                            fechaInicio: nuevoHoraInicio,
+                            fechaFin: nuevoHoraFin,
+                            estado: 'RESERVADA',
+                        },
+                    });
+                }
+            }
         }
         return this.prisma.sesion.update({
             where: { id },
@@ -203,8 +401,9 @@ let SesionesService = class SesionesService {
                 ...(dto.responsableId !== undefined
                     ? { responsableId: dto.responsableId ?? null }
                     : {}),
+                ...(dto.salaId !== undefined ? { salaId: dto.salaId ?? null } : {}),
             },
-            include: { taller: true, responsable: true },
+            include: { taller: true, responsable: true, sala: true },
         });
     }
     async remove(id) {

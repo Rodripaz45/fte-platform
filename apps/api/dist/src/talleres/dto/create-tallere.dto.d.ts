@@ -10,4 +10,5 @@ export declare class CreateTallereDto {
     tipo?: string;
     unidadEducativaId?: string;
     unidadEducativaNombre?: string;
+    capacidades?: string;
 }

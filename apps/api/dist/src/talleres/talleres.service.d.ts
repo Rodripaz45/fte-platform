@@ -1,6 +1,7 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTallereDto } from './dto/create-tallere.dto';
 import { UpdateTallereDto } from './dto/update-tallere.dto';
+import { AprobarTallerDto } from './dto/aprobar-taller.dto';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 export declare class TalleresService {
     private readonly prisma;
@@ -37,8 +38,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     findAll(): Promise<({
         cuposDisponibles: null;
@@ -65,8 +69,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
@@ -92,8 +99,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     })[]>;
     findAllByTrainerId(trainerId: string): Promise<({
         cuposDisponibles: null;
@@ -120,8 +130,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
@@ -147,8 +160,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     })[]>;
     findOne(id: string): Promise<{
         cuposDisponibles: null;
@@ -223,8 +239,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     } | {
         cuposDisponibles: number;
         cuposOcupados: number;
@@ -298,8 +317,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     update(id: string, dto: UpdateTallereDto): Promise<{
         trainer: {
@@ -319,8 +341,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -334,8 +359,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     publicar(id: string): Promise<{
         trainer: {
@@ -355,8 +383,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     cerrar(id: string): Promise<{
         trainer: {
@@ -376,8 +407,11 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
     }>;
     setCertificadosService(service: any): void;
     finalizar(id: string): Promise<{
@@ -398,7 +432,147 @@ export declare class TalleresService {
         fechaFin: Date | null;
         sede: string | null;
         tipo: string | null;
+        capacidades: string | null;
         trainerId: string;
+        directorId: string | null;
         unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
+    }>;
+    asignarTrainer(tallerId: string, trainerId: string): Promise<{
+        trainer: {
+            id: string;
+            nombre: string;
+            email: string;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        capacidades: string | null;
+        trainerId: string;
+        directorId: string | null;
+        unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
+    }>;
+    obtenerPendientesAprobacion(): Promise<({
+        unidadEducativa: {
+            id: string;
+            nombre: string;
+        } | null;
+        trainer: {
+            id: string;
+            nombre: string;
+            email: string;
+        };
+        director: {
+            id: string;
+            nombre: string;
+            email: string;
+        } | null;
+        _count: {
+            sesiones: number;
+            inscripciones: number;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        capacidades: string | null;
+        trainerId: string;
+        directorId: string | null;
+        unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
+    })[]>;
+    aprobarTaller(tallerId: string, directorId: string, dto: AprobarTallerDto): Promise<{
+        trainer: {
+            id: string;
+            nombre: string;
+            email: string;
+        };
+        director: {
+            id: string;
+            nombre: string;
+            email: string;
+        } | null;
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        capacidades: string | null;
+        trainerId: string;
+        directorId: string | null;
+        unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
+    }>;
+    enviarARevision(tallerId: string): Promise<{
+        trainer: {
+            id: string;
+            nombre: string;
+            email: string;
+        };
+    } & {
+        id: string;
+        estado: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tema: string;
+        modalidad: string;
+        cupos: number | null;
+        fechaInicio: Date | null;
+        fechaFin: Date | null;
+        sede: string | null;
+        tipo: string | null;
+        capacidades: string | null;
+        trainerId: string;
+        directorId: string | null;
+        unidadEducativaId: string | null;
+        estadoAprobacion: string | null;
+    }>;
+    obtenerEstadisticasTrainer(trainerId: string): Promise<{
+        trainerId: string;
+        totalTalleres: number;
+        talleresPublicados: number;
+        talleresEnCurso: number;
+        talleresFinalizados: number;
+        totalSesiones: number;
+        totalInscripciones: number;
+        totalAsistencias: number;
+        tasaAsistenciaPromedio: number;
+        satisfaccionPromedio: number;
+        totalRetroalimentaciones: number;
+        participantesCertificados: number;
+        participantesUnicos: number;
+        talleresPorModalidad: {
+            modalidad: string;
+            cantidad: number;
+        }[];
+        talleresPorEstado: {
+            estado: string;
+            cantidad: number;
+        }[];
     }>;
 }

@@ -24,7 +24,7 @@ export class RegisterDto {
 
   @ApiProperty({
     required: false,
-    description: 'Rol opcional: ADMIN | STAFF | TRAINER | ASSISTANT',
+    description: 'Rol opcional: ADMIN | STAFF | TRAINER | PARTICIPANTE (por defecto PARTICIPANTE)',
   })
   @IsOptional()
   @IsString()

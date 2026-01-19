@@ -1,6 +1,7 @@
 export declare class TallerLiteDto {
     tema: string;
     asistencia_pct: number;
+    capacidades?: string;
 }
 export declare class AnalyzeProfileDto {
     participanteId: string;

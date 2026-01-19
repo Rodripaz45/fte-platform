@@ -21,9 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Calendar, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Clock, Building2 } from "lucide-react";
 import { sesionesApi, type Sesion, type CreateSesionDto, type UpdateSesionDto } from "@/lib/api/sesiones";
 import { talleresApi, type Taller } from "@/lib/api/talleres";
+import { recursosApi, type Sala } from "@/lib/api/recursos";
 import { usePolling } from "@/hooks/usePolling";
 
 interface SesionesViewProps {
@@ -33,15 +34,25 @@ interface SesionesViewProps {
 export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
   const [talleres, setTalleres] = useState<Taller[]>([]);
+  const [salas, setSalas] = useState<Sala[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSesion, setEditingSesion] = useState<Sesion | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTallerId, setSelectedTallerId] = useState<string>(defaultTallerId || '');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [diasRecurrentes, setDiasRecurrentes] = useState<string[]>([
+    'LUNES',
+    'MARTES',
+    'MIERCOLES',
+    'JUEVES',
+    'VIERNES',
+  ]);
 
   useEffect(() => {
     loadTalleres();
+    loadSalas();
     if (defaultTallerId) {
       loadSesiones(defaultTallerId);
       setSelectedTallerId(defaultTallerId);
@@ -49,6 +60,15 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
       loadSesiones();
     }
   }, [defaultTallerId]);
+
+  const loadSalas = async () => {
+    try {
+      const data = await recursosApi.getAllSalas(undefined, true); // Solo salas activas
+      setSalas(data);
+    } catch (err) {
+      console.error('Error cargando salas:', err);
+    }
+  };
 
   useEffect(() => {
     if (selectedTallerId && !defaultTallerId) {
@@ -107,12 +127,14 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     setEditingSesion(null);
     // Si hay un defaultTallerId, usarlo automáticamente
     setSelectedTallerId(defaultTallerId || '');
+    setIsRecurring(false);
     setIsDialogOpen(true);
   };
 
   const handleEdit = (sesion: Sesion) => {
     setEditingSesion(sesion);
     setSelectedTallerId(sesion.tallerId);
+    setIsRecurring(false);
     setIsDialogOpen(true);
   };
 
@@ -139,6 +161,7 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
     const fechaRaw = formData.get("fecha") as string;
     const horaInicioRaw = formData.get("horaInicio") as string;
     const horaFinRaw = formData.get("horaFin") as string;
+    const salaId = (formData.get("salaId") as string) || undefined;
 
     if (!tallerId) {
       setError('El taller es requerido');
@@ -146,53 +169,105 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
       return;
     }
 
-    if (!fechaRaw) {
-      setError('La fecha es requerida');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Convertir fechas a formato ISO 8601 válido (sin zona horaria)
-    // fechaRaw viene en formato YYYY-MM-DD del input type="date"
-    // horaInicioRaw y horaFinRaw vienen en formato HH:MM del input type="time"
-    // Construir strings ISO 8601 completos sin zona horaria para cumplir con @IsDateString
-    // fecha es requerido, así que siempre debe tener un valor
-    const fecha = `${fechaRaw}T00:00:00`;
-    
-    // Para horas, combinar fecha y hora en formato ISO 8601 sin zona horaria
-    const horaInicio = horaInicioRaw && fechaRaw
-      ? `${fechaRaw}T${horaInicioRaw}:00`
-      : undefined;
-    
-    const horaFin = horaFinRaw && fechaRaw
-      ? `${fechaRaw}T${horaFinRaw}:00`
-      : undefined;
-
-    try {
-      if (editingSesion) {
-        const updateData: UpdateSesionDto = {
-          tallerId,
-          fecha,
-          horaInicio,
-          horaFin,
-        };
-        await sesionesApi.update(editingSesion.id, updateData);
-      } else {
-        const createData: CreateSesionDto = {
-          tallerId,
-          fecha,
-          horaInicio,
-          horaFin,
-        };
-        await sesionesApi.create(createData);
+    // Validaciones y payload según modo
+    if (isRecurring) {
+      if (!selectedTaller?.fechaInicio || !selectedTaller?.fechaFin) {
+        setError('El taller debe tener fecha de inicio y fin para crear sesiones repetitivas');
+        setIsSubmitting(false);
+        return;
       }
-      setIsDialogOpen(false);
-      await loadSesiones(selectedTallerId || undefined);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar la sesión');
-    } finally {
-      setIsSubmitting(false);
+
+      if (!diasRecurrentes.length) {
+        setError('Selecciona al menos un día de la semana');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const fechaInicioTaller = getDateTimeLocal(selectedTaller.fechaInicio);
+      const fechaFinTaller = getDateTimeLocal(selectedTaller.fechaFin);
+
+      if (!fechaInicioTaller || !fechaFinTaller) {
+        setError('No se pudo obtener el rango de fechas del taller');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (new Date(fechaFinTaller) < new Date(fechaInicioTaller)) {
+        setError('La fecha fin del taller debe ser mayor o igual a la fecha inicio');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const horaInicio = horaInicioRaw && fechaInicioTaller
+        ? `${fechaInicioTaller}T${horaInicioRaw}:00`
+        : undefined;
+
+      const horaFin = horaFinRaw && fechaInicioTaller
+        ? `${fechaInicioTaller}T${horaFinRaw}:00`
+        : undefined;
+
+      try {
+        await sesionesApi.createRecurrentes({
+          tallerId,
+          fechaInicio: `${fechaInicioTaller}T00:00:00`,
+          fechaFin: `${fechaFinTaller}T00:00:00`,
+          diasSemana: diasRecurrentes,
+          horaInicio,
+          horaFin,
+          salaId: salaId || undefined,
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al guardar las sesiones');
+        setIsSubmitting(false);
+        return;
+      }
+    } else {
+      if (!fechaRaw) {
+        setError('La fecha es requerida');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const fecha = `${fechaRaw}T00:00:00`;
+      
+      const horaInicio = horaInicioRaw && fechaRaw
+        ? `${fechaRaw}T${horaInicioRaw}:00`
+        : undefined;
+      
+      const horaFin = horaFinRaw && fechaRaw
+        ? `${fechaRaw}T${horaFinRaw}:00`
+        : undefined;
+
+      try {
+        if (editingSesion) {
+          const updateData: UpdateSesionDto = {
+            tallerId,
+            fecha,
+            horaInicio,
+            horaFin,
+            salaId: salaId || undefined,
+          };
+          await sesionesApi.update(editingSesion.id, updateData);
+        } else {
+          const createData: CreateSesionDto = {
+            tallerId,
+            fecha,
+            horaInicio,
+            horaFin,
+            salaId: salaId || undefined,
+          };
+          await sesionesApi.create(createData);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al guardar la sesión');
+        setIsSubmitting(false);
+        return;
+      }
     }
+
+    setIsDialogOpen(false);
+    await loadSesiones(selectedTallerId || undefined);
+    setIsSubmitting(false);
   };
 
   const formatDate = (dateString?: string) => {
@@ -248,6 +323,22 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
 
   // Obtener el taller seleccionado
   const selectedTaller = talleres.find(t => t.id === (defaultTallerId || selectedTallerId));
+
+  const toggleDia = (dia: string) => {
+    setDiasRecurrentes((prev) =>
+      prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]
+    );
+  };
+
+  const diasSemanaOptions = [
+    { value: 'LUNES', label: 'L' },
+    { value: 'MARTES', label: 'M' },
+    { value: 'MIERCOLES', label: 'X' },
+    { value: 'JUEVES', label: 'J' },
+    { value: 'VIERNES', label: 'V' },
+    { value: 'SABADO', label: 'S' },
+    { value: 'DOMINGO', label: 'D' },
+  ];
 
   // Para mostrar el período del taller en el modal de sesión,
   // usamos el mismo criterio que en el detalle del taller:
@@ -384,6 +475,12 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
                     </span>
                   </div>
                 )}
+                {sesion.sala && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Building2 className="w-4 h-4 text-muted-foreground" />
+                    <span>{sesion.sala.nombre} - {sesion.sala.sede}</span>
+                  </div>
+                )}
                 {sesion.responsable && (
                   <div className="text-sm text-muted-foreground">
                     Responsable: {sesion.responsable.nombre}
@@ -410,6 +507,18 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    id="recurring"
+                    type="checkbox"
+                    checked={isRecurring}
+                    onChange={(ev) => setIsRecurring(ev.target.checked)}
+                  />
+                  <Label htmlFor="recurring">Crear sesiones repetitivas</Label>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="tallerId">Taller *</Label>
                 {defaultTallerId ? (
@@ -440,7 +549,9 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fecha">Fecha *</Label>
+                <Label htmlFor="fecha">
+                  {isRecurring ? 'Rango de fechas *' : 'Fecha *'}
+                </Label>
                 {/* Mostrar fechas del taller si hay un taller seleccionado */}
                 {selectedTaller && (selectedTaller.fechaInicio || selectedTaller.fechaFin) && (
                   <div className="mb-2 p-3 bg-muted rounded-md text-sm">
@@ -461,13 +572,45 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
                     </div>
                   </div>
                 )}
-                <Input
-                  id="fecha"
-                  name="fecha"
-                  type="date"
-                  defaultValue={editingSesion ? getDateTimeLocal(editingSesion.fecha) : ''}
-                  required
-                />
+
+                {isRecurring ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Se usará automáticamente el rango de fechas del taller (inicio y fin) y se crearán
+                      sesiones en los días seleccionados.
+                    </p>
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="text-sm">Días de la semana</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {diasSemanaOptions.map((d) => {
+                          const active = diasRecurrentes.includes(d.value);
+                          return (
+                            <button
+                              key={d.value}
+                              type="button"
+                              onClick={() => toggleDia(d.value)}
+                              className={`px-3 py-2 rounded-md border text-sm transition ${
+                                active
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'bg-muted text-muted-foreground border-border'
+                              }`}
+                            >
+                              {d.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Input
+                    id="fecha"
+                    name="fecha"
+                    type="date"
+                    defaultValue={editingSesion ? getDateTimeLocal(editingSesion.fecha) : ''}
+                    required
+                  />
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -490,6 +633,29 @@ export default function SesionesView({ defaultTallerId }: SesionesViewProps) {
                     defaultValue={editingSesion ? getTimeLocal(editingSesion.horaFin) : ''}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="salaId">Sala (Opcional - para sesiones presenciales)</Label>
+                <Select
+                  name="salaId"
+                  defaultValue={editingSesion?.salaId || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una sala (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Sin sala (sesión virtual)</SelectItem>
+                    {salas.map((sala) => (
+                      <SelectItem key={sala.id} value={sala.id}>
+                        {sala.nombre} - {sala.sede} (Cap: {sala.capacidad})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Si seleccionas una sala, se creará automáticamente una reserva para esta sesión
+                </p>
               </div>
 
               {error && (

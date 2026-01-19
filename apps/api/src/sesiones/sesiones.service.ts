@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSesionDto } from './dto/create-sesion.dto';
+import { CreateSesionesRecurrentesDto } from './dto/create-sesiones-recurrentes.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
 import { GenerarQRDto } from './dto/generar-qr.dto';
 import { ValidarQRDto } from './dto/validar-qr.dto';
@@ -94,6 +95,78 @@ export class SesionesService {
       if (!responsable) throw new NotFoundException('Usuario responsable no encontrado');
     }
 
+    // Validar y reservar sala si se proporciona
+    let reservaSalaId: string | null = null;
+    if (dto.salaId) {
+      const sala = await this.prisma.sala.findUnique({
+        where: { id: dto.salaId },
+      });
+      if (!sala) {
+        throw new NotFoundException('Sala no encontrada');
+      }
+      if (!sala.activa) {
+        throw new BadRequestException('La sala no está activa');
+      }
+
+      // Verificar disponibilidad de la sala
+      let fechaInicio: Date;
+      let fechaFin: Date;
+
+      if (dto.horaInicio && dto.horaFin) {
+        fechaInicio = new Date(dto.horaInicio);
+        fechaFin = new Date(dto.horaFin);
+      } else if (dto.horaInicio) {
+        fechaInicio = new Date(dto.horaInicio);
+        fechaFin = new Date(fechaInicio.getTime() + 2 * 60 * 60 * 1000); // 2 horas por defecto
+      } else {
+        fechaInicio = new Date(dto.fecha);
+        fechaFin = new Date(fechaInicio.getTime() + 2 * 60 * 60 * 1000); // 2 horas por defecto
+      }
+
+      const conflictos = await this.prisma.reservaSala.findMany({
+        where: {
+          salaId: dto.salaId,
+          estado: { in: ['RESERVADA', 'CONFIRMADA'] },
+          OR: [
+            {
+              fechaInicio: { lte: fechaInicio },
+              fechaFin: { gte: fechaInicio },
+            },
+            {
+              fechaInicio: { lte: fechaFin },
+              fechaFin: { gte: fechaFin },
+            },
+            {
+              fechaInicio: { gte: fechaInicio },
+              fechaFin: { lte: fechaFin },
+            },
+          ],
+        },
+      });
+
+      if (conflictos.length > 0) {
+        throw new BadRequestException({
+          message: 'La sala no está disponible en ese horario',
+          conflictos: conflictos.map((c) => ({
+            fechaInicio: c.fechaInicio,
+            fechaFin: c.fechaFin,
+            motivo: c.motivo,
+          })),
+        });
+      }
+
+      // Crear reserva de sala
+      const reserva = await this.prisma.reservaSala.create({
+        data: {
+          salaId: dto.salaId,
+          fechaInicio: fechaInicio,
+          fechaFin: fechaFin,
+          estado: 'RESERVADA',
+        },
+      });
+      reservaSalaId = reserva.id;
+    }
+
     const fechaSesion = new Date(dto.fecha);
     const sesion = await this.prisma.sesion.create({
       data: {
@@ -102,8 +175,17 @@ export class SesionesService {
         horaInicio: dto.horaInicio ? new Date(dto.horaInicio) : null,
         horaFin: dto.horaFin ? new Date(dto.horaFin) : null,
         responsableId: dto.responsableId ?? null,
+        salaId: dto.salaId ?? null,
       },
     });
+
+    // Actualizar reserva de sala con el ID de la sesión si existe
+    if (reservaSalaId) {
+      await this.prisma.reservaSala.update({
+        where: { id: reservaSalaId },
+        data: { sesionId: sesion.id },
+      });
+    }
 
     // Crear notificaciones de recordatorio para participantes inscritos
     try {
@@ -148,6 +230,83 @@ export class SesionesService {
   }
 
   /**
+   * Crear múltiples sesiones recurrentes dentro de un rango de fechas,
+   * para los días de la semana indicados. Reutiliza la lógica de create()
+   * para respetar validaciones (estado del taller, salas, notificaciones, etc.).
+   */
+  async createRecurrente(dto: CreateSesionesRecurrentesDto) {
+    const fechaInicio = new Date(dto.fechaInicio);
+    const fechaFin = new Date(dto.fechaFin);
+
+    if (fechaFin < fechaInicio) {
+      throw new BadRequestException('La fecha fin debe ser mayor o igual a la fecha inicio');
+    }
+
+    const diasMap: Record<string, number> = {
+      LUNES: 1,
+      MARTES: 2,
+      MIERCOLES: 3,
+      JUEVES: 4,
+      VIERNES: 5,
+      SABADO: 6,
+      DOMINGO: 0,
+    };
+
+    const diasSeleccionados = dto.diasSemana
+      .map((d) => d.toUpperCase())
+      .filter((d) => diasMap[d] !== undefined);
+
+    if (diasSeleccionados.length === 0) {
+      throw new BadRequestException('Debes seleccionar al menos un día de la semana válido');
+    }
+
+    // Helper para combinar fecha base con hora (solo hora/min de la hora proporcionada)
+    const combineDateAndTime = (base: Date, time?: Date) => {
+      if (!time) return undefined;
+      const t = new Date(time);
+      const result = new Date(base);
+      result.setHours(t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds());
+      return result;
+    };
+
+    // Generar las fechas que cumplen con los días seleccionados
+    const fechasObjetivo: Date[] = [];
+    for (
+      let cursor = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate());
+      cursor <= fechaFin;
+      cursor.setDate(cursor.getDate() + 1)
+    ) {
+      const day = cursor.getDay(); // 0 domingo ... 6 sábado
+      if (diasSeleccionados.some((d) => diasMap[d] === day)) {
+        fechasObjetivo.push(new Date(cursor));
+      }
+    }
+
+    if (fechasObjetivo.length === 0) {
+      throw new BadRequestException('No hay días dentro del rango que coincidan con los seleccionados');
+    }
+
+    const creadas: any[] = [];
+    for (const fecha of fechasObjetivo) {
+      const createDto: CreateSesionDto = {
+        tallerId: dto.tallerId,
+        fecha,
+        horaInicio: combineDateAndTime(fecha, dto.horaInicio),
+        horaFin: combineDateAndTime(fecha, dto.horaFin),
+        responsableId: dto.responsableId,
+        salaId: dto.salaId,
+      };
+      const sesion = await this.create(createDto);
+      creadas.push(sesion);
+    }
+
+    return {
+      total: creadas.length,
+      sesiones: creadas,
+    };
+  }
+
+  /**
    * Listado con filtros básicos:
    * - ?tallerId=...  (filtra por taller)
    * - ?page=1&pageSize=20  (paginación simple)
@@ -167,6 +326,7 @@ export class SesionesService {
         include: {
           taller: true,
           responsable: true,
+          sala: true,
         },
       }),
       this.prisma.sesion.count({ where }),
@@ -186,6 +346,7 @@ export class SesionesService {
       include: {
         taller: true,
         responsable: true,
+        sala: true,
         asistencias: {
           include: { participante: { include: { usuario: true } } },
         },
@@ -240,7 +401,7 @@ export class SesionesService {
 
   async update(id: string, dto: UpdateSesionDto) {
     // Asegura que existe
-    await this.findOne(id);
+    const sesion = await this.findOne(id);
 
     // Validación de horas si vienen en el update
     this.validarHoras(dto.horaInicio, dto.horaFin);
@@ -254,6 +415,79 @@ export class SesionesService {
       if (!existe) throw new NotFoundException('Usuario responsable no encontrado');
     }
 
+    // Si se cambia la sala o las fechas/horas, validar disponibilidad
+    if (dto.salaId !== undefined || dto.fecha || dto.horaInicio || dto.horaFin) {
+      const nuevaSalaId = dto.salaId !== undefined ? dto.salaId : sesion.salaId;
+      const nuevaFecha = dto.fecha ? new Date(dto.fecha) : sesion.fecha;
+      const nuevoHoraInicio = dto.horaInicio
+        ? new Date(dto.horaInicio)
+        : sesion.horaInicio || nuevaFecha;
+      const nuevoHoraFin = dto.horaFin
+        ? new Date(dto.horaFin)
+        : sesion.horaFin || nuevaFecha;
+
+      if (nuevaSalaId) {
+        const conflictos = await this.prisma.reservaSala.findMany({
+          where: {
+            salaId: nuevaSalaId,
+            estado: { in: ['RESERVADA', 'CONFIRMADA'] },
+            sesionId: { not: id }, // Excluir la reserva actual de esta sesión
+            OR: [
+              {
+                fechaInicio: { lte: nuevoHoraInicio },
+                fechaFin: { gte: nuevoHoraInicio },
+              },
+              {
+                fechaInicio: { lte: nuevoHoraFin },
+                fechaFin: { gte: nuevoHoraFin },
+              },
+              {
+                fechaInicio: { gte: nuevoHoraInicio },
+                fechaFin: { lte: nuevoHoraFin },
+              },
+            ],
+          },
+        });
+
+        if (conflictos.length > 0) {
+          throw new BadRequestException({
+            message: 'La sala no está disponible en ese horario',
+            conflictos: conflictos.map((c) => ({
+              fechaInicio: c.fechaInicio,
+              fechaFin: c.fechaFin,
+              motivo: c.motivo,
+            })),
+          });
+        }
+
+        // Actualizar o crear reserva de sala
+        const reservaExistente = await this.prisma.reservaSala.findFirst({
+          where: { sesionId: id },
+        });
+
+        if (reservaExistente) {
+          await this.prisma.reservaSala.update({
+            where: { id: reservaExistente.id },
+            data: {
+              salaId: nuevaSalaId,
+              fechaInicio: nuevoHoraInicio,
+              fechaFin: nuevoHoraFin,
+            },
+          });
+        } else if (nuevaSalaId) {
+          await this.prisma.reservaSala.create({
+            data: {
+              salaId: nuevaSalaId,
+              sesionId: id,
+              fechaInicio: nuevoHoraInicio,
+              fechaFin: nuevoHoraFin,
+              estado: 'RESERVADA',
+            },
+          });
+        }
+      }
+    }
+
     return this.prisma.sesion.update({
       where: { id },
       data: {
@@ -264,8 +498,9 @@ export class SesionesService {
         ...(dto.responsableId !== undefined
           ? { responsableId: dto.responsableId ?? null }
           : {}),
+        ...(dto.salaId !== undefined ? { salaId: dto.salaId ?? null } : {}),
       },
-      include: { taller: true, responsable: true },
+      include: { taller: true, responsable: true, sala: true },
     });
   }
 

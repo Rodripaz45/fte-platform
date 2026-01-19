@@ -23,16 +23,24 @@ export interface Taller {
   sede?: string;
   estado?: string;
   tipo?: string; // 'NORMAL' | 'UNIDAD_EDUCATIVA'
+  capacidades?: string; // Descripción de capacidades/habilidades que se adquirirán
   trainerId: string;
   trainer?: Trainer;
   unidadEducativaId?: string;
   unidadEducativa?: UnidadEducativa;
+  directorId?: string;
+  director?: Trainer;
+  estadoAprobacion?: string; // 'BORRADOR' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO'
   creadoEn?: string;
   actualizadoEn?: string;
   // Campos adicionales para información de cupos
   cuposDisponibles?: number | null;
   cuposOcupados?: number;
   tieneCuposLimitados?: boolean;
+  _count?: {
+    sesiones?: number;
+    inscripciones?: number;
+  };
 }
 
 export interface CreateTallerDto {
@@ -44,6 +52,7 @@ export interface CreateTallerDto {
   sede?: string;
   estado?: string;
   tipo?: string; // 'NORMAL' | 'UNIDAD_EDUCATIVA'
+  capacidades?: string; // Descripción de capacidades/habilidades que se adquirirán
   trainerId: string;
   unidadEducativaId?: string;
   unidadEducativaNombre?: string;
@@ -238,4 +247,116 @@ export const talleresApi = {
 
     return response.json();
   },
+
+  /**
+   * Asignar un trainer a un taller (solo Director/Admin)
+   */
+  async asignarTrainer(tallerId: string, trainerId: string): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${tallerId}/asignar-trainer`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ trainerId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al asignar trainer' }));
+      throw new Error(error.message || 'Error al asignar trainer');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Obtener talleres pendientes de aprobación (solo Director/Admin)
+   */
+  async getPendientesAprobacion(): Promise<Taller[]> {
+    const response = await fetch(`${API_BASE_URL}/talleres/pendientes-aprobacion`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener talleres pendientes' }));
+      throw new Error(error.message || 'Error al obtener talleres pendientes');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Aprobar, rechazar o enviar a revisión un taller (solo Director/Admin)
+   */
+  async aprobarTaller(
+    tallerId: string,
+    estadoAprobacion: 'APROBADO' | 'RECHAZADO' | 'EN_REVISION',
+    comentarios?: string,
+  ): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${tallerId}/aprobar`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ estadoAprobacion, comentarios }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al aprobar/rechazar el taller' }));
+      throw new Error(error.message || 'Error al aprobar/rechazar el taller');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Enviar taller a revisión (solo Trainer)
+   */
+  async enviarARevision(tallerId: string): Promise<Taller> {
+    const response = await fetch(`${API_BASE_URL}/talleres/${tallerId}/enviar-revision`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al enviar taller a revisión' }));
+      throw new Error(error.message || 'Error al enviar taller a revisión');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Obtener estadísticas de un trainer
+   */
+  async getEstadisticasTrainer(trainerId?: string): Promise<EstadisticasTrainer> {
+    const url = trainerId
+      ? `${API_BASE_URL}/talleres/estadisticas/${trainerId}`
+      : `${API_BASE_URL}/talleres/mis-estadisticas`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al obtener estadísticas' }));
+      throw new Error(error.message || 'Error al obtener estadísticas');
+    }
+
+    return response.json();
+  },
 };
+
+export interface EstadisticasTrainer {
+  trainerId: string;
+  totalTalleres: number;
+  talleresPublicados: number;
+  talleresEnCurso: number;
+  talleresFinalizados: number;
+  totalSesiones: number;
+  totalInscripciones: number;
+  totalAsistencias: number;
+  tasaAsistenciaPromedio: number;
+  satisfaccionPromedio: number;
+  totalRetroalimentaciones: number;
+  participantesCertificados: number;
+  participantesUnicos: number;
+  talleresPorModalidad: { modalidad: string; cantidad: number }[];
+  talleresPorEstado: { estado: string; cantidad: number }[];
+}

@@ -20,6 +20,12 @@ export interface Sesion {
     nombre: string;
     email: string;
   };
+  salaId?: string;
+  sala?: {
+    id: string;
+    nombre: string;
+    sede: string;
+  };
   creadoEn?: string;
   actualizadoEn?: string;
 }
@@ -54,6 +60,7 @@ export interface CreateSesionDto {
   horaInicio?: string;
   horaFin?: string;
   responsableId?: string;
+  salaId?: string;
 }
 
 export interface UpdateSesionDto {
@@ -62,6 +69,18 @@ export interface UpdateSesionDto {
   horaInicio?: string;
   horaFin?: string;
   responsableId?: string;
+  salaId?: string;
+}
+
+export interface CreateSesionesRecurrentesDto {
+  tallerId: string;
+  fechaInicio: string;
+  fechaFin: string;
+  diasSemana: string[]; // LUNES..DOMINGO
+  horaInicio?: string;
+  horaFin?: string;
+  responsableId?: string;
+  salaId?: string;
 }
 
 export interface SesionesResponse {
@@ -150,6 +169,24 @@ export const sesionesApi = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Error al crear la sesión' }));
       throw new Error(error.message || 'Error al crear la sesión');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Crear sesiones recurrentes dentro de un rango de fechas
+   */
+  async createRecurrentes(dto: CreateSesionesRecurrentesDto): Promise<{ total: number; sesiones: Sesion[] }> {
+    const response = await fetch(`${API_BASE_URL}/sesiones/recurrencia`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(dto),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Error al crear sesiones recurrentes' }));
+      throw new Error(error.message || 'Error al crear sesiones recurrentes');
     }
 
     return response.json();

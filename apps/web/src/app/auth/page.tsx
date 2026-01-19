@@ -94,11 +94,12 @@ export default function AuthPage() {
       console.log('🚀 [AUTH] Iniciando proceso de registro...');
       
       // 1. Registrar usuario y obtener el token
+      // Si no se especifica rol, el backend usará PARTICIPANTE por defecto
       const response = await authApi.register(
         nombre,
         email,
         password,
-        rol || undefined
+        rol && rol.trim() !== '' ? rol : undefined
       );
       console.log('✅ [AUTH] Registro exitoso, token recibido');
       

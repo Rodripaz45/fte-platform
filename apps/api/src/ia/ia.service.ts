@@ -41,7 +41,7 @@ export class IaService {
       include: { taller: true },
     });
 
-    const talleres = [] as { tema: string; asistencia_pct: number }[];
+    const talleres = [] as { tema: string; asistencia_pct: number; capacidades?: string }[];
 
     for (const ins of inscripciones) {
       const tallerId = ins.tallerId;
@@ -54,7 +54,14 @@ export class IaService {
       });
 
       const asistencia_pct = totalSesiones > 0 ? presentes / totalSesiones : 1;
-      talleres.push({ tema, asistencia_pct });
+      
+      // Obtener las capacidades del taller si existen
+      const capacidades = (ins.taller && 'capacidades' in (ins.taller as any) 
+        && typeof (ins.taller as any).capacidades === 'string')
+        ? (ins.taller as any).capacidades as string
+        : undefined;
+      
+      talleres.push({ tema, asistencia_pct, ...(capacidades ? { capacidades } : {}) });
     }
 
     // Tomar el último CV (texto pendiente de extracción de PDF)
@@ -64,16 +71,38 @@ export class IaService {
     });
 
     // Extraer cvTexto de forma segura incluso si el tipo de Prisma aún no expone el campo
-    const cvTexto: string | undefined = (lastCv && 'texto' in (lastCv as any)
+    let cvTexto: string | undefined = (lastCv && 'texto' in (lastCv as any)
       && typeof (lastCv as any).texto === 'string')
       ? (lastCv as any).texto as string
       : undefined;
+
+    // Concatenar las descripciones de los talleres cursados al cvTexto
+    if (cvTexto && talleres.length > 0) {
+      const descripcionesTalleres = talleres
+        .filter(t => t.capacidades)
+        .map(t => `Taller: ${t.tema}\nCapacidades adquiridas: ${t.capacidades}`)
+        .join('\n\n');
+      
+      if (descripcionesTalleres) {
+        cvTexto = `${cvTexto}\n\n--- Talleres Cursados y Capacidades Adquiridas ---\n${descripcionesTalleres}`;
+      }
+    } else if (!cvTexto && talleres.length > 0) {
+      // Si no hay CV pero hay talleres, crear un texto con las capacidades
+      const descripcionesTalleres = talleres
+        .filter(t => t.capacidades)
+        .map(t => `Taller: ${t.tema}\nCapacidades adquiridas: ${t.capacidades}`)
+        .join('\n\n');
+      
+      if (descripcionesTalleres) {
+        cvTexto = `--- Talleres Cursados y Capacidades Adquiridas ---\n${descripcionesTalleres}`;
+      }
+    }
 
     const dto: AnalyzeProfileDto = {
       participanteId,
       // incluir taller(es) calculados (aunque sea array vacío para visibilidad)
       talleres,
-      // cvTexto queda pendiente (no extraemos PDF aún)
+      // cvTexto con información de talleres incluida
       ...(cvTexto ? { cvTexto } : {}),
     } as AnalyzeProfileDto;
 

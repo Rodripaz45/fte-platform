@@ -1,5 +1,6 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSesionDto } from './dto/create-sesion.dto';
+import { CreateSesionesRecurrentesDto } from './dto/create-sesiones-recurrentes.dto';
 import { UpdateSesionDto } from './dto/update-sesion.dto';
 import { GenerarQRDto } from './dto/generar-qr.dto';
 import { ValidarQRDto } from './dto/validar-qr.dto';
@@ -13,15 +14,22 @@ export declare class SesionesService {
     private validarHoras;
     create(dto: CreateSesionDto): Promise<{
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
+    }>;
+    createRecurrente(dto: CreateSesionesRecurrentesDto): Promise<{
+        total: number;
+        sesiones: any[];
     }>;
     findAll(params?: {
         tallerId?: string;
@@ -32,11 +40,20 @@ export declare class SesionesService {
         pageSize: number;
         total: number;
         items: ({
-            taller: {
+            responsable: {
                 id: string;
-                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
+                nombre: string;
+                email: string;
+                passwordHash: string;
+                estado: string | null;
+            } | null;
+            taller: {
+                id: string;
+                creadoEn: Date;
+                actualizadoEn: Date;
+                estado: string | null;
                 tema: string;
                 modalidad: string;
                 cupos: number | null;
@@ -44,57 +61,50 @@ export declare class SesionesService {
                 fechaFin: Date | null;
                 sede: string | null;
                 tipo: string | null;
+                capacidades: string | null;
                 trainerId: string;
+                directorId: string | null;
                 unidadEducativaId: string | null;
+                estadoAprobacion: string | null;
             };
-            responsable: {
+            sala: {
                 id: string;
-                nombre: string;
-                email: string;
-                passwordHash: string;
-                estado: string | null;
                 creadoEn: Date;
                 actualizadoEn: Date;
+                nombre: string;
+                sede: string;
+                capacidad: number;
+                equipamiento: string | null;
+                descripcion: string | null;
+                activa: boolean;
             } | null;
         } & {
             id: string;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            tallerId: string;
             fecha: Date;
             horaInicio: Date | null;
             horaFin: Date | null;
-            responsableId: string | null;
             codigoQR: string | null;
             codigoQRExpiracion: Date | null;
+            recurrente: boolean;
+            patronRecurrencia: string | null;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            tallerId: string;
+            responsableId: string | null;
+            salaId: string | null;
         })[];
     }>;
     findOne(id: string): Promise<{
-        taller: {
-            id: string;
-            estado: string | null;
-            creadoEn: Date;
-            actualizadoEn: Date;
-            tema: string;
-            modalidad: string;
-            cupos: number | null;
-            fechaInicio: Date | null;
-            fechaFin: Date | null;
-            sede: string | null;
-            tipo: string | null;
-            trainerId: string;
-            unidadEducativaId: string | null;
-        };
         asistencias: ({
             participante: {
                 usuario: {
                     id: string;
+                    creadoEn: Date;
+                    actualizadoEn: Date;
                     nombre: string;
                     email: string;
                     passwordHash: string;
                     estado: string | null;
-                    creadoEn: Date;
-                    actualizadoEn: Date;
                 };
             } & {
                 id: string;
@@ -108,40 +118,81 @@ export declare class SesionesService {
             };
         } & {
             id: string;
-            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
+            estado: string | null;
+            sesionId: string;
             participanteId: string;
             tomadoEn: Date | null;
-            sesionId: string;
         })[];
         responsable: {
             id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
             nombre: string;
             email: string;
             passwordHash: string;
             estado: string | null;
+        } | null;
+        taller: {
+            id: string;
             creadoEn: Date;
             actualizadoEn: Date;
+            estado: string | null;
+            tema: string;
+            modalidad: string;
+            cupos: number | null;
+            fechaInicio: Date | null;
+            fechaFin: Date | null;
+            sede: string | null;
+            tipo: string | null;
+            capacidades: string | null;
+            trainerId: string;
+            directorId: string | null;
+            unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
+        };
+        sala: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            nombre: string;
+            sede: string;
+            capacidad: number;
+            equipamiento: string | null;
+            descripcion: string | null;
+            activa: boolean;
         } | null;
     } & {
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
     }>;
     findByParticipante(participanteId: string): Promise<({
-        taller: {
+        responsable: {
             id: string;
-            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
+            nombre: string;
+            email: string;
+            passwordHash: string;
+            estado: string | null;
+        } | null;
+        taller: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            estado: string | null;
             tema: string;
             modalidad: string;
             cupos: number | null;
@@ -149,36 +200,42 @@ export declare class SesionesService {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
-        responsable: {
-            id: string;
-            nombre: string;
-            email: string;
-            passwordHash: string;
-            estado: string | null;
-            creadoEn: Date;
-            actualizadoEn: Date;
-        } | null;
     } & {
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
     })[]>;
     update(id: string, dto: UpdateSesionDto): Promise<{
-        taller: {
+        responsable: {
             id: string;
-            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
+            nombre: string;
+            email: string;
+            passwordHash: string;
+            estado: string | null;
+        } | null;
+        taller: {
+            id: string;
+            creadoEn: Date;
+            actualizadoEn: Date;
+            estado: string | null;
             tema: string;
             modalidad: string;
             cupos: number | null;
@@ -186,41 +243,52 @@ export declare class SesionesService {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
-        responsable: {
+        sala: {
             id: string;
-            nombre: string;
-            email: string;
-            passwordHash: string;
-            estado: string | null;
             creadoEn: Date;
             actualizadoEn: Date;
+            nombre: string;
+            sede: string;
+            capacidad: number;
+            equipamiento: string | null;
+            descripcion: string | null;
+            activa: boolean;
         } | null;
     } & {
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
     }>;
     generarQR(dto: GenerarQRDto): Promise<{
         sesionId: string;
@@ -254,14 +322,17 @@ export declare class SesionesService {
     }>;
     invalidarQR(sesionId: string): Promise<{
         id: string;
-        creadoEn: Date;
-        actualizadoEn: Date;
-        tallerId: string;
         fecha: Date;
         horaInicio: Date | null;
         horaFin: Date | null;
-        responsableId: string | null;
         codigoQR: string | null;
         codigoQRExpiracion: Date | null;
+        recurrente: boolean;
+        patronRecurrencia: string | null;
+        creadoEn: Date;
+        actualizadoEn: Date;
+        tallerId: string;
+        responsableId: string | null;
+        salaId: string | null;
     }>;
 }

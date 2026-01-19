@@ -19,7 +19,9 @@ model Usuario {
   participante   Participante?
   sesiones       Sesion[]       @relation("UsuarioResponsableSesiones")
   talleres       Taller[]       @relation("TallerTrainer")
+  talleresDirigidos Taller[]    @relation("TallerDirector")
   roles          UsuarioRol[]
+  disponibilidades DisponibilidadTrainer[]
 }
 
 model Rol {
@@ -68,8 +70,11 @@ model Taller {
   sede               String?
   estado             String?
   tipo               String? // 'NORMAL' | 'UNIDAD_EDUCATIVA'
+  capacidades        String?                @db.Text // Descripción de capacidades/habilidades que se adquirirán
   trainerId          String                 @map("trainer_id")
+  directorId         String?                @map("director_id")
   unidadEducativaId  String?                @map("unidad_educativa_id")
+  estadoAprobacion   String?                @map("estado_aprobacion") // 'BORRADOR' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO'
   creadoEn           DateTime               @default(now()) @map("creado_en")
   actualizadoEn      DateTime               @updatedAt @map("actualizado_en")
   inscripciones      Inscripcion[]
@@ -77,10 +82,12 @@ model Taller {
   sesiones           Sesion[]
   certificados       Certificado[]
   trainer            Usuario                @relation("TallerTrainer", fields: [trainerId], references: [id])
+  director           Usuario?               @relation("TallerDirector", fields: [directorId], references: [id])
   unidadEducativa    UnidadEducativa?       @relation(fields: [unidadEducativaId], references: [id])
   listaParticipantes ListaParticipantesUE[]
 
   @@index([trainerId])
+  @@index([directorId])
   @@index([unidadEducativaId])
   @@map("talleres")
 }
@@ -92,8 +99,11 @@ model Sesion {
   horaInicio         DateTime?      @map("hora_inicio")
   horaFin            DateTime?      @map("hora_fin")
   responsableId      String?        @map("responsable_id")
+  salaId             String?        @map("sala_id")
   codigoQR           String?        @map("codigo_qr")
   codigoQRExpiracion DateTime?      @map("codigo_qr_expiracion")
+  recurrente          Boolean        @default(false)
+  patronRecurrencia   String?        @map("patron_recurrencia") @db.Text // JSON con patrón de recurrencia
   creadoEn           DateTime       @default(now()) @map("creado_en")
   actualizadoEn      DateTime       @updatedAt @map("actualizado_en")
   asistencias        Asistencia[]
@@ -101,9 +111,13 @@ model Sesion {
   evidencias         EvidenciaAsistencia[]
   responsable        Usuario?       @relation("UsuarioResponsableSesiones", fields: [responsableId], references: [id])
   taller             Taller         @relation(fields: [tallerId], references: [id])
+  sala               Sala?          @relation(fields: [salaId], references: [id])
+  reservasSala       ReservaSala[]
 
   @@index([tallerId])
+  @@index([salaId])
   @@index([codigoQR])
+  @@index([fecha])
   @@map("sesiones")
 }
 
@@ -300,4 +314,61 @@ model Certificado {
   @@index([participanteId])
   @@index([codigo])
   @@map("certificados")
+}
+
+model Sala {
+  id          String        @id @default(uuid())
+  nombre      String
+  sede        String
+  capacidad   Int
+  equipamiento String?      @db.Text
+  descripcion String?       @db.Text
+  activa      Boolean       @default(true)
+  creadoEn    DateTime      @default(now()) @map("creado_en")
+  actualizadoEn DateTime    @updatedAt @map("actualizado_en")
+  sesiones    Sesion[]
+  reservas    ReservaSala[]
+
+  @@index([sede])
+  @@index([activa])
+  @@map("salas")
+}
+
+model ReservaSala {
+  id          String   @id @default(uuid())
+  salaId      String   @map("sala_id")
+  sesionId    String?  @map("sesion_id")
+  fechaInicio DateTime @map("fecha_inicio")
+  fechaFin    DateTime @map("fecha_fin")
+  estado      String   @default("RESERVADA") // 'RESERVADA' | 'CONFIRMADA' | 'CANCELADA'
+  motivo      String?  @db.Text
+  creadoEn    DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+  sala        Sala     @relation(fields: [salaId], references: [id])
+  sesion      Sesion?  @relation(fields: [sesionId], references: [id])
+
+  @@index([salaId])
+  @@index([sesionId])
+  @@index([fechaInicio])
+  @@index([fechaFin])
+  @@index([estado])
+  @@map("reservas_salas")
+}
+
+model DisponibilidadTrainer {
+  id          String   @id @default(uuid())
+  trainerId  String   @map("trainer_id")
+  fechaInicio DateTime @map("fecha_inicio")
+  fechaFin    DateTime @map("fecha_fin")
+  tipo        String   // 'DISPONIBLE' | 'NO_DISPONIBLE' | 'OCUPADO'
+  motivo      String?  @db.Text
+  creadoEn    DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+  trainer     Usuario  @relation(fields: [trainerId], references: [id])
+
+  @@index([trainerId])
+  @@index([fechaInicio])
+  @@index([fechaFin])
+  @@index([tipo])
+  @@map("disponibilidad_trainers")
 }

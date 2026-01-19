@@ -41,4 +41,9 @@ export class CreateTallereDto {
   @IsOptional() 
   @IsString()
   unidadEducativaNombre?: string;
+
+  @ApiProperty({ required: false, description: 'Descripción de las capacidades o habilidades que se adquirirán en el taller' }) 
+  @IsOptional() 
+  @IsString()
+  capacidades?: string;
 }

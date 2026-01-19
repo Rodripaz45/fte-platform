@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Calendar, Users, MapPin, User, Eye, Lock, Award } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Users, MapPin, User, Eye, Lock, Award, Send, Clock, XCircle } from "lucide-react";
 import { talleresApi, type Taller, type CreateTallerDto, type UpdateTallerDto } from "@/lib/api/talleres";
 import { trainersApi, type Trainer } from "@/lib/api/trainers";
 import { unidadesEducativasApi, type UnidadEducativa } from "@/lib/api/unidades-educativas";
@@ -211,6 +211,18 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
     }
   };
 
+  const handleEnviarARevision = async (id: string) => {
+    if (!confirm('¿Estás seguro de enviar este taller a revisión? El director lo revisará y aprobará o rechazará.')) return;
+
+    try {
+      await talleresApi.enviarARevision(id);
+      await loadTalleres();
+      alert('Taller enviado a revisión exitosamente');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al enviar el taller a revisión');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -267,6 +279,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
           fechaInicio,
           fechaFin,
           sede: formData.get("sede") as string || undefined,
+          capacidades: formData.get("capacidades") as string || undefined,
           estado: formEstado,
           tipo: formTipo,
           trainerId: formTrainerId,
@@ -281,6 +294,7 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
           fechaInicio,
           fechaFin,
           sede: formData.get("sede") as string || undefined,
+          capacidades: formData.get("capacidades") as string || undefined,
           estado: formEstado,
           tipo: formTipo,
           trainerId: formTrainerId,
@@ -568,6 +582,20 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
                       placeholder="Ej: Sede Principal"
                     />
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="capacidades">Capacidades y Habilidades a Adquirir</Label>
+                    <Textarea
+                      id="capacidades"
+                      name="capacidades"
+                      defaultValue={editingTaller?.capacidades}
+                      placeholder="Describe las capacidades, habilidades o competencias que los participantes adquirirán al completar este taller. Ej: Comunicación efectiva, Liderazgo, Planificación estratégica..."
+                      rows={4}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Describe qué aprenderán los participantes al completar este taller
+                    </p>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button
@@ -613,9 +641,31 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{taller.tema}</CardTitle>
-                  <Badge variant={getEstadoBadgeVariant(taller.estado)}>
-                    {taller.estado || 'PROGRAMADO'}
-                  </Badge>
+                  <div className="flex gap-2 flex-wrap">
+                    <Badge variant={getEstadoBadgeVariant(taller.estado)}>
+                      {taller.estado || 'PROGRAMADO'}
+                    </Badge>
+                    {taller.estadoAprobacion && (
+                      <Badge
+                        variant="outline"
+                        className={
+                          taller.estadoAprobacion === 'APROBADO'
+                            ? 'bg-green-100 text-green-700 border-green-300'
+                            : taller.estadoAprobacion === 'RECHAZADO'
+                            ? 'bg-red-100 text-red-700 border-red-300'
+                            : taller.estadoAprobacion === 'EN_REVISION'
+                            ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                            : ''
+                        }
+                      >
+                        {taller.estadoAprobacion === 'BORRADOR' && <Clock className="w-3 h-3 mr-1" />}
+                        {taller.estadoAprobacion === 'EN_REVISION' && <Send className="w-3 h-3 mr-1" />}
+                        {taller.estadoAprobacion === 'APROBADO' && <Eye className="w-3 h-3 mr-1" />}
+                        {taller.estadoAprobacion === 'RECHAZADO' && <XCircle className="w-3 h-3 mr-1" />}
+                        {taller.estadoAprobacion}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <CardDescription className="flex items-center gap-2 mt-2">
                   <MapPin className="w-4 h-4" />
@@ -624,6 +674,17 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {taller.capacidades && (
+                  <div className="mb-3 p-2 bg-muted/50 rounded border">
+                    <h4 className="font-semibold text-xs mb-1 flex items-center gap-1">
+                      <Award className="w-3 h-3" />
+                      Capacidades
+                    </h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {taller.capacidades}
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-2 text-sm">
                   {taller.cupos && (
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -671,15 +732,30 @@ export default function TalleresView({ onTallerClick }: TalleresViewProps) {
                       </Button>
                     </div>
                     {taller.estado === 'BORRADOR' && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => handlePublicar(taller.id)}
-                        className="w-full"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Publicar Taller
-                      </Button>
+                      <>
+                        {isTrainer && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleEnviarARevision(taller.id)}
+                            className="w-full mb-2"
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Enviar a Revisión
+                          </Button>
+                        )}
+                        {isAdmin && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handlePublicar(taller.id)}
+                            className="w-full"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Publicar Taller
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

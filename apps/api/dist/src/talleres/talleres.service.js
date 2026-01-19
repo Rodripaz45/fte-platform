@@ -418,6 +418,238 @@ let TalleresService = TalleresService_1 = class TalleresService {
         }
         return tallerActualizado;
     }
+    async asignarTrainer(tallerId, trainerId) {
+        const taller = await this.findOne(tallerId);
+        const trainer = await this.prisma.usuario.findUnique({
+            where: { id: trainerId },
+            include: { roles: { include: { rol: true } } },
+        });
+        if (!trainer) {
+            throw new common_1.NotFoundException('Trainer no encontrado');
+        }
+        const tieneRolTrainer = trainer.roles.some((ur) => ur.rol.nombre === 'TRAINER');
+        if (!tieneRolTrainer) {
+            throw new common_1.BadRequestException('El usuario especificado no tiene rol TRAINER');
+        }
+        if (trainer.estado !== 'ACTIVO') {
+            throw new common_1.BadRequestException('El trainer debe estar activo');
+        }
+        return this.prisma.taller.update({
+            where: { id: tallerId },
+            data: { trainerId },
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+    }
+    async obtenerPendientesAprobacion() {
+        return this.prisma.taller.findMany({
+            where: {
+                estadoAprobacion: { in: ['BORRADOR', 'EN_REVISION'] },
+            },
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+                director: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+                unidadEducativa: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        sesiones: true,
+                        inscripciones: true,
+                    },
+                },
+            },
+            orderBy: { creadoEn: 'desc' },
+        });
+    }
+    async aprobarTaller(tallerId, directorId, dto) {
+        const taller = await this.findOne(tallerId);
+        const director = await this.prisma.usuario.findUnique({
+            where: { id: directorId },
+            include: { roles: { include: { rol: true } } },
+        });
+        if (!director) {
+            throw new common_1.NotFoundException('Director no encontrado');
+        }
+        const tieneRolDirector = director.roles.some((ur) => ur.rol.nombre === 'DIRECTOR');
+        const tieneRolAdmin = director.roles.some((ur) => ur.rol.nombre === 'ADMIN');
+        if (!tieneRolDirector && !tieneRolAdmin) {
+            throw new common_1.BadRequestException('El usuario especificado no tiene rol DIRECTOR o ADMIN');
+        }
+        if (taller.estadoAprobacion === 'APROBADO' && dto.estadoAprobacion === 'APROBADO') {
+            throw new common_1.BadRequestException('El taller ya está aprobado');
+        }
+        if (taller.estadoAprobacion === 'RECHAZADO' && dto.estadoAprobacion === 'RECHAZADO') {
+            throw new common_1.BadRequestException('El taller ya está rechazado');
+        }
+        let nuevoEstado = taller.estado;
+        if (dto.estadoAprobacion === 'APROBADO' && (taller.estado === 'BORRADOR' || taller.estadoAprobacion === 'EN_REVISION')) {
+            nuevoEstado = 'PUBLICADO';
+        }
+        return this.prisma.taller.update({
+            where: { id: tallerId },
+            data: {
+                estadoAprobacion: dto.estadoAprobacion,
+                directorId,
+                estado: nuevoEstado,
+            },
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+                director: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+    }
+    async enviarARevision(tallerId) {
+        const taller = await this.findOne(tallerId);
+        if (taller.estadoAprobacion === 'EN_REVISION') {
+            throw new common_1.BadRequestException('El taller ya está en revisión');
+        }
+        if (taller.estadoAprobacion === 'APROBADO') {
+            throw new common_1.BadRequestException('No se puede enviar a revisión un taller ya aprobado');
+        }
+        return this.prisma.taller.update({
+            where: { id: tallerId },
+            data: {
+                estadoAprobacion: 'EN_REVISION',
+            },
+            include: {
+                trainer: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+    }
+    async obtenerEstadisticasTrainer(trainerId) {
+        const trainer = await this.prisma.usuario.findUnique({
+            where: { id: trainerId },
+            include: { roles: { include: { rol: true } } },
+        });
+        if (!trainer) {
+            throw new common_1.NotFoundException('Trainer no encontrado');
+        }
+        const tieneRolTrainer = trainer.roles.some((ur) => ur.rol.nombre === 'TRAINER');
+        if (!tieneRolTrainer) {
+            throw new common_1.BadRequestException('El usuario especificado no tiene rol TRAINER');
+        }
+        const talleres = await this.prisma.taller.findMany({
+            where: { trainerId },
+            include: {
+                sesiones: {
+                    include: {
+                        asistencias: true,
+                        asistenciasUE: true,
+                    },
+                },
+                inscripciones: true,
+                feedbacks: true,
+                certificados: true,
+            },
+        });
+        const totalTalleres = talleres.length;
+        const talleresPublicados = talleres.filter((t) => t.estado === 'PUBLICADO').length;
+        const talleresEnCurso = talleres.filter((t) => t.estado === 'EN_CURSO').length;
+        const talleresFinalizados = talleres.filter((t) => t.estado === 'FINALIZADO').length;
+        const totalSesiones = talleres.reduce((sum, t) => sum + t.sesiones.length, 0);
+        const totalInscripciones = talleres.reduce((sum, t) => sum + t.inscripciones.length, 0);
+        const participantesUnicos = new Set(talleres.flatMap((t) => t.inscripciones.map((i) => i.participanteId))).size;
+        const totalAsistencias = talleres.reduce((sum, taller) => sum +
+            taller.sesiones.reduce((s, sesion) => s + sesion.asistencias.length + sesion.asistenciasUE.length, 0), 0);
+        let tasaAsistenciaPromedio = 0;
+        if (totalSesiones > 0 && totalInscripciones > 0) {
+            const asistenciasEsperadas = talleres.reduce((sum, taller) => {
+                const sesionesTaller = taller.sesiones.length;
+                const inscripcionesTaller = taller.inscripciones.length;
+                return sum + sesionesTaller * inscripcionesTaller;
+            }, 0);
+            if (asistenciasEsperadas > 0) {
+                tasaAsistenciaPromedio = (totalAsistencias / asistenciasEsperadas) * 100;
+            }
+        }
+        const retroalimentaciones = talleres.flatMap((t) => t.feedbacks);
+        const retroalimentacionesConPuntaje = retroalimentaciones.filter((r) => r.puntaje !== null);
+        const satisfaccionPromedio = retroalimentacionesConPuntaje.length > 0
+            ? retroalimentacionesConPuntaje.reduce((sum, r) => sum + (r.puntaje || 0), 0) /
+                retroalimentacionesConPuntaje.length
+            : 0;
+        const participantesCertificados = talleres.reduce((sum, t) => sum + t.certificados.length, 0);
+        const talleresPorModalidad = talleres.reduce((acc, taller) => {
+            const modalidad = taller.modalidad || 'SIN_MODALIDAD';
+            const existing = acc.find((item) => item.modalidad === modalidad);
+            if (existing) {
+                existing.cantidad++;
+            }
+            else {
+                acc.push({ modalidad, cantidad: 1 });
+            }
+            return acc;
+        }, []);
+        const talleresPorEstado = talleres.reduce((acc, taller) => {
+            const estado = taller.estado || 'SIN_ESTADO';
+            const existing = acc.find((item) => item.estado === estado);
+            if (existing) {
+                existing.cantidad++;
+            }
+            else {
+                acc.push({ estado, cantidad: 1 });
+            }
+            return acc;
+        }, []);
+        return {
+            trainerId,
+            totalTalleres,
+            talleresPublicados,
+            talleresEnCurso,
+            talleresFinalizados,
+            totalSesiones,
+            totalInscripciones,
+            totalAsistencias,
+            tasaAsistenciaPromedio: Math.round(tasaAsistenciaPromedio * 100) / 100,
+            satisfaccionPromedio: Math.round(satisfaccionPromedio * 100) / 100,
+            totalRetroalimentaciones: retroalimentaciones.length,
+            participantesCertificados,
+            participantesUnicos,
+            talleresPorModalidad,
+            talleresPorEstado,
+        };
+    }
 };
 exports.TalleresService = TalleresService;
 exports.TalleresService = TalleresService = TalleresService_1 = __decorate([

@@ -39,7 +39,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         required: false,
-        description: 'Rol opcional: ADMIN | STAFF | TRAINER | ASSISTANT',
+        description: 'Rol opcional: ADMIN | STAFF | TRAINER | PARTICIPANTE (por defecto PARTICIPANTE)',
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),

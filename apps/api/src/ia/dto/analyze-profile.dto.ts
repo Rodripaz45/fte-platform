@@ -7,6 +7,10 @@ export class TallerLiteDto {
 
   @IsNumber()
   asistencia_pct: number;
+
+  @IsString()
+  @IsOptional()
+  capacidades?: string; // Descripción de capacidades/habilidades del taller
 }
 
 export class AnalyzeProfileDto {

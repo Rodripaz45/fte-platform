@@ -25,6 +25,7 @@ class CreateTallereDto {
     tipo;
     unidadEducativaId;
     unidadEducativaNombre;
+    capacidades;
 }
 exports.CreateTallereDto = CreateTallereDto;
 __decorate([
@@ -96,4 +97,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateTallereDto.prototype, "unidadEducativaNombre", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Descripción de las capacidades o habilidades que se adquirirán en el taller' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTallereDto.prototype, "capacidades", void 0);
 //# sourceMappingURL=create-tallere.dto.js.map

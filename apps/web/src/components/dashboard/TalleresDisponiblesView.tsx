@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, MapPin, GraduationCap, BookOpen } from "lucide-react";
+import { Calendar, Users, MapPin, GraduationCap, BookOpen, Award } from "lucide-react";
 import { talleresApi, type Taller } from "@/lib/api/talleres";
 import { inscripcionesApi, type Inscripcion } from "@/lib/api/inscripciones";
 import { useAuth } from "@/contexts/AuthContext";
@@ -187,6 +187,17 @@ export default function TalleresDisponiblesView() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {taller.capacidades && (
+                    <div className="mb-4 p-3 bg-muted/50 rounded-lg border">
+                      <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <Award className="w-4 h-4" />
+                        Capacidades a Adquirir
+                      </h4>
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        {taller.capacidades}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2 text-sm mb-4">
                     {taller.tieneCuposLimitados && (
                       <div className={`flex items-center gap-2 ${

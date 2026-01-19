@@ -50,16 +50,38 @@ let IaService = IaService_1 = class IaService {
                 where: { participanteId, sesion: { tallerId }, estado: 'PRESENTE' },
             });
             const asistencia_pct = totalSesiones > 0 ? presentes / totalSesiones : 1;
-            talleres.push({ tema, asistencia_pct });
+            const capacidades = (ins.taller && 'capacidades' in ins.taller
+                && typeof ins.taller.capacidades === 'string')
+                ? ins.taller.capacidades
+                : undefined;
+            talleres.push({ tema, asistencia_pct, ...(capacidades ? { capacidades } : {}) });
         }
         const lastCv = await this.prisma.cv.findFirst({
             where: { participanteId },
             orderBy: { subidoEn: 'desc' },
         });
-        const cvTexto = (lastCv && 'texto' in lastCv
+        let cvTexto = (lastCv && 'texto' in lastCv
             && typeof lastCv.texto === 'string')
             ? lastCv.texto
             : undefined;
+        if (cvTexto && talleres.length > 0) {
+            const descripcionesTalleres = talleres
+                .filter(t => t.capacidades)
+                .map(t => `Taller: ${t.tema}\nCapacidades adquiridas: ${t.capacidades}`)
+                .join('\n\n');
+            if (descripcionesTalleres) {
+                cvTexto = `${cvTexto}\n\n--- Talleres Cursados y Capacidades Adquiridas ---\n${descripcionesTalleres}`;
+            }
+        }
+        else if (!cvTexto && talleres.length > 0) {
+            const descripcionesTalleres = talleres
+                .filter(t => t.capacidades)
+                .map(t => `Taller: ${t.tema}\nCapacidades adquiridas: ${t.capacidades}`)
+                .join('\n\n');
+            if (descripcionesTalleres) {
+                cvTexto = `--- Talleres Cursados y Capacidades Adquiridas ---\n${descripcionesTalleres}`;
+            }
+        }
         const dto = {
             participanteId,
             talleres,

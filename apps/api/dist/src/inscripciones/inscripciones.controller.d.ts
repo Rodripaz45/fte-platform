@@ -38,8 +38,11 @@ export declare class InscripcionesController {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
     } & {
         id: string;
@@ -84,8 +87,11 @@ export declare class InscripcionesController {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
     } & {
         id: string;
@@ -130,8 +136,11 @@ export declare class InscripcionesController {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
     } & {
         id: string;
@@ -176,8 +185,11 @@ export declare class InscripcionesController {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
     } & {
         id: string;
@@ -212,8 +224,11 @@ export declare class InscripcionesController {
             fechaFin: Date | null;
             sede: string | null;
             tipo: string | null;
+            capacidades: string | null;
             trainerId: string;
+            directorId: string | null;
             unidadEducativaId: string | null;
+            estadoAprobacion: string | null;
         };
     } & {
         id: string;

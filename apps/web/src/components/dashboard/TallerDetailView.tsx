@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, Users, MapPin, Clock, CheckCircle2, XCircle, MessageSquare, Star, FileCheck } from "lucide-react";
+import { ArrowLeft, Calendar, Users, MapPin, Clock, CheckCircle2, XCircle, MessageSquare, Star, FileCheck, Award } from "lucide-react";
 import { talleresApi, type Taller } from "@/lib/api/talleres";
 import { sesionesApi, type Sesion } from "@/lib/api/sesiones";
 import { asistenciasApi, type Asistencia, type AsistenciaResumen } from "@/lib/api/asistencias";
@@ -228,6 +228,19 @@ export default function TallerDetailView({ tallerId, onBack }: TallerDetailViewP
                 </div>
               )}
             </div>
+            {taller.capacidades && (
+              <div className="col-span-1 md:col-span-2 mt-4">
+                <div className="p-4 bg-muted/50 rounded-lg border">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    <Award className="w-4 h-4" />
+                    Capacidades y Habilidades a Adquirir
+                  </h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line">
+                    {taller.capacidades}
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="space-y-3">
               {taller.fechaInicio && (
                 <div className="flex items-center gap-2">

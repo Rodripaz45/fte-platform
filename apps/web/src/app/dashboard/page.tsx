@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell, Calendar, Award } from "lucide-react";
+import { GraduationCap, Search, LogOut, Shield, MessageSquare, FileText, BookOpen, BarChart3, QrCode, Users, Bell, Calendar, Award, Building2, Clock, CheckCircle2, TrendingUp } from "lucide-react";
 import TalleresView from "@/components/dashboard/TalleresView";
+import CalendarioView from "@/components/dashboard/CalendarioView";
+import RecursosView from "@/components/dashboard/RecursosView";
+import DisponibilidadView from "@/components/dashboard/DisponibilidadView";
+import EstadisticasTrainerView from "@/components/dashboard/EstadisticasTrainerView";
 import BusquedaPuestosView from "@/components/dashboard/BusquedaPuestosView";
 import TallerDetailView from "@/components/dashboard/TallerDetailView";
 import CVsView from "@/components/dashboard/CVsView";
@@ -33,6 +37,7 @@ export default function DashboardPage() {
   // Determinar el rol del usuario (necesario antes de los efectos)
   const userRole = user?.roles?.[0] || "PARTICIPANTE";
   const isAdmin = userRole === "ADMIN";
+  const isDirector = userRole === "DIRECTOR";
   const isTrainer = userRole === "TRAINER";
   const isParticipante = userRole === "PARTICIPANTE";
 
@@ -101,6 +106,8 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">
                 {isAdmin 
                   ? "Panel de Administración" 
+                  : isDirector
+                  ? "Panel de Director"
                   : isTrainer 
                   ? "Panel de Trainer" 
                   : "Panel de Participante"}
@@ -123,12 +130,16 @@ export default function DashboardPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Main Content Tabs - Diferentes según el rol */}
-        {isAdmin ? (
+        {(isAdmin || isDirector) ? (
           <Tabs defaultValue="dashboard" className="space-y-6">
             <TabsList className="bg-muted">
               <TabsTrigger value="dashboard" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="calendario" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Calendario
               </TabsTrigger>
               <TabsTrigger value="workshops" className="gap-2">
                 <GraduationCap className="w-4 h-4" />
@@ -138,22 +149,24 @@ export default function DashboardPage() {
                 <Users className="w-4 h-4" />
                 Trainers
               </TabsTrigger>
-              <TabsTrigger value="job-search" className="gap-2">
-                <Search className="w-4 h-4" />
-                Búsqueda de Puestos
+              <TabsTrigger value="salas" className="gap-2">
+                <Building2 className="w-4 h-4" />
+                Salas
               </TabsTrigger>
-              <TabsTrigger value="certificados" className="gap-2">
-                <Award className="w-4 h-4" />
-                Certificados
-              </TabsTrigger>
-              <TabsTrigger value="notificaciones" className="gap-2">
-                <Bell className="w-4 h-4" />
-                Notificaciones
-              </TabsTrigger>
+              {isAdmin && (
+                  <TabsTrigger value="job-search" className="gap-2">
+                    <Search className="w-4 h-4" />
+                    Búsqueda de Puestos
+                  </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="dashboard" className="space-y-4">
               <DashboardEjecutivo />
+            </TabsContent>
+
+            <TabsContent value="calendario" className="space-y-4">
+              <CalendarioView />
             </TabsContent>
 
             <TabsContent value="workshops" className="space-y-4">
@@ -164,17 +177,15 @@ export default function DashboardPage() {
               <TrainersView />
             </TabsContent>
 
-            <TabsContent value="job-search" className="space-y-4">
-              <BusquedaPuestosView />
+            <TabsContent value="salas" className="space-y-4">
+              <RecursosView />
             </TabsContent>
 
-            <TabsContent value="certificados" className="space-y-4">
-              <CertificadosView />
-            </TabsContent>
-
-            <TabsContent value="notificaciones" className="space-y-4">
-              <NotificacionesView />
-            </TabsContent>
+            {isAdmin && (
+                <TabsContent value="job-search" className="space-y-4">
+                  <BusquedaPuestosView />
+                </TabsContent>
+            )}
           </Tabs>
         ) : isTrainer ? (
           <Tabs defaultValue="talleres" className="space-y-6">
@@ -182,6 +193,14 @@ export default function DashboardPage() {
               <TabsTrigger value="talleres" className="gap-2">
                 <GraduationCap className="w-4 h-4" />
                 Mis Talleres
+              </TabsTrigger>
+              <TabsTrigger value="calendario" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Mi Calendario
+              </TabsTrigger>
+              <TabsTrigger value="estadisticas" className="gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Mis Estadísticas
               </TabsTrigger>
               <TabsTrigger value="notificaciones" className="gap-2">
                 <Bell className="w-4 h-4" />
@@ -198,6 +217,14 @@ export default function DashboardPage() {
               ) : (
                 <TalleresView onTallerClick={(taller) => setSelectedTaller(taller)} />
               )}
+            </TabsContent>
+
+            <TabsContent value="calendario" className="space-y-4">
+              <CalendarioView />
+            </TabsContent>
+
+            <TabsContent value="estadisticas" className="space-y-4">
+              <EstadisticasTrainerView />
             </TabsContent>
 
             <TabsContent value="notificaciones" className="space-y-4">

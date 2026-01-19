@@ -30,4 +30,9 @@ export class CreateSesionDto {
   @IsOptional()
   @IsString()
   responsableId?: string;
+
+  @ApiPropertyOptional({ description: 'ID de la sala (opcional, para sesiones presenciales)' })
+  @IsOptional()
+  @IsString()
+  salaId?: string;
 }

@@ -19,6 +19,7 @@ class CreateSesionDto {
     horaInicio;
     horaFin;
     responsableId;
+    salaId;
 }
 exports.CreateSesionDto = CreateSesionDto;
 __decorate([
@@ -54,4 +55,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateSesionDto.prototype, "responsableId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'ID de la sala (opcional, para sesiones presenciales)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateSesionDto.prototype, "salaId", void 0);
 //# sourceMappingURL=create-sesion.dto.js.map

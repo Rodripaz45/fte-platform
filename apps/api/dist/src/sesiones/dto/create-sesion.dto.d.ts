@@ -4,4 +4,5 @@ export declare class CreateSesionDto {
     horaInicio?: Date;
     horaFin?: Date;
     responsableId?: string;
+    salaId?: string;
 }

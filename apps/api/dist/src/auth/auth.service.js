@@ -29,7 +29,7 @@ let AuthService = class AuthService {
         const usuario = await this.prisma.usuario.create({
             data: { nombre, email, passwordHash, estado: 'ACTIVO' },
         });
-        const rolNombre = rol ?? 'ASSISTANT';
+        const rolNombre = rol ?? 'PARTICIPANTE';
         const role = await this.prisma.rol.upsert({
             where: { nombre: rolNombre },
             update: {},
@@ -40,6 +40,13 @@ let AuthService = class AuthService {
             update: {},
             create: { usuarioId: usuario.id, rolId: role.id },
         });
+        if (rolNombre === 'PARTICIPANTE') {
+            await this.prisma.participante.create({
+                data: {
+                    usuarioId: usuario.id,
+                },
+            });
+        }
         const token = await this.signToken(usuario.id, usuario.email, [rolNombre]);
         return { access_token: token };
     }

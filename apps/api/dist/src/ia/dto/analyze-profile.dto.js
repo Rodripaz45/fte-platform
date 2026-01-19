@@ -15,6 +15,7 @@ const class_transformer_1 = require("class-transformer");
 class TallerLiteDto {
     tema;
     asistencia_pct;
+    capacidades;
 }
 exports.TallerLiteDto = TallerLiteDto;
 __decorate([
@@ -25,6 +26,11 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], TallerLiteDto.prototype, "asistencia_pct", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], TallerLiteDto.prototype, "capacidades", void 0);
 class AnalyzeProfileDto {
     participanteId;
     talleres;

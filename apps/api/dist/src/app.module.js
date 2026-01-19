@@ -25,6 +25,9 @@ const notificaciones_module_1 = require("./notificaciones/notificaciones.module"
 const unidades_educativas_module_1 = require("./unidades-educativas/unidades-educativas.module");
 const importaciones_module_1 = require("./importaciones/importaciones.module");
 const certificados_module_1 = require("./certificados/certificados.module");
+const recursos_module_1 = require("./recursos/recursos.module");
+const disponibilidad_module_1 = require("./disponibilidad/disponibilidad.module");
+const calendario_module_1 = require("./calendario/calendario.module");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const roles_guard_1 = require("./auth/roles.guard");
 let AppModule = class AppModule {
@@ -49,6 +52,9 @@ exports.AppModule = AppModule = __decorate([
             unidades_educativas_module_1.UnidadesEducativasModule,
             importaciones_module_1.ImportacionesModule,
             certificados_module_1.CertificadosModule,
+            recursos_module_1.RecursosModule,
+            disponibilidad_module_1.DisponibilidadModule,
+            calendario_module_1.CalendarioModule,
         ],
         providers: [
             { provide: core_1.APP_GUARD, useClass: jwt_auth_guard_1.JwtAuthGuard },
