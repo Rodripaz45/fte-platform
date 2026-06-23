@@ -67,6 +67,7 @@ export interface UpdateTallerDto {
   sede?: string;
   estado?: string;
   tipo?: string;
+  capacidades?: string;
   trainerId?: string;
   unidadEducativaId?: string;
   unidadEducativaNombre?: string;
