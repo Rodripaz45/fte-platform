@@ -1,0 +1,36 @@
+# Blueprint de Render para la API FTE
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: fte-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: 7d
+      - key: IA_URL
+        value: https://fte-ai.onrender.com
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

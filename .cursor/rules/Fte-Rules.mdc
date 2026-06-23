@@ -1,0 +1,19 @@
+---
+description: 
+alwaysApply: true
+---
+
+Contexto del repo: Es un monorepo con apps/api (NestJS + Prisma + Postgres) y apps/web (Next.js). Cada app tiene su propio package.json y usa npm (hay package-lock.json).
+No tocar artefactos generados: No edites ni propongas cambios en **/dist/**, **/.next/**, **/node_modules/**, **/coverage/** ni archivos *.tsbuildinfo. Si se requiere un cambio, hazlo en src/ y explica qué comando regenera el output.
+Preferir cambios mínimos y consistentes: Mantén el estilo existente (ESLint/Prettier del proyecto). Si agregas/ajustas código, también actualiza imports, tipos y validaciones para que compile.
+API (NestJS):
+Mantén la arquitectura típica: controller delgado, lógica en service, validación con class-validator/DTOs, y respuestas/errores consistentes.
+Evita “romper contratos”: si cambias un endpoint, actualiza DTOs, Swagger decorators y cualquier consumer afectado.
+Base de datos (Prisma/Postgres):
+Cambios de esquema solo en apps/api/prisma/schema.prisma. Conserva el mapeo a snake_case con @map/@@map cuando aplique.
+Si propones cambios de modelo (nuevas columnas/índices/relaciones), incluye el impacto esperado (migración, datos existentes, índices necesarios) y sugiere el comando Prisma correspondiente.
+Seguridad y secretos: Nunca pegues llaves reales ni valores de .env/.env.local. Si necesitas variables, usa placeholders (por ejemplo DATABASE_URL=...) y menciona dónde deben configurarse.
+Comandos del proyecto:
+Para apps/api: usa scripts existentes (npm run start:dev, npm run lint, npm run test, npm run prisma:seed).
+Para apps/web: usa npm run dev/build/lint (según scripts del package.json).
+Antes de finalizar una tarea: Verifica que el cambio no dependa de editar dist/.next, que TypeScript tenga tipos coherentes y que no queden imports rotos. Si hiciste cambios grandes, sugiere el comando de verificación (lint/test/build) apropiado.
